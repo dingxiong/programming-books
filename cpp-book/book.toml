@@ -1,0 +1,5 @@
+[book]
+authors = ["Xiong Ding"]
+language = "en"
+src = "src"
+title = "All I know about C++"
