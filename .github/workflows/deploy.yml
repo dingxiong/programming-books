@@ -1,8 +1,8 @@
-name: Deploy mdBook to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"]  # or "master", adjust as needed
+    branches: ["main"]
 
 permissions:
   contents: write
@@ -16,12 +16,16 @@ jobs:
       - name: Install mdBook
         run: cargo install mdbook
 
-      - name: Build the book
+      - name: Build cpp-book
         run: |
           cd cpp-book 
           mdbook build
           mkdir -p ../gh-pages
           cp -r book ../gh-pages/cpp-book
+
+      - name: copy the root index file 
+        run: |
+          cp index.html ./gh-pages
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
