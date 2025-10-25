@@ -3,3 +3,6 @@ authors = ["Xiong Ding"]
 language = "en"
 src = "src"
 title = "All I know about C++"
+
+[output.html]
+site-url = "/cpp-book/"
