@@ -208,7 +208,7 @@ element, The case <code>not a &lt; b and not b &lt; a</code> means two keys are 
 forget tie breaker, then you may end up with a undetermined behavior. For
 example, in Dijkstra shortest path algorithm, we should define the comparator
 as</p>
-<pre><code>auto comp = [&amp;distances](const string &amp;a, const string &amp;b) {
+<pre><code class="language-cpp">auto comp = [&amp;distances](const string &amp;a, const string &amp;b) {
     if (distances[a] != distances[b])
         return distances[a] &lt; distances[b];
     return a &lt; b;
