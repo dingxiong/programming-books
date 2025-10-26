@@ -183,8 +183,43 @@
 See <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/stable_sort.h#L256">code</a>.</p>
 <p>First, it is only used if the container value type is integral. It works for int32, int64,
 etc but not floats, strings. Also, it supports negative integrals as well.
-See https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/radix_sort.h#L298
-if you read radix_sort.h,</p>
+See <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/radix_sort.h#L298">code</a>.
+Using int8 as an example, the trick <code>numeric_limits&lt;_Ip&gt;::min() ^ value</code> can be explained by below table.</p>
+<pre><code>┌───────────────────┬───────────────────────┬──────────────────────────┬───────────────────┐
+│ Original (Signed) │ Binary Representation │ XOR with -128 (10000000) │ Result (Unsigned) │
+├───────────────────┼───────────────────────┼──────────────────────────┼───────────────────┤
+│ -128              │ 10000000              │ 10000000 ^ 10000000      │ 00000000 (0)      │
+│ -127              │ 10000001              │ 10000001 ^ 10000000      │ 00000001 (1)      │
+│ -1                │ 11111111              │ 11111111 ^ 10000000      │ 01111111 (127)    │
+│ 0                 │ 00000000              │ 00000000 ^ 10000000      │ 10000000 (128)    │
+│ 1                 │ 00000001              │ 00000001 ^ 10000000      │ 10000001 (129)    │
+│ 127               │ 01111111              │ 01111111 ^ 10000000      │ 11111111 (255)    │
+└───────────────────┴───────────────────────┴──────────────────────────┴───────────────────┘
+</code></pre>
+<p>It maps <code>[-128, 127]</code> to <code>[0, 255]</code> without changing the relative order.</p>
+<p>Second, in the competitive coding context, most people will do radix sorting by comparing the
+decimal digits, but libc++ <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/radix_sort.h#L306">compares bytes</a>.</p>
+<p>Third, radix sorting uses counting sort. The basic idea is counting the digit occurrence and do a prefix sum, so we know the
+position in the sorted array given a digit. The caveat is to maintain the stable order. If two numbers have the same digit,
+their relative order should not change. The pseudocode is</p>
+<pre><code class="language-cpp">void counting_sort(vector&lt;int&gt;&amp; arr, int exp) {
+    int n = arr.size();
+    vector&lt;int&gt; output(n), count(10, 0);
+
+    // frequency prefix sum.
+    for (int i = 0; i &lt; n; i++) count[(arr[i] / exp) % 10]++;
+    for (int i = 1; i &lt; 10; i++) count[i] += count[i - 1];
+
+    // start from the right end and decrease the frequency so we can maintain
+    // stable order.
+    for (int i = n - 1; i &gt;= 0; i--) {
+        int digit = (arr[i] / exp) % 10;
+        output[count[digit] - 1] = arr[i];
+        count[digit]--;
+    }
+    arr = output;
+}
+</code></pre>
 
                     </main>
 
