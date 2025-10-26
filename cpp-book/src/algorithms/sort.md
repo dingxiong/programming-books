@@ -1,3 +1,48 @@
+# Comparator
+
+`std::sort` can pass a `comp` parameter at the end. If not specified, then it
+is defaults to
+[std::less](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/sort.h#L967).
+
+Sometimes, we want to sort nested containers, then how comparison works for
+them.
+
+For vector, it is defined as
+[std::lexicographical_compare](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__vector/comparison.h#L49).
+Basically, it compares element by element until a different one is found or one
+vector goes out of range. In the latter case, the short vector is smaller.
+`std:string`, `std::deque`, `std::array` `std::pair` and `std::tuple` are
+similar to vector. They compare from the first element. If equal, then the
+second, and the rest.
+
+`std::set` and `set::map` define `operator<` as well. It is lexicographical
+order as well. However, `std::unordered_set` and `std::unordered_map` only
+define `operator==` and `operator!=`.
+
+Comparator is also used extensively in sorted containers. `std::set` and
+`std::map` has comparator template argument. There is a caveat that
+
+> Everywhere the standard library uses the Compare requirements, uniqueness is
+> determined by using the equivalence relation. In imprecise terms, two objects
+> a and b are considered equivalent if neither compares less than the other:
+> !comp(a, b) && !comp(b, a).
+
+The concrete code is
+[here](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__tree#L1705).
+Both `set` and `map` are implemented using red-black tree. When inserting a new
+element, The case `not a < b and not b < a` means two keys are equal. If you
+forget tie breaker, then you may end up with a undetermined behavior. For
+example, in Dijkstra shortest path algorithm, we should define the comparator
+as
+
+```cpp
+auto comp = [&distances](const string &a, const string &b) {
+    if (distances[a] != distances[b])
+        return distances[a] < distances[b];
+    return a < b;
+};
+```
+
 # Radix Sort
 
 libc++ has a good demonstration of the usage of radix sort. See
