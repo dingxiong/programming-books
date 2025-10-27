@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>All I know about C++</title>
-        <meta name="robots" content="noindex">
+        <title>Queue - All I know about C++</title>
 
 
         <!-- Custom HTML head -->
@@ -13,21 +12,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -36,13 +35,13 @@
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex.js";
+            window.path_to_searchindex_js = "../searchindex.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc.js"></script>
+        <script src="../toc.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -109,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -144,7 +143,7 @@
                     <h1 class="menu-title">All I know about C++</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
 
@@ -178,90 +177,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <div style="break-before: page; page-break-before: always;"></div><h1 id="comparator"><a class="header" href="#comparator">Comparator</a></h1>
-<p><code>std::sort</code> can pass a <code>comp</code> parameter at the end. If not specified, then it
-is defaults to
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/sort.h#L967">std::less</a>.</p>
-<p>Sometimes, we want to sort nested containers, then how comparison works for
-them.</p>
-<p>For vector, it is defined as
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__vector/comparison.h#L49">std::lexicographical_compare</a>.
-Basically, it compares element by element until a different one is found or one
-vector goes out of range. In the latter case, the short vector is smaller.
-<code>std:string</code>, <code>std::deque</code>, <code>std::array</code> <code>std::pair</code> and <code>std::tuple</code> are
-similar to vector. They compare from the first element. If equal, then the
-second, and the rest.</p>
-<p><code>std::set</code> and <code>set::map</code> define <code>operator&lt;</code> as well. It is lexicographical
-order as well. However, <code>std::unordered_set</code> and <code>std::unordered_map</code> only
-define <code>operator==</code> and <code>operator!=</code>.</p>
-<p>Comparator is also used extensively in sorted containers. <code>std::set</code> and
-<code>std::map</code> has comparator template argument. There is a caveat that</p>
-<blockquote>
-<p>Everywhere the standard library uses the Compare requirements, uniqueness is
-determined by using the equivalence relation. In imprecise terms, two objects
-a and b are considered equivalent if neither compares less than the other:
-!comp(a, b) &amp;&amp; !comp(b, a).</p>
-</blockquote>
-<p>The concrete code is
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__tree#L1705">here</a>.
-Both <code>set</code> and <code>map</code> are implemented using red-black tree. When inserting a new
-element, The case <code>not a &lt; b and not b &lt; a</code> means two keys are equal. If you
-forget tie breaker, then you may end up with a undetermined behavior. For
-example, in Dijkstra shortest path algorithm, we should define the comparator
-as</p>
-<pre><code class="language-cpp">auto comp = [&amp;distances](const string &amp;a, const string &amp;b) {
-    if (distances[a] != distances[b])
-        return distances[a] &lt; distances[b];
-    return a &lt; b;
-};
-</code></pre>
-<h1 id="radix-sort"><a class="header" href="#radix-sort">Radix Sort</a></h1>
-<p>libc++ has a good demonstration of the usage of radix sort. See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/stable_sort.h#L256">code</a>.</p>
-<p>First, it is only used if the container value type is integral. It works for
-int32, int64, etc but not floats, strings. Also, it supports negative integrals
-as well. See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/radix_sort.h#L298">code</a>.
-Using int8 as an example, the trick <code>numeric_limits&lt;_Ip&gt;::min() ^ value</code> can be
-explained by below table.</p>
-<pre><code>┌───────────────────┬───────────────────────┬──────────────────────────┬───────────────────┐
-│ Original (Signed) │ Binary Representation │ XOR with -128 (10000000) │ Result (Unsigned) │
-├───────────────────┼───────────────────────┼──────────────────────────┼───────────────────┤
-│ -128              │ 10000000              │ 10000000 ^ 10000000      │ 00000000 (0)      │
-│ -127              │ 10000001              │ 10000001 ^ 10000000      │ 00000001 (1)      │
-│ -1                │ 11111111              │ 11111111 ^ 10000000      │ 01111111 (127)    │
-│ 0                 │ 00000000              │ 00000000 ^ 10000000      │ 10000000 (128)    │
-│ 1                 │ 00000001              │ 00000001 ^ 10000000      │ 10000001 (129)    │
-│ 127               │ 01111111              │ 01111111 ^ 10000000      │ 11111111 (255)    │
-└───────────────────┴───────────────────────┴──────────────────────────┴───────────────────┘
-</code></pre>
-<p>It maps <code>[-128, 127]</code> to <code>[0, 255]</code> without changing the relative order.</p>
-<p>Second, in the competitive coding context, most people will do radix sorting by
-comparing the decimal digits, but libc++
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/radix_sort.h#L306">compares bytes</a>.</p>
-<p>Third, radix sorting uses counting sort. The basic idea is counting the digit
-occurrence and do a prefix sum, so we know the position in the sorted array
-given a digit. The caveat is to maintain the stable order. If two numbers have
-the same digit, their relative order should not change. The pseudocode is</p>
-<pre><code class="language-cpp">void counting_sort(vector&lt;int&gt;&amp; arr, int exp) {
-    int n = arr.size();
-    vector&lt;int&gt; output(n), count(10, 0);
-
-    // frequency prefix sum.
-    for (int i = 0; i &lt; n; i++) count[(arr[i] / exp) % 10]++;
-    for (int i = 1; i &lt; 10; i++) count[i] += count[i - 1];
-
-    // start from the right end and decrease the frequency so we can maintain
-    // stable order.
-    for (int i = n - 1; i &gt;= 0; i--) {
-        int digit = (arr[i] / exp) % 10;
-        output[count[digit] - 1] = arr[i];
-        count[digit]--;
-    }
-    arr = output;
-}
-</code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="priority-queue"><a class="header" href="#priority-queue">Priority Queue</a></h1>
+                        <h1 id="priority-queue"><a class="header" href="#priority-queue">Priority Queue</a></h1>
 <p>I do not like <code>std::priority_queue</code> because it does not provide the <code>begin</code> nor
 <code>end</code> iterator. Later on, I learned a set of functions to deal with max heap
 directly: <code>make_heap</code>, <code>push_heap</code> and <code>pop_heap</code>. I am very happy with it
@@ -274,6 +190,9 @@ is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../algorithms/sort.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
 
                         <div style="clear: both"></div>
@@ -282,6 +201,9 @@ is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../algorithms/sort.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
             </nav>
 
@@ -295,23 +217,16 @@ is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
         </script>
 
 
-        <script src="elasticlunr.min.js"></script>
-        <script src="mark.min.js"></script>
-        <script src="searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="clipboard.min.js"></script>
-        <script src="highlight.js"></script>
-        <script src="book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 
-        <script>
-        window.addEventListener('load', function() {
-            MathJax.Hub.Register.StartupHook('End', function() {
-                window.setTimeout(window.print, 100);
-            });
-        });
-        </script>
 
 
     </div>
