@@ -278,7 +278,7 @@ is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
 edges and is fully connected. This setup often shows up in competitive
 programming.</p>
 <p>Realizing it is a tree is helpful for DFS because often times the graph
-definition contains not only the child nodes but the parent node. A simple
+definition contains not only the child nodes but also the parent node. A simple
 trick to skip going back is</p>
 <pre><code class="language-cpp">for (next : graph[node]):
     if (next == parent_node) continue
