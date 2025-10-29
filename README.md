@@ -44,3 +44,9 @@ Local development
 ```
 mdbook serve --open
 ```
+
+Show debug logs.
+
+```
+RUST_LOG=debug mdbook build
+```

@@ -1,0 +1,38 @@
+details.code-details {
+  margin: 1em 0;
+  padding: 0.6em 0.8em;
+  border: 1px solid #ddd;
+  border-radius: 0.6em;
+  background-color: #f9f9f9;
+  transition: background-color 0.2s ease;
+}
+
+details.code-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #007acc;
+  list-style: none;
+}
+
+details.code-details summary::-webkit-details-marker {
+  display: none;
+}
+
+details.code-details summary::before {
+  content: '▶ ';
+  color: #007acc;
+  font-size: 0.9em;
+  transition: transform 0.2s ease;
+}
+
+details.code-details[open] summary::before {
+  content: '▼ ';
+}
+
+details.code-details[open] {
+  background-color: #f0f0f0;
+}
+
+details.code-details pre {
+  margin-left: 1em;
+}

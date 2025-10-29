@@ -7,4 +7,4 @@ title = "All I know about C++"
 [output.html]
 site-url = "/cpp-book/"
 mathjax-support = true
-
+additional-css = ["theme/code-details.css"]
