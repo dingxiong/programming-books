@@ -30,6 +30,7 @@
         <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="theme/code-details.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -273,7 +274,7 @@ because it allows me implementing priority queue on top of vector, and I can
 iterate vector! Then I suspect the push/pop operation of <code>std::priority_queue</code>
 is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
 <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/queue#L899">code</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="tree-vs-graph"><a class="header" href="#tree-vs-graph">Tree vs Graph</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tree-vs-graph"><a class="header" href="#tree-vs-graph">Tree vs Graph</a></h1>
 <p>A tree is an undirected, connected, and acyclic graph. It has <code>n</code> nodes, <code>n-1</code>
 edges and is fully connected. This setup often shows up in competitive
 programming.</p>
@@ -283,6 +284,156 @@ trick to skip going back is</p>
 <pre><code class="language-cpp">for (next : graph[node]):
     if (next == parent_node) continue
 </code></pre>
+<h1 id="segment-tree"><a class="header" href="#segment-tree">Segment Tree</a></h1>
+<p>A few conventions to reduce chances of mistakes.</p>
+<ol>
+<li>left branch is <code>[l, m]</code>, right branch is <code>[m+1, r]</code>. This avoids the index
+of out of range error for the middle point <code>(l+r)/2</code>.</li>
+</ol>
+<p>Below is the naive implementation using explicit tree node.</p>
+<details class="code-details">
+<summary> struct Node; </summary>
+<pre><code class="language-cpp">struct Node {
+    int l, r;
+    shared_ptr&lt;Node&gt; left, right;
+    int s; // each node stores the sum of the range [l,r].
+    Node(int l, int r): l(l), r(r), s(0) {}
+};
+using NodeP = shared_ptr&lt;Node&gt;;
+
+NodeP root;
+
+void create_children(NodeP node) {
+     if (node-&gt;l != node-&gt;r) {
+        int m = (node-&gt;l + node-&gt;r) / 2;
+        if (not node-&gt;left) node-&gt;left = make_shared&lt;Node&gt;(node-&gt;l, m);
+        if (not node-&gt;right) node-&gt;right = make_shared&lt;Node&gt;(m+1, node-&gt;r);
+    }
+}
+
+int query(NodeP node, int l, int r) {
+    int m = (node-&gt;l + node-&gt;r) / 2;
+    create_children(node);
+    if (node-&gt;l == l and node-&gt;r == r) {
+        return node-&gt;s;
+    }
+
+    if (r &lt;= m) return search(node-&gt;left, l, r);
+    else if (l &gt; m) return search(node-&gt;right, l, r);
+    else return search(node-&gt;left, l, m) + search(node-&gt;right, m+1, r);
+}
+
+// Add val to the existing value at node i.
+void update(NodeP node, int i, int val) {
+  create_children();
+  node-&gt;s += val;
+  if (node-&gt;l == i and node-&gt;r == i) return;
+  int m = (node-&gt;l + node-&gt;r) / 2;
+  if (i &lt;= m) update(node-&gt;left, i, val);
+  else update(node-&gt;right, i, val);
+}
+</code></pre>
+</details>
+<p>Most segment tree code you see online uses an array to represent the tree. See
+<a href="https://www.hackerearth.com/practice/notes/segment-tree-and-lazy-propagation/">example</a>.
+An array <code>int tree[2n+1]</code> represent a tree with <code>n</code> nodes. <code>tree[k]</code> has
+children <code>tree[2k]</code> and <code>tree[2k+1]</code>. Root node is <code>tree[1]</code>. However, I do not
+like this implementation because it makes the interface more verbose. In my
+implementation, <code>struct Node</code> contains the boundary information <code>l</code> and <code>r</code>.
+With the array approach, the interface becomes
+<code>int query(int node, int start, int end, int l, int r)</code>. The first 3 parameters
+are the node index, left and right boundary.</p>
+<h2 id="lazy-propagation"><a class="header" href="#lazy-propagation">Lazy Propagation</a></h2>
+<p>The basic search and update operation has <code>O(logN)</code> complexity. It is not
+efficient for range update. To make it <code>O(logN)</code> as well, we need lazy
+propagation. A new helper <code>push</code> introduced. It realized the laziness at the
+current node, and push the laziness down to its children. There are four places
+we need <code>push</code>. First, at the beginning of a query, which is obvious. Then 3
+places in <code>update</code>:</p>
+<ol>
+<li>At the beginning of <code>update</code>.</li>
+<li>At the base condition, i.e., query range equals node's boundary. This is
+where the performance improvement comes from. It avoids going deep to leaf
+nodes, and simply put a marker in the current node saying: all nodes under
+this subtree have an un-realized update amount <code>inc_amount</code>.</li>
+<li>Before we finally update current node's value. This is pre-order traversal.
+We need to make sure the left and right children do not have any lazy value
+before we add them up. Otherwise, it would be wrong. This is most popular
+mistake I made!</li>
+</ol>
+<details class="code-details">
+<summary> Lazy Propagation </summary>
+<pre><code class="language-cpp">struct Node {
+    int l, r;
+    shared_ptr&lt;Node&gt; left, right;
+    int lazy = 0; // lazy update amount
+    int s;
+    Node(int l, int r): l(l), r(r), s(0) {}
+};
+using NodeP = shared_ptr&lt;Node&gt;;
+
+NodeP root;
+
+void create_children(NodeP node) {
+     if (node-&gt;l != node-&gt;r) {
+        int m = (node-&gt;l + node-&gt;r) / 2;
+        if (not node-&gt;left) node-&gt;left = make_shared&lt;Node&gt;(node-&gt;l, m);
+        if (not node-&gt;right) node-&gt;right = make_shared&lt;Node&gt;(m+1, node-&gt;r);
+    }
+}
+
+// realize laziness at current node and push it down the tree.
+void push(NodeP node) {
+    if (node-&gt;lazy) {
+        node-&gt;s += node-&gt;lazy * (node-&gt;r - node-&gt;l + 1);
+        // only push down when it is not a leaf node.
+        if (node-&gt;l != node-&gt;r) {
+            node-&gt;left-&gt;lazy += node-&gt;lazy;
+            node-&gt;right-&gt;lazy += node-&gt;lazy;
+        }
+        // remember to reset laziness.
+        node-&gt;lazy = 0;
+    }
+}
+
+int query(NodeP node, int l, int r) {
+    int m = (node-&gt;l + node-&gt;r) / 2;
+    create_children(node);
+    // realize laziness before query.
+    push(node);
+    if (node-&gt;l == l and node-&gt;r == r) {
+        return node-&gt;s;
+    }
+
+    if (r &lt;= m) return search(node-&gt;left, l, r);
+    else if (l &gt; m) return search(node-&gt;right, l, r);
+    else return search(node-&gt;left, l, m) + search(node-&gt;right, m+1, r);
+}
+
+void update(NodeP node, int l, int r, int inc_amount) {
+    int m = (node-&gt;l + node-&gt;r) / 2;
+    create_children(node);
+    push(node);
+
+    if (node-&gt;l == l and node-&gt;r == r) {
+        node-&gt;lazy += inc_amount;
+        push(node);
+        return;
+    }
+    if (r &lt;= m) {
+        insert(node-&gt;left, l, r);
+    } else if (l &gt; m) {
+        insert(node-&gt;right, l, r);
+    } else {
+        insert(node-&gt;left, l, m);
+        insert(node-&gt;right, m+1, r);
+    }
+    // make sure left and right do not have un-realized updates.
+    push(node-&gt;left); push(node-&gt;right);
+    node-&gt;s = node-&gt;left-&gt;s + node-&gt;right-&gt;s;
+}
+</code></pre>
+</details>
 
                     </main>
 
