@@ -6,3 +6,4 @@
   - [Sort](algorithms/sort.md)
   - [Queue](algorithms/queue.md)
   - [Tree, Graph](algorithms/graph.md)
+  - [Binary Search](algorithms/search.md)
