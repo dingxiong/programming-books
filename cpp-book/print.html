@@ -434,6 +434,32 @@ void update(NodeP node, int l, int r, int inc_amount) {
 }
 </code></pre>
 </details>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="lower_bound-and-upper_bound"><a class="header" href="#lower_bound-and-upper_bound">lower_bound and upper_bound</a></h1>
+<p>These two functions/interfaces are very counter intuitive the first time I read
+it. <code>lower_bound</code> means the position that is greater or equal than the target.
+<code>upper_bound</code> means the position that is greater than the target. Actually,
+<code>bound</code> means boundary. I should understand it as the half-open <strong>equal-range
+boundaries</strong> <code>[lower_bound, upper_bound)</code>. Within this range, all elements are
+equal to the target.</p>
+<p>We have <code>std::lower_bound</code> and <code>map::lower_bound</code>. What are the differences?
+The former is implemented
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/lower_bound.h#L30">here</a>.
+The latter is implemented
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__tree#L2156">here</a>.</p>
+<p><code>std::lower_bound</code> only requires <code>ForwardIterator</code>. The time complexity is
+<code>O(logN)</code> for <code>RandomAccessIterator</code> but <code>O(NlogN)</code> for non random access
+iterators because it uses <code>std::advance</code>. On the other hand, <code>map::lower_bound</code>
+bisects to the left or right branch, so it is always <code>O(logN)</code>.</p>
+<p><code>std::binary_search</code> is just a wrapper of <code>std::lower_bound</code>. See
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/binary_search.h#L27">code</a>.
+It returns <code>__first != __last &amp;&amp; !__comp(__value, *__first)</code>, i.e., a boolean
+whether the target is found or not.</p>
+<h2 id="meta-binary-search"><a class="header" href="#meta-binary-search">Meta binary search</a></h2>
+<p>One interesting thing I learnt from reading libc++ code is
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/lower_bound.h#L61">meta binary search</a>.
+The idea is very similar to radix sort. You try out index <code>1xxxxx</code> first. If
+the value at index <code>100...0</code> is larger than the target, then you to <code>0xxxxx</code>.
+Otherwise, you go to the second significant bit <code>11xxxx</code>.</p>
 
                     </main>
 
