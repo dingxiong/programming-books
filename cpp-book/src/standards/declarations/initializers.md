@@ -112,4 +112,4 @@ Let's analyze three cases:
 
 [^note1]:
     Please do exactly as `int *p = new int();` because `int a();` won't give
-    what you. Checkout "most vexing parse".
+    what you want. Checkout "most vexing parse".
