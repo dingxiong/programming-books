@@ -2,6 +2,9 @@
 
 [Introduction](README.md)
 
+- [C++ Standards](standards/README.md)
+  - [Declarations](standards/declarations/README.md)
+    - [Initializers](standards/declarations/initializers.md)
 - [Competitive Programming](algorithms/README.md)
   - [Sort](algorithms/sort.md)
   - [Queue](algorithms/queue.md)
