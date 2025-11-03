@@ -141,7 +141,7 @@ string `{pattern}${text}` and build LPS for it. What does the result mean?
    means `lps[i] <= len(pattern)`.
 2. If `lps[i] == len(pattern)`, then `s[i-len(pattern)+1..i]` matches pattern.
    So we just iterate `lps` to find all indices. Note, because we prefixed
-   `len(pattern) + 1` to the original string, then correct substring range
+   `len(pattern) + 1` to the original string, then the correct substring range
    should be `s[i-len(patthern)-1-len(pattern)+1..i-len(pattern)-1]`, which is
    `s[i-2*len(pattern)..i-len(pattern)-1]`
 
