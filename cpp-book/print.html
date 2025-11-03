@@ -619,14 +619,12 @@ the LPS array and searching</strong>.</p>
         // we the current character does not match, we move j to the last
         // longest proper prefix because the characters before that are guaranteed
         // to match and the move is conservative.
-        while (j &gt; 0 &amp;&amp; pattern[i] != pattern[j])
-            j = lps[j - 1];
+        while (j &gt; 0 &amp;&amp; pattern[i] != pattern[j]) j = lps[j - 1];
 
         // after the above loop, there are two possible outcome.
         // 1. pattern[i] == pattern[j] and j &gt;= 0. Note j could be zero in this case.
         // 2. pattern[i] != pattern[j] and j = 0. This case much have j = 0.
-        if (pattern[i] == pattern[j])
-            j++;
+        if (pattern[i] == pattern[j]) j++;
 
         // for case #1, lsp[i] = (j - 0 + 1), but since we have j++ step above,
         // it becomes lsp[i] = j.
@@ -638,10 +636,8 @@ the LPS array and searching</strong>.</p>
     vector&lt;int&gt; matches;
     // For search, we start i, j both from zero.
     for (int i = 0, j = 0; i &lt; text.size(); i++) {
-        while (j &gt; 0 &amp;&amp; text[i] != pattern[j])
-            j = lps[j - 1];
-        if (text[i] == pattern[j])
-            j++;
+        while (j &gt; 0 &amp;&amp; text[i] != pattern[j]) j = lps[j - 1];
+        if (text[i] == pattern[j]) j++;
 
         // when j==m, index of W goes out of range [0..m-1]
         // We can think of W[m] exits but definitely does not equal to S[i],
@@ -675,6 +671,34 @@ if match:
 <li>The LPS building and searching use almost identical code.</li>
 <li>Just ~15 lines of actual logic.</li>
 </ul>
+<h4 id="trick"><a class="header" href="#trick">Trick</a></h4>
+<p>As you see above, the two stages are almost the same. We can have a trick to
+write fewer lines of code. Suppose there is a character such as <code>$</code> that does
+not show up in either the text corps not the pattern, then we can create a new
+string <code>{pattern}${text}</code> and build LPS for it. What does the result mean? The
+length of the longest prefix suffix.</p>
+<ol>
+<li>The prefix is <code>{pattern}$</code>, and <code>$</code> does not show up anywhere else. =&gt;
+<code>lps[i] &lt;= len(pattern)</code>.</li>
+<li>If <code>lps[i] == len(pattern)</code>, then <code>s[i-len(pattern)..i]</code> matches pattern. So
+we just iterate <code>lps</code> to find all indices.</li>
+</ol>
+<pre><code class="language-cpp">vector&lt;int&gt; kmp(const string&amp; s, const string&amp; p) {
+  string s2 = p + "$" + s;
+  int n = s2.size();
+  vector&lt;int&gt; lps(n);
+  for (int i = 1, j = 0; i &lt; n; i++) {
+    while (j &gt; 0 and s2[i] != s2[j]) j = lps[j-1];
+    if (s2[i] == s2[j]) j++;
+    lps[i] = j;
+  }
+  vector&lt;int&gt; matches;
+  for (int i = 0; i &lt; n; i++) {
+    if (lps[i] == p.size()) matches.push_back(i - 2*p.size());
+  }
+  return matches;
+}
+</code></pre>
 <h3 id="complexity"><a class="header" href="#complexity">Complexity</a></h3>
 <ul>
 <li>time complexity: <code>O(n+m)</code>.</li>
