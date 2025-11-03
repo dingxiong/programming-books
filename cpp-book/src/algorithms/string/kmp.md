@@ -134,14 +134,16 @@ What makes it "simple":
 
 As you see above, the two stages are almost the same. We can have a trick to
 write fewer lines of code. Suppose there is a character such as `$` that does
-not show up in either the text corps not the pattern, then we can create a new
-string `{pattern}${text}` and build LPS for it. What does the result mean? The
-length of the longest prefix suffix.
+not show up in either the text corps nor the pattern, then we can create a new
+string `{pattern}${text}` and build LPS for it. What does the result mean?
 
-1. The prefix is `{pattern}$`, and `$` does not show up anywhere else. =>
-   `lps[i] <= len(pattern)`.
-2. If `lps[i] == len(pattern)`, then `s[i-len(pattern)..i]` matches pattern. So
-   we just iterate `lps` to find all indices.
+1. The prefix is `{pattern}$`, and `$` does not show up anywhere else. This
+   means `lps[i] <= len(pattern)`.
+2. If `lps[i] == len(pattern)`, then `s[i-len(pattern)+1..i]` matches pattern.
+   So we just iterate `lps` to find all indices. Note, because we prefixed
+   `len(pattern) + 1` to the original string, then correct substring range
+   should be `s[i-len(patthern)-1-len(pattern)+1..i-len(pattern)-1]`, which is
+   `s[i-2*len(pattern)..i-len(pattern)-1]`
 
 ```cpp
 vector<int> kmp(const string& s, const string& p) {
