@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Boyer–Moore - All I know about C++</title>
+        <title>Z algorithm - All I know about C++</title>
 
 
         <!-- Custom HTML head -->
@@ -178,23 +178,104 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="boyermoore"><a class="header" href="#boyermoore">Boyer–Moore</a></h1>
-<p>This is also a string matching algorithm. It has sublinear time complexity for
-regular cases, but worse <code>O(n*m)</code> complexity, so it is frequently used in
-practice, but not good for competitive programming. By the way, C++ 17 and
-above has std implementation for Boyer-Moore search algorithm.</p>
+                        <h1 id="z-algorithm"><a class="header" href="#z-algorithm">Z algorithm</a></h1>
+<p>The Z-function (or Z-algorithm) is a string processing algorithm that computes,
+for each position in a string, the length of the longest substring starting at
+that position which is also a prefix of the string. Given a string <code>s</code> of
+length <code>n</code>, the Z-function of <code>s</code> is an array <code>Z</code> of length n where:</p>
+<pre><code>Z[i] = max k such that s[0..k-1] == s[i..i+k-1]
+</code></pre>
+<p>This reminds me about the longest proper prefix suffix array in KMP.</p>
+<p>I send below prompt to claude.ai.</p>
+<blockquote>
+<p>could you do an animation of z-algorithm with details about the definitions
+of Z box and how it is updated?</p>
+</blockquote>
+<p>And it generated beautiful animation and detailed explanation. Below content is
+mostly copied from claude. It summarizes better than me.</p>
+<h2 id="what-is-the-z-box-l-r"><a class="header" href="#what-is-the-z-box-l-r">What is the Z-Box [L, R]?</a></h2>
+<p>The Z-box is an interval <code>[L, R]</code> representing the <strong>rightmost</strong> segment of the
+string where:</p>
+<ul>
+<li><code>s[L..R]</code> exactly matches <code>s[0..R-L]</code> (a prefix of the string).</li>
+<li><code>R</code> is as large as possible (rightmost such segment we've found).</li>
+<li>It helps us avoid redundant character comparisons.</li>
+</ul>
+<p>Two Main Cases:</p>
+<ul>
+<li>
+<p>Case 1: <code>i &gt; R</code> (Outside the Z-box)</p>
+<p>Position i is beyond our known matching segment. We must compare characters
+from scratch to compute <code>Z[i]</code>, then update the Z-box to <code>[i, i+Z[i]-1]</code>.</p>
+</li>
+<li>
+<p>Case 2: <code>i ≤ R</code> (Inside the Z-box)</p>
+<p>Position i falls within <code>[L, R]</code>. We use the "mirror" position <code>k = i - L</code>.
+Since <code>s[L..R]</code> matches <code>s[0..R-L]</code>, we know <code>s[i..R]</code> corresponds to
+<code>s[k..R-L]</code>.</p>
+<ul>
+<li>
+<p>Case 2a: <code>Z[k] &lt; r - i + 1</code></p>
+<p>The match at k is fully contained. Simply copy: <code>Z[i] = Z[k]</code>. Z-box
+unchanged.</p>
+</li>
+<li>
+<p>Case 2b: <code>Z[k] ≥ r - i + 1</code></p>
+<p>The match might extend beyond <code>R</code>. We know it matches up to <code>R</code>, but must
+compare beyond to see how far it extends. Update Z-box to <code>[i, new_R]</code>.</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>The core intuition of Z algorithm is "rightmost"! There are a few invariants.
+When we process index <code>i</code>, we must have <code>i &gt; L</code>, and <code>R &gt;= L - 1</code>. The
+<code>R == L - 1</code> case corresponds to Z value being 0. Remember we use a close range
+<code>[L, R]</code>.</p>
+<h2 id="implementation"><a class="header" href="#implementation">Implementation</a></h2>
+<pre><code class="language-cpp">vector&lt;int&gt; compute_z_array(const string&amp; s) {
+  int n = s.size();
+  vector&lt;int&gt; Z(n); // Z[0] = 0 by tradition.
+
+  int l = 0, r = 0; // Z-box [l, r]
+  for (int i = 1; i &lt; n; i++) {
+    if (i &gt; r) { // case 1.
+      l = r = i;
+      int tmp = 0;
+      while (r &lt; n and s[r] == s[tmp++]) r++;
+      Z[i] = --r - l + 1; // we need --r because it goes one index beyond.
+    } else { // case 2.
+      // s[i..r] == s[i-l, r-l] == s[k, r-l]
+      int k = i - l;
+      if (Z[k] &lt; r-i+1) Z[i] = Z[k];
+      else {
+        // in this case, we find a even more right range staring at i,
+        // and s[i..r] == s[0, r-i], and there is potential to extend it.
+        l = i;
+        // node predefine tmp to r-i avoids bugs because below code updates r.
+        int tmp = r-i;
+        while (r &lt; n and s[r] == s[tmp++]) r++;
+        Z[i] = --r - l + 1;
+      }
+    }
+  }
+  return Z;
+}
+</code></pre>
+<h2 id="complexity"><a class="header" href="#complexity">Complexity</a></h2>
+<ul>
+<li>time complexity: <code>O(n)</code>. The Z-box boundary R only moves to the right (never
+left). Each character comparison either increases R or we're done with that
+position. Since R can increase at most n times, total comparisons = <code>O(n)</code>.</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../algorithms/string/kmp.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../algorithms/string/Boyer-Moore.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../algorithms/string/z-algorithm.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -202,13 +283,10 @@ above has std implementation for Boyer-Moore search algorithm.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../algorithms/string/kmp.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../algorithms/string/Boyer-Moore.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../algorithms/string/z-algorithm.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
             </nav>
 
         </div>
