@@ -74,14 +74,12 @@ vector<int> kmp(const string& text, const string& pattern) {
         // we the current character does not match, we move j to the last
         // longest proper prefix because the characters before that are guaranteed
         // to match and the move is conservative.
-        while (j > 0 && pattern[i] != pattern[j])
-            j = lps[j - 1];
+        while (j > 0 && pattern[i] != pattern[j]) j = lps[j - 1];
 
         // after the above loop, there are two possible outcome.
         // 1. pattern[i] == pattern[j] and j >= 0. Note j could be zero in this case.
         // 2. pattern[i] != pattern[j] and j = 0. This case much have j = 0.
-        if (pattern[i] == pattern[j])
-            j++;
+        if (pattern[i] == pattern[j]) j++;
 
         // for case #1, lsp[i] = (j - 0 + 1), but since we have j++ step above,
         // it becomes lsp[i] = j.
@@ -93,10 +91,8 @@ vector<int> kmp(const string& text, const string& pattern) {
     vector<int> matches;
     // For search, we start i, j both from zero.
     for (int i = 0, j = 0; i < text.size(); i++) {
-        while (j > 0 && text[i] != pattern[j])
-            j = lps[j - 1];
-        if (text[i] == pattern[j])
-            j++;
+        while (j > 0 && text[i] != pattern[j]) j = lps[j - 1];
+        if (text[i] == pattern[j]) j++;
 
         // when j==m, index of W goes out of range [0..m-1]
         // We can think of W[m] exits but definitely does not equal to S[i],
@@ -133,6 +129,37 @@ What makes it "simple":
 - No complex cases to handle.
 - The LPS building and searching use almost identical code.
 - Just ~15 lines of actual logic.
+
+#### Trick
+
+As you see above, the two stages are almost the same. We can have a trick to
+write fewer lines of code. Suppose there is a character such as `$` that does
+not show up in either the text corps not the pattern, then we can create a new
+string `{pattern}${text}` and build LPS for it. What does the result mean? The
+length of the longest prefix suffix.
+
+1. The prefix is `{pattern}$`, and `$` does not show up anywhere else. =>
+   `lps[i] <= len(pattern)`.
+2. If `lps[i] == len(pattern)`, then `s[i-len(pattern)..i]` matches pattern. So
+   we just iterate `lps` to find all indices.
+
+```cpp
+vector<int> kmp(const string& s, const string& p) {
+  string s2 = p + "$" + s;
+  int n = s2.size();
+  vector<int> lps(n);
+  for (int i = 1, j = 0; i < n; i++) {
+    while (j > 0 and s2[i] != s2[j]) j = lps[j-1];
+    if (s2[i] == s2[j]) j++;
+    lps[i] = j;
+  }
+  vector<int> matches;
+  for (int i = 0; i < n; i++) {
+    if (lps[i] == p.size()) matches.push_back(i - 2*p.size());
+  }
+  return matches;
+}
+```
 
 ### Complexity
 
