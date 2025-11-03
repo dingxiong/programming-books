@@ -301,7 +301,7 @@ string <code>{pattern}${text}</code> and build LPS for it. What does the result 
 means <code>lps[i] &lt;= len(pattern)</code>.</li>
 <li>If <code>lps[i] == len(pattern)</code>, then <code>s[i-len(pattern)+1..i]</code> matches pattern.
 So we just iterate <code>lps</code> to find all indices. Note, because we prefixed
-<code>len(pattern) + 1</code> to the original string, then correct substring range
+<code>len(pattern) + 1</code> to the original string, then the correct substring range
 should be <code>s[i-len(patthern)-1-len(pattern)+1..i-len(pattern)-1]</code>, which is
 <code>s[i-2*len(pattern)..i-len(pattern)-1]</code></li>
 </ol>
