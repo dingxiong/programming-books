@@ -823,8 +823,7 @@ position. Since R can increase at most n times, total comparisons = <code>O(n)</
 <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__functional/hash.h#L332">code</a>.</p>
 <p>This basically means below code <code>h(&amp;a)</code> and <code>h(&amp;b)</code> return different values.</p>
 <pre><code>struct MyClass {};
-MyClass a;
-MyClass b;
+MyClass a, b;
 std::hash&lt;MyClass*&gt; h;
 </code></pre>
 </li>
