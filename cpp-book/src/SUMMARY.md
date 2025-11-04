@@ -14,3 +14,4 @@
     - [kmp](algorithms/string/kmp.md)
     - [Boyer–Moore](algorithms/string/Boyer-Moore.md)
     - [Z algorithm](algorithms/string/z-algorithm.md)
+  - [Hash](algorithms/hash.md)
