@@ -11,8 +11,7 @@ Types supported by std::hash:
 
   ```
   struct MyClass {};
-  MyClass a;
-  MyClass b;
+  MyClass a, b;
   std::hash<MyClass*> h;
   ```
 
