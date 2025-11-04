@@ -371,7 +371,7 @@ because it allows me implementing priority queue on top of vector, and I can
 iterate vector! Then I suspect the push/pop operation of <code>std::priority_queue</code>
 is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
 <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/queue#L899">code</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="tree-vs-graph"><a class="header" href="#tree-vs-graph">Tree vs Graph</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tree-graph"><a class="header" href="#tree-graph">Tree, Graph</a></h1>
 <p>A tree is an undirected, connected, and acyclic graph. It has <code>n</code> nodes, <code>n-1</code>
 edges and is fully connected. This setup often shows up in competitive
 programming.</p>
@@ -381,7 +381,7 @@ trick to skip going back is</p>
 <pre><code class="language-cpp">for (next : graph[node]):
     if (next == parent_node) continue
 </code></pre>
-<h1 id="segment-tree"><a class="header" href="#segment-tree">Segment Tree</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="segment-tree"><a class="header" href="#segment-tree">Segment Tree</a></h1>
 <p>A few conventions to reduce chances of mistakes.</p>
 <ol>
 <li>left branch is <code>[l, m]</code>, right branch is <code>[m+1, r]</code>. This avoids the index
@@ -531,6 +531,56 @@ void update(NodeP node, int l, int r, int inc_amount) {
 }
 </code></pre>
 </details>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="trie"><a class="header" href="#trie">Trie</a></h1>
+<p>Trie tree is easy to implement. See below sample code for lower case English
+corps.</p>
+<pre><code class="language-cpp">struct Node {
+  shared_ptr&lt;Node&gt; next[26];
+  int val = 0;
+  Node() {}
+};
+using NodeP = shared_ptr&lt;Node&gt;;
+
+NodeP root = make_shared&lt;Node&gt;();
+
+void insert(const string&amp; word) {
+  NodeP node = root;
+  for (char c: word) {
+    int idx = c - 'a';
+    if (not node-&gt;next[idx]) node-&gt;next[idx] = make_shared&lt;Node&gt;();
+    node = node-&gt;next[idx];
+  }
+  node-&gt;val = 1;
+}
+</code></pre>
+<h2 id="optimizations"><a class="header" href="#optimizations">Optimizations</a></h2>
+<p>The naive explicit tree structure using pointers is not cache friendly. One
+optimization is to use an array to represent the tree. The <code>next</code> vector should
+store the index of the next node in in the array. This was definitely not
+invented by me. Checkout
+<a href="https://cp-algorithms.com/string/aho_corasick.html">this reference</a>.</p>
+<pre><code class="language-cpp">struct Node {
+  int next[26], val = 0;
+  Node() { fill_n(next, 26, -1); } // very important to explicitly initialize it.
+};
+
+vector&lt;Node&gt; trie(1); // the first element is the root
+
+void insert(const string&amp; word) {
+  int node = 0; // root at index 0.
+  for (char c: word) {
+    int idx = c - 'a';
+    if (trie[node].next[idx] == -1) {
+      trie[node].next[idx] = trie.size();
+      trie.emplace_back(); // push the new node to the end of the array.
+    }
+    node = trie[node].next[idx];
+  }
+  trie[node].val = 1;
+}
+</code></pre>
+<p>I asked chatgpt for more optimizations, and it suggests me that use a 2d array
+<code>trie[n][next]</code> to go further with cache friendly. Too much for me!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="lower_bound-and-upper_bound"><a class="header" href="#lower_bound-and-upper_bound">lower_bound and upper_bound</a></h1>
 <p>These two functions/interfaces are very counter intuitive the first time I read
 it. <code>lower_bound</code> means the position that is greater or equal than the target.
