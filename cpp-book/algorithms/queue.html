@@ -186,6 +186,65 @@ because it allows me implementing priority queue on top of vector, and I can
 iterate vector! Then I suspect the push/pop operation of <code>std::priority_queue</code>
 is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
 <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/queue#L899">code</a>.</p>
+<h2 id="constructors"><a class="header" href="#constructors">Constructors</a></h2>
+<p>A few examples.</p>
+<pre><code class="language-cpp">priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; pq;
+</code></pre>
+<pre><code class="language-cpp">auto comp = std::greater&lt;int&gt;{};
+priority_queue&lt;int, std::vector&lt;int&gt;, decltype(comp)&gt; pq(comp);
+</code></pre>
+<pre><code class="language-cpp">vector v = {1, 2, 3, 5};
+priority_queue&lt;int&gt; pq(v.begin(), v.end());
+</code></pre>
+<p>Just want to point out the last constructor has time complexity <code>O(N)</code>, not
+<code>O(NlogN)</code>. Underneath, it just calls
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/queue#L786">std::make_heap</a>.</p>
+<h2 id="heap"><a class="header" href="#heap">Heap</a></h2>
+<p>What is a max heap?</p>
+<ol>
+<li>
+<p>A heap must be a complete binary tree, meaning all levels are fully filled
+except possibly the last level, which fills from left to right. If we store
+it in an array <code>arr</code> with <code>arr[0]</code> being the root, then left and right of
+<code>arr[i]</code> are <code>arr[2*i+1]</code> and <code>arr[2*i+2]</code>.</p>
+</li>
+<li>
+<p>For max heap, every parent node is greater or equal to its children. Min
+heap is reverse.</p>
+</li>
+</ol>
+<p>The bottom-up heapify process takes <code>O(N)</code> steps.</p>
+<pre><code class="language-cpp">void heapify_down(vector&lt;int&gt;&amp; a, int n, int i) {
+    int mx = i, l = 2*i + 1, r = 2*i + 2;
+    if (l &lt; n &amp;&amp; a[l] &gt; a[mx]) mx = l;
+    if (r &lt; n &amp;&amp; a[r] &gt; a[mx]) mx = r;
+    if (mx != i) {
+        swap(a[i], a[mx]);
+        heapify_down(a, n, mx);
+    }
+}
+
+// Build max heap - O(n)
+void make_heap(vector&lt;int&gt;&amp; a) {
+    for (int i = a.size()/2 - 1; i &gt;= 0; i--)
+        heapify_down(a, a.size(), i);
+}
+
+// Insert element at end and heapify up - O(log n)
+void push_heap(vector&lt;int&gt;&amp; a) {
+    int i = a.size() - 1;
+    while (i &gt; 0 &amp;&amp; a[(i-1)/2] &lt; a[i]) { // parent at index (i-1)/2
+        swap(a[i], a[(i-1)/2]);
+        i = (i-1)/2;
+    }
+}
+
+// Remove max (root), move last to root, heapify down - O(log n)
+void pop_heap(vector&lt;int&gt;&amp; a) {
+    swap(a[0], a[a.size()-1]);
+    heapify_down(a, a.size()-1, 0);
+}
+</code></pre>
 
                     </main>
 
