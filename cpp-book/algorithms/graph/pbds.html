@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Trie - All I know about C++</title>
+        <title>Policy-Based Data Structures - All I know about C++</title>
 
 
         <!-- Custom HTML head -->
@@ -178,66 +178,93 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="trie"><a class="header" href="#trie">Trie</a></h1>
-<p>Trie tree is easy to implement. See below sample code for lower case English
-corps.</p>
-<pre><code class="language-cpp">struct Node {
-  shared_ptr&lt;Node&gt; next[26];
-  int val = 0;
-  Node() {}
-};
-using NodeP = shared_ptr&lt;Node&gt;;
+                        <h1 id="policy-based-data-structures"><a class="header" href="#policy-based-data-structures">Policy-Based Data Structures</a></h1>
+<p>Sometimes, we need a data structure that counts the number of integers greater
+than a given value x and supports insertion. This mostly happen in a scenario
+where you iterate through an array and calculate something for each element and
+you would like the overall time complexity to be <code>O(NlogN)</code>. You may think of
+using <code>std::set</code> or <code>std::multiset</code> as below.</p>
+<pre><code class="language-cpp">std::set&lt;int&gt; s;
+auto iter = set.lower_bound(x);
+num = std::distance(iter, s.end());
+</code></pre>
+<p>This won't work as expected because <code>std::distance</code> has linear time complexity.</p>
+<p>In order to make it <code>O(logN)</code>, we need some metadata attached to each tree
+node. Support you will design it. What metadata you would attach? The size of
+the subtree under each node, right? That is the exact idea of policy-based data
+structures.</p>
+<p>The most commonly used one is the below <code>pb_set</code> and <code>pb_map</code>. See example
+below.</p>
+<pre><code class="language-cpp">#include &lt;ext/pb_ds/assoc_container.hpp&gt;
+#include &lt;ext/pb_ds/tree_policy.hpp&gt;
+using namespace __gnu_pbds;
 
-NodeP root = make_shared&lt;Node&gt;();
+template&lt;class K&gt;
+using pb_set = tree&lt;
+    K,                        // key type
+    null_type,                // mapped type (null for set)
+    std::less&lt;K&gt;,             // comparator
+    rb_tree_tag,              // underlying tree = red-black tree
+    tree_order_statistics_node_update&gt;; // enables order stats
 
-void insert(const string&amp; word) {
-  NodeP node = root;
-  for (char c: word) {
-    int idx = c - 'a';
-    if (not node-&gt;next[idx]) node-&gt;next[idx] = make_shared&lt;Node&gt;();
-    node = node-&gt;next[idx];
-  }
-  node-&gt;val = 1;
+template&lt;class K, class V&gt;
+using pb_map = tree&lt;
+    K,
+    V,
+    std::less&lt;K&gt;,
+    rb_tree_tag,
+    tree_order_statistics_node_update&gt;;
+
+int main() {
+    pb_set&lt;int&gt; s;
+    s.insert(1); s.insert(3); s.insert(5);
+    for (int i = 0; i &lt;= 6; i++) cout &lt;&lt; s.order_of_key(i) &lt;&lt; endl;
+    // output: 0 0 1 1 2 2 3
 }
 </code></pre>
-<h2 id="optimizations"><a class="header" href="#optimizations">Optimizations</a></h2>
-<p>The naive explicit tree structure using pointers is not cache friendly. One
-optimization is to use an array to represent the tree. The <code>next</code> vector should
-store the index of the next node in in the array. This was definitely not
-invented by me. Checkout
-<a href="https://cp-algorithms.com/string/aho_corasick.html">this reference</a>.</p>
-<pre><code class="language-cpp">struct Node {
-  int next[26], val = 0;
-  Node() { fill_n(next, 26, -1); } // very important to explicitly initialize it.
-};
-
-vector&lt;Node&gt; trie(1); // the first element is the root
-
-void insert(const string&amp; word) {
-  int node = 0; // root at index 0.
-  for (char c: word) {
-    int idx = c - 'a';
-    if (trie[node].next[idx] == -1) {
-      trie[node].next[idx] = trie.size();
-      trie.emplace_back(); // push the new node to the end of the array.
-    }
-    node = trie[node].next[idx];
-  }
-  trie[node].val = 1;
-}
-</code></pre>
-<p>I asked chatgpt for more optimizations, and it suggests me that use a 2d array
-<code>trie[n][next]</code> to go further with cache friendly. Too much for me!</p>
-
+<h2 id="implementation-details"><a class="header" href="#implementation-details">Implementation Details</a></h2>
+<p>See the
+<a href="https://github.com/gcc-mirror/gcc/blob/35e029530f256bb6302a3cae650d7eaef5514a36/libstdc++-v3/include/ext/pb_ds/tree_policy.hpp#L100">interface description</a>
+and the implementation
+<a href="https://github.com/gcc-mirror/gcc/blob/35e029530f256bb6302a3cae650d7eaef5514a36/libstdc++-v3/include/ext/pb_ds/detail/tree_policy/order_statistics_imp.hpp#L79">here</a>.
+Basically, function <code>order_of_key</code> sums the metadata of all the left nodes of
+the current node. The metadata is calculated in the <code>operator()(...)</code> function
+which is the count of nodes in the subtree.</p>
+<p>Unfortunately, pb_ds is only implemented inside GCC/libstdc++. LLVM/libc++ does
+not have it.</p>
+<h2 id="which-to-choose-segment-tree-fenwick-tree-or-pb-ds"><a class="header" href="#which-to-choose-segment-tree-fenwick-tree-or-pb-ds">Which to choose, Segment Tree, Fenwick tree or PB-DS?</a></h2>
+<p>🧮 Comparison Table</p>
+<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Feature</th><th style="text-align: center"><strong>Segment Tree</strong></th><th style="text-align: center"><strong>Fenwick Tree (BIT)</strong></th><th style="text-align: center"><strong>PBDS (ordered_set)</strong></th></tr></thead><tbody>
+<tr><td style="text-align: left"><strong>Typical Use Case</strong></td><td style="text-align: center">Range queries (sum, min, max) and point updates</td><td style="text-align: center">Prefix sums and point updates</td><td style="text-align: center">Order statistics (rank, k-th element)</td></tr>
+<tr><td style="text-align: left"><strong>Supports dynamic insertion of arbitrary values?</strong></td><td style="text-align: center">⚠️ Not directly (needs coordinate compression or rebuild)</td><td style="text-align: center">⚠️ Not directly (needs fixed range)</td><td style="text-align: center">✅ Yes (balanced tree)</td></tr>
+<tr><td style="text-align: left"><strong>Insert complexity</strong></td><td style="text-align: center">O(log N) (if range fixed)</td><td style="text-align: center">O(log N)</td><td style="text-align: center">O(log N)</td></tr>
+<tr><td style="text-align: left"><strong>Query (prefix or count ≤ X)</strong></td><td style="text-align: center">O(log N)</td><td style="text-align: center">O(log N)</td><td style="text-align: center">O(log N)</td></tr>
+<tr><td style="text-align: left"><strong>Memory usage</strong></td><td style="text-align: center">~ 4× N nodes</td><td style="text-align: center">~ N</td><td style="text-align: center">~ N (tree overhead)</td></tr>
+<tr><td style="text-align: left"><strong>Implementation complexity</strong></td><td style="text-align: center">🧩 Medium</td><td style="text-align: center">🟢 Simple</td><td style="text-align: center">⚙️ Very simple (if supported)</td></tr>
+<tr><td style="text-align: left"><strong>Range of values required ahead of time?</strong></td><td style="text-align: center">✅ Yes (or use compression)</td><td style="text-align: center">✅ Yes</td><td style="text-align: center">❌ No</td></tr>
+<tr><td style="text-align: left"><strong>Can find k-th element efficiently?</strong></td><td style="text-align: center">⚠️ With extra logic</td><td style="text-align: center">⚠️ With binary search</td><td style="text-align: center">✅ Built-in (<code>find_by_order(k)</code>)</td></tr>
+<tr><td style="text-align: left"><strong>Can handle duplicates?</strong></td><td style="text-align: center">✅ With care (store counts)</td><td style="text-align: center">✅ With counts</td><td style="text-align: center">✅ Yes (supports multiset-like behavior)</td></tr>
+<tr><td style="text-align: left"><strong>Standard library support</strong></td><td style="text-align: center">❌ Manual</td><td style="text-align: center">❌ Manual</td><td style="text-align: center">⚠️ Only in GCC’s libstdc++</td></tr>
+<tr><td style="text-align: left"><strong>Works with LLVM / macOS?</strong></td><td style="text-align: center">✅ Yes</td><td style="text-align: center">✅ Yes</td><td style="text-align: center">❌ No (unless using GCC/libstdc++)</td></tr>
+<tr><td style="text-align: left"><strong>Best for...</strong></td><td style="text-align: center">Range queries and sums on numeric indices</td><td style="text-align: center">Prefix/count queries on numeric ranges</td><td style="text-align: center">Dynamic ranking / counting by value</td></tr>
+</tbody></table>
+</div>
+<p>🧠 TL;DR Recommendations</p>
+<div class="table-wrapper"><table><thead><tr><th>Scenario</th><th>Best Choice</th><th>Why</th></tr></thead><tbody>
+<tr><td>Need <strong>count ≤ X</strong> or <strong>count &gt; X</strong> dynamically with arbitrary inserts</td><td><strong>PBDS (ordered_set)</strong></td><td>Easiest, O(log N) both ways</td></tr>
+<tr><td>Same need, but on macOS / LLVM (no PBDS)</td><td><strong>Fenwick Tree</strong></td><td>Works anywhere, just compress coordinates</td></tr>
+<tr><td>Need <strong>range sums / updates</strong> on numeric ranges</td><td><strong>Segment Tree</strong></td><td>More flexible for numeric aggregations</td></tr>
+</tbody></table>
+</div>
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../algorithms/graph/pbds.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../algorithms/graph/fenwick_tree.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../algorithms/search.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../algorithms/graph/trie.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -247,11 +274,11 @@ void insert(const string&amp; word) {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../algorithms/graph/pbds.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../algorithms/graph/fenwick_tree.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../algorithms/search.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../algorithms/graph/trie.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
