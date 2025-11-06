@@ -179,11 +179,66 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="fenwick-tree"><a class="header" href="#fenwick-tree">Fenwick Tree</a></h1>
-<p>We need a data structure that counts the number of integers greater than a
-given value x and supports insertion.</p>
-<p>BIT (binary indexed tree)</p>
-<p>policy based data structures</p>
-<p>std::distance is linear for <code>std::set</code>.</p>
+<p>A Fenwick tree (also called a Binary Indexed Tree or BIT) is a data structure
+that efficiently supports two operations on an array:</p>
+<ul>
+<li>Update: Modify a single element</li>
+<li>Prefix sum query: Calculate the sum of elements from index 0 to any given
+index</li>
+</ul>
+<p>Both operations run in <code>O(log n)</code> time. So the difference between BIT and
+segment tree is that the latter can define different aggregation; while the
+former is only for prefix sum query. See the "Policy-Based Data Structures"
+post about which to choose.</p>
+<h2 id="implementation"><a class="header" href="#implementation">Implementation</a></h2>
+<p>The key insight is that any number can be represented as a sum of powers of 2.
+The Fenwick tree stores partial sums in a clever way where:</p>
+<ul>
+<li>Each index is responsible for a range of elements.</li>
+<li>The range size is determined by the lowest set bit in the index.</li>
+</ul>
+<p>Index <code>2^k</code> stores sum of index <code>2^{k-1} + 1</code>, <code>2^{k-1} + 2</code>, ... <code>2^k</code>. Note
+index starts from <code>1</code> not <code>0</code>. For example, in a Fenwick tree:</p>
+<ul>
+<li>Index 1 (binary: 001) stores sum of 1 elements: <code>001</code>.</li>
+<li>Index 4 (binary: 100) stores sum of 4 elements: <code>001</code>, <code>010</code>, <code>011</code>, <code>100</code></li>
+<li>Index 6 (binary: 110) stores sum of 2 elements: <code>110</code>, <code>101</code>.</li>
+</ul>
+<p>From this we can see given an index <code>i</code>, it must be responsible for the value
+at index itself. Then we change the lowest set bit to zero, and sums up all
+indices with combinations of the lower bits.</p>
+<pre><code class="language-cpp">struct FenwickTree {
+    vector&lt;int&gt; bit;
+    int n;
+
+    // bit starts from index 1.
+    FenwickTree(int n) : n(n), bit(n + 1) {}
+
+    void update(int i, int delta) {
+        // why ++i? Indices are 1-indexed internally.
+        for (++i; i &lt;= n; i += i &amp; -i)
+            bit[i] += delta;
+    }
+
+    int query(int i) {
+        int sum = 0;
+        for (++i; i &gt; 0; i -= i &amp; -i)
+            sum += bit[i];
+        return sum;
+    }
+
+    int rangeQuery(int l, int r) {
+        return query(r) - (l ? query(l - 1) : 0);
+    }
+};
+</code></pre>
+<p>The trick <code>i &amp; -i</code> isolates the lowest set bit.</p>
+<ul>
+<li><code>i + (i &amp; -i)</code>: jump to next responsible index.</li>
+<li><code>i - (i &amp; -i)</code>: jump to previous range.</li>
+</ul>
+<p>To be honest, even with so many hints, I find it is still hard to remember this
+implementation.</p>
 
                     </main>
 
