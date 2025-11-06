@@ -10,6 +10,8 @@
   - [Queue](algorithms/queue.md)
   - [Tree, Graph](algorithms/graph/README.md)
     - [Segment Tree](algorithms/graph/segment_tree.md)
+    - [Fenwick Tree](algorithms/graph/fenwick_tree.md)
+    - [Policy-Based Data Structures](algorithms/graph/pbds.md)
     - [Trie](algorithms/graph/trie.md)
   - [Binary Search](algorithms/search.md)
   - [String](algorithms/string/README.md)

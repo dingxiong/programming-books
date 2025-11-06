@@ -1,5 +1,16 @@
 # Segment Tree
 
+A segment tree is a binary tree data structure used to efficiently answer range
+queries and perform range updates on an array — such as:
+
+- Range sum
+- Range minimum/maximum
+- Range gcd, etc.
+
+It’s designed to balance query speed and update speed, both in O(log N) time.
+
+## Implementation
+
 A few conventions to reduce chances of mistakes.
 
 1. left branch is `[l, m]`, right branch is `[m+1, r]`. This avoids the index
