@@ -61,32 +61,50 @@ Basically, function `order_of_key` sums the metadata of all the left nodes of
 the current node. The metadata is calculated in the `operator()(...)` function
 which is the count of nodes in the subtree.
 
+So we should expect `__gnu_pbds::tree<...>` should implement all `std::map`
+methods, such as `insert`, `erase` and etc. But when I use it in practice, I
+found it does not have `emplace(...)` method. What the hell! Since this is a
+not a standardized container, this is totally possible. I decided to figure out
+what interfaces it defines. With AI's help, I figure out almost all its methods
+inherit from
+[rb_tree_map](https://github.com/gcc-mirror/gcc/blob/35e029530f256bb6302a3cae650d7eaef5514a36/libstdc++-v3/include/ext/pb_ds/detail/rb_tree_map_/rb_tree_.hpp#L84).
+Yes, the base class is determined by the tag you passed in the template.
+`rb_tree_map` is a subclass of
+[bin_search_tree_map](https://github.com/gcc-mirror/gcc/blob/35e029530f256bb6302a3cae650d7eaef5514a36/libstdc++-v3/include/ext/pb_ds/detail/bin_search_tree_/bin_search_tree_.hpp#L109).
+`bin` means `binary`. Make sense. Red-black tree is a binary tree.
+
+From `bin_search_tree_map`, it gets
+
+- `empty()`
+- `size()`
+- `max_size()`: Returns the maximum possible number of elements.
+- `lower_bound(key)`
+- `upper_bound(key)`
+- `find(key)`: Finds an element with a specific key.
+- `begin()`
+- `end()`
+- `rbegin()`
+- `rend()`
+- `clear()`
+
+From `rb_tree_map` (the red-black tree specific operations), it gets
+
+- `insert(value)`
+- `operator[](key)`
+- `erase(key)` or `erase(iterator)`
+- `join(other_tree)`: Merges another tree into the current one.
+- `split(key, other_tree)`: Splits the tree into two based on a key.
+
 Unfortunately, pb_ds is only implemented inside GCC/libstdc++. LLVM/libc++ does
 not have it.
 
 ## Which to choose, Segment Tree, Fenwick tree or PB-DS?
 
-🧮 Comparison Table
+All three options solve the similar problem. The TL;DR recommendations are
+summarized in below table.
 
-| Feature                                             |                     **Segment Tree**                      |         **Fenwick Tree (BIT)**         |          **PBDS (ordered_set)**          |
-| :-------------------------------------------------- | :-------------------------------------------------------: | :------------------------------------: | :--------------------------------------: |
-| **Typical Use Case**                                |      Range queries (sum, min, max) and point updates      |     Prefix sums and point updates      |  Order statistics (rank, k-th element)   |
-| **Supports dynamic insertion of arbitrary values?** | ⚠️ Not directly (needs coordinate compression or rebuild) |  ⚠️ Not directly (needs fixed range)   |          ✅ Yes (balanced tree)          |
-| **Insert complexity**                               |                 O(log N) (if range fixed)                 |                O(log N)                |                 O(log N)                 |
-| **Query (prefix or count ≤ X)**                     |                         O(log N)                          |                O(log N)                |                 O(log N)                 |
-| **Memory usage**                                    |                       ~ 4× N nodes                        |                  ~ N                   |           ~ N (tree overhead)            |
-| **Implementation complexity**                       |                         🧩 Medium                         |               🟢 Simple                |      ⚙️ Very simple (if supported)       |
-| **Range of values required ahead of time?**         |                ✅ Yes (or use compression)                |                 ✅ Yes                 |                  ❌ No                   |
-| **Can find k-th element efficiently?**              |                    ⚠️ With extra logic                    |         ⚠️ With binary search          |     ✅ Built-in (`find_by_order(k)`)     |
-| **Can handle duplicates?**                          |                ✅ With care (store counts)                |             ✅ With counts             | ✅ Yes (supports multiset-like behavior) |
-| **Standard library support**                        |                         ❌ Manual                         |               ❌ Manual                |        ⚠️ Only in GCC’s libstdc++        |
-| **Works with LLVM / macOS?**                        |                          ✅ Yes                           |                 ✅ Yes                 |    ❌ No (unless using GCC/libstdc++)    |
-| **Best for...**                                     |         Range queries and sums on numeric indices         | Prefix/count queries on numeric ranges |   Dynamic ranking / counting by value    |
-
-🧠 TL;DR Recommendations
-
-| Scenario                                                               | Best Choice            | Why                                       |
-| ---------------------------------------------------------------------- | ---------------------- | ----------------------------------------- |
-| Need **count ≤ X** or **count > X** dynamically with arbitrary inserts | **PBDS (ordered_set)** | Easiest, O(log N) both ways               |
-| Same need, but on macOS / LLVM (no PBDS)                               | **Fenwick Tree**       | Works anywhere, just compress coordinates |
-| Need **range sums / updates** on numeric ranges                        | **Segment Tree**       | More flexible for numeric aggregations    |
+| Scenario                                                               | Best Choice      | Why                                       |
+| ---------------------------------------------------------------------- | ---------------- | ----------------------------------------- |
+| Need **count ≤ X** or **count > X** dynamically with arbitrary inserts | **PBDS**         | Easiest, O(log N) both ways               |
+| Same need, but on macOS / LLVM (no PBDS)                               | **Fenwick Tree** | Works anywhere, just compress coordinates |
+| Need **range sums / updates** on numeric ranges                        | **Segment Tree** | More flexible for numeric aggregations    |
