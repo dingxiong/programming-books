@@ -230,28 +230,46 @@ and the implementation
 Basically, function <code>order_of_key</code> sums the metadata of all the left nodes of
 the current node. The metadata is calculated in the <code>operator()(...)</code> function
 which is the count of nodes in the subtree.</p>
+<p>So we should expect <code>__gnu_pbds::tree&lt;...&gt;</code> should implement all <code>std::map</code>
+methods, such as <code>insert</code>, <code>erase</code> and etc. But when I use it in practice, I
+found it does not have <code>emplace(...)</code> method. What the hell! Since this is a
+not a standardized container, this is totally possible. I decided to figure out
+what interfaces it defines. With AI's help, I figure out almost all its methods
+inherit from
+<a href="https://github.com/gcc-mirror/gcc/blob/35e029530f256bb6302a3cae650d7eaef5514a36/libstdc++-v3/include/ext/pb_ds/detail/rb_tree_map_/rb_tree_.hpp#L84">rb_tree_map</a>.
+Yes, the base class is determined by the tag you passed in the template.
+<code>rb_tree_map</code> is a subclass of
+<a href="https://github.com/gcc-mirror/gcc/blob/35e029530f256bb6302a3cae650d7eaef5514a36/libstdc++-v3/include/ext/pb_ds/detail/bin_search_tree_/bin_search_tree_.hpp#L109">bin_search_tree_map</a>.
+<code>bin</code> means <code>binary</code>. Make sense. Red-black tree is a binary tree.</p>
+<p>From <code>bin_search_tree_map</code>, it gets</p>
+<ul>
+<li><code>empty()</code></li>
+<li><code>size()</code></li>
+<li><code>max_size()</code>: Returns the maximum possible number of elements.</li>
+<li><code>lower_bound(key)</code></li>
+<li><code>upper_bound(key)</code></li>
+<li><code>find(key)</code>: Finds an element with a specific key.</li>
+<li><code>begin()</code></li>
+<li><code>end()</code></li>
+<li><code>rbegin()</code></li>
+<li><code>rend()</code></li>
+<li><code>clear()</code></li>
+</ul>
+<p>From <code>rb_tree_map</code> (the red-black tree specific operations), it gets</p>
+<ul>
+<li><code>insert(value)</code></li>
+<li><code>operator[](key)</code></li>
+<li><code>erase(key)</code> or <code>erase(iterator)</code></li>
+<li><code>join(other_tree)</code>: Merges another tree into the current one.</li>
+<li><code>split(key, other_tree)</code>: Splits the tree into two based on a key.</li>
+</ul>
 <p>Unfortunately, pb_ds is only implemented inside GCC/libstdc++. LLVM/libc++ does
 not have it.</p>
 <h2 id="which-to-choose-segment-tree-fenwick-tree-or-pb-ds"><a class="header" href="#which-to-choose-segment-tree-fenwick-tree-or-pb-ds">Which to choose, Segment Tree, Fenwick tree or PB-DS?</a></h2>
-<p>🧮 Comparison Table</p>
-<div class="table-wrapper"><table><thead><tr><th style="text-align: left">Feature</th><th style="text-align: center"><strong>Segment Tree</strong></th><th style="text-align: center"><strong>Fenwick Tree (BIT)</strong></th><th style="text-align: center"><strong>PBDS (ordered_set)</strong></th></tr></thead><tbody>
-<tr><td style="text-align: left"><strong>Typical Use Case</strong></td><td style="text-align: center">Range queries (sum, min, max) and point updates</td><td style="text-align: center">Prefix sums and point updates</td><td style="text-align: center">Order statistics (rank, k-th element)</td></tr>
-<tr><td style="text-align: left"><strong>Supports dynamic insertion of arbitrary values?</strong></td><td style="text-align: center">⚠️ Not directly (needs coordinate compression or rebuild)</td><td style="text-align: center">⚠️ Not directly (needs fixed range)</td><td style="text-align: center">✅ Yes (balanced tree)</td></tr>
-<tr><td style="text-align: left"><strong>Insert complexity</strong></td><td style="text-align: center">O(log N) (if range fixed)</td><td style="text-align: center">O(log N)</td><td style="text-align: center">O(log N)</td></tr>
-<tr><td style="text-align: left"><strong>Query (prefix or count ≤ X)</strong></td><td style="text-align: center">O(log N)</td><td style="text-align: center">O(log N)</td><td style="text-align: center">O(log N)</td></tr>
-<tr><td style="text-align: left"><strong>Memory usage</strong></td><td style="text-align: center">~ 4× N nodes</td><td style="text-align: center">~ N</td><td style="text-align: center">~ N (tree overhead)</td></tr>
-<tr><td style="text-align: left"><strong>Implementation complexity</strong></td><td style="text-align: center">🧩 Medium</td><td style="text-align: center">🟢 Simple</td><td style="text-align: center">⚙️ Very simple (if supported)</td></tr>
-<tr><td style="text-align: left"><strong>Range of values required ahead of time?</strong></td><td style="text-align: center">✅ Yes (or use compression)</td><td style="text-align: center">✅ Yes</td><td style="text-align: center">❌ No</td></tr>
-<tr><td style="text-align: left"><strong>Can find k-th element efficiently?</strong></td><td style="text-align: center">⚠️ With extra logic</td><td style="text-align: center">⚠️ With binary search</td><td style="text-align: center">✅ Built-in (<code>find_by_order(k)</code>)</td></tr>
-<tr><td style="text-align: left"><strong>Can handle duplicates?</strong></td><td style="text-align: center">✅ With care (store counts)</td><td style="text-align: center">✅ With counts</td><td style="text-align: center">✅ Yes (supports multiset-like behavior)</td></tr>
-<tr><td style="text-align: left"><strong>Standard library support</strong></td><td style="text-align: center">❌ Manual</td><td style="text-align: center">❌ Manual</td><td style="text-align: center">⚠️ Only in GCC’s libstdc++</td></tr>
-<tr><td style="text-align: left"><strong>Works with LLVM / macOS?</strong></td><td style="text-align: center">✅ Yes</td><td style="text-align: center">✅ Yes</td><td style="text-align: center">❌ No (unless using GCC/libstdc++)</td></tr>
-<tr><td style="text-align: left"><strong>Best for...</strong></td><td style="text-align: center">Range queries and sums on numeric indices</td><td style="text-align: center">Prefix/count queries on numeric ranges</td><td style="text-align: center">Dynamic ranking / counting by value</td></tr>
-</tbody></table>
-</div>
-<p>🧠 TL;DR Recommendations</p>
+<p>All three options solve the similar problem. The TL;DR recommendations are
+summarized in below table.</p>
 <div class="table-wrapper"><table><thead><tr><th>Scenario</th><th>Best Choice</th><th>Why</th></tr></thead><tbody>
-<tr><td>Need <strong>count ≤ X</strong> or <strong>count &gt; X</strong> dynamically with arbitrary inserts</td><td><strong>PBDS (ordered_set)</strong></td><td>Easiest, O(log N) both ways</td></tr>
+<tr><td>Need <strong>count ≤ X</strong> or <strong>count &gt; X</strong> dynamically with arbitrary inserts</td><td><strong>PBDS</strong></td><td>Easiest, O(log N) both ways</td></tr>
 <tr><td>Same need, but on macOS / LLVM (no PBDS)</td><td><strong>Fenwick Tree</strong></td><td>Works anywhere, just compress coordinates</td></tr>
 <tr><td>Need <strong>range sums / updates</strong> on numeric ranges</td><td><strong>Segment Tree</strong></td><td>More flexible for numeric aggregations</td></tr>
 </tbody></table>
