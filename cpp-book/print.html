@@ -806,15 +806,16 @@ void insert(const string&amp; word) {
 <p>I asked chatgpt for more optimizations, and it suggests me that use a 2d array
 <code>trie[n][next]</code> to go further with cache friendly. Too much for me!</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="union-find"><a class="header" href="#union-find">Union-Find</a></h1>
-<p>Read below one-liner implementation of the <code>find</code> function.</p>
+<p>Read below beautiful one-liner implementation of the <code>find</code> function.</p>
 <pre><code class="language-cpp">
 vector&lt;int&gt; p; // fathers or parents
 vector&lt;int&gt; ss; // size of each joint group.
 
 int find(int i) {
     /*
-    * If checks if itself is root. If not, then find its real parent.
-    * This part contains path compression because of recursive call to `find`.
+    * If it itself is root, just return. If not, then find its real parent.
+    * This part contains path compression because of the recursive call to
+    * the `find` function.
     */
     return p[i] == i ? i : p[i] = find(p[i]);
 }
@@ -829,6 +830,30 @@ void join(int i, int j, int cost) {
         p[pi] = pj;
         ss[pj] += ss[pi];
     }
+}
+</code></pre>
+<h2 id="applications"><a class="header" href="#applications">Applications</a></h2>
+<h3 id="cycle-detection"><a class="header" href="#cycle-detection">Cycle detection</a></h3>
+<p>We can make the <code>join</code> function to return a boolean indicating the two nodes
+are already joined or not. This trick can detect cycles in a graph.</p>
+<h3 id="minimal-spanning-tree"><a class="header" href="#minimal-spanning-tree">Minimal Spanning Tree</a></h3>
+<p>A minimum spanning tree (MST) or minimum weight spanning tree is a subset of
+the edges of a connected, edge-weighted undirected graph that connects all the
+vertices together, without any cycles and with the minimum possible total edge
+weight.</p>
+<p>Kruskal's algorithm uses Union-Find algorithm.</p>
+<pre><code class="language-cpp">vector&lt;array&lt;int,3&gt;&gt; edges; // {weight, u, v}
+
+// step 1: sort by weight
+sort(edges.begin(), edges.end());
+
+
+// step 2: Try to add each edge in order
+// Here, we make a small change to the `join` function. It returns true if
+// join happens, false if the two nodes are already joined.
+long long mst = 0;
+for (auto [w, u, v] : edges) {
+    if (join(u, v)) mst += w;
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="lower_bound-and-upper_bound"><a class="header" href="#lower_bound-and-upper_bound">lower_bound and upper_bound</a></h1>
