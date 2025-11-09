@@ -805,6 +805,32 @@ void insert(const string&amp; word) {
 </code></pre>
 <p>I asked chatgpt for more optimizations, and it suggests me that use a 2d array
 <code>trie[n][next]</code> to go further with cache friendly. Too much for me!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="union-find"><a class="header" href="#union-find">Union-Find</a></h1>
+<p>Read below one-liner implementation of the <code>find</code> function.</p>
+<pre><code class="language-cpp">
+vector&lt;int&gt; p; // fathers or parents
+vector&lt;int&gt; ss; // size of each joint group.
+
+int find(int i) {
+    /*
+    * If checks if itself is root. If not, then find its real parent.
+    * This part contains path compression because of recursive call to `find`.
+    */
+    return p[i] == i ? i : p[i] = find(p[i]);
+}
+
+void join(int i, int j, int cost) {
+    int pi = find(i), pj = find(j);
+
+    // this check is important. Otherwise, it updates group size which is wrong.
+    if (pi != pj) {
+        // Union by rank optimization - attaches smaller tree under larger one.
+        if (ss[i] &gt; ss[j]) swap(pi, pj);
+        p[pi] = pj;
+        ss[pj] += ss[pi];
+    }
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="lower_bound-and-upper_bound"><a class="header" href="#lower_bound-and-upper_bound">lower_bound and upper_bound</a></h1>
 <p>These two functions/interfaces are very counter intuitive the first time I read
 it. <code>lower_bound</code> means the position that is greater or equal than the target.

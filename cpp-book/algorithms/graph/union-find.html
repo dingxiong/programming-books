@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Trie - All I know about C++</title>
+        <title>Union-Find - All I know about C++</title>
 
 
         <!-- Custom HTML head -->
@@ -178,66 +178,42 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="trie"><a class="header" href="#trie">Trie</a></h1>
-<p>Trie tree is easy to implement. See below sample code for lower case English
-corps.</p>
-<pre><code class="language-cpp">struct Node {
-  shared_ptr&lt;Node&gt; next[26];
-  int val = 0;
-  Node() {}
-};
-using NodeP = shared_ptr&lt;Node&gt;;
+                        <h1 id="union-find"><a class="header" href="#union-find">Union-Find</a></h1>
+<p>Read below one-liner implementation of the <code>find</code> function.</p>
+<pre><code class="language-cpp">
+vector&lt;int&gt; p; // fathers or parents
+vector&lt;int&gt; ss; // size of each joint group.
 
-NodeP root = make_shared&lt;Node&gt;();
-
-void insert(const string&amp; word) {
-  NodeP node = root;
-  for (char c: word) {
-    int idx = c - 'a';
-    if (not node-&gt;next[idx]) node-&gt;next[idx] = make_shared&lt;Node&gt;();
-    node = node-&gt;next[idx];
-  }
-  node-&gt;val = 1;
+int find(int i) {
+    /*
+    * If checks if itself is root. If not, then find its real parent.
+    * This part contains path compression because of recursive call to `find`.
+    */
+    return p[i] == i ? i : p[i] = find(p[i]);
 }
-</code></pre>
-<h2 id="optimizations"><a class="header" href="#optimizations">Optimizations</a></h2>
-<p>The naive explicit tree structure using pointers is not cache friendly. One
-optimization is to use an array to represent the tree. The <code>next</code> vector should
-store the index of the next node in in the array. This was definitely not
-invented by me. Checkout
-<a href="https://cp-algorithms.com/string/aho_corasick.html">this reference</a>.</p>
-<pre><code class="language-cpp">struct Node {
-  int next[26], val = 0;
-  Node() { fill_n(next, 26, -1); } // very important to explicitly initialize it.
-};
 
-vector&lt;Node&gt; trie(1); // the first element is the root
+void join(int i, int j, int cost) {
+    int pi = find(i), pj = find(j);
 
-void insert(const string&amp; word) {
-  int node = 0; // root at index 0.
-  for (char c: word) {
-    int idx = c - 'a';
-    if (trie[node].next[idx] == -1) {
-      trie[node].next[idx] = trie.size();
-      trie.emplace_back(); // push the new node to the end of the array.
+    // this check is important. Otherwise, it updates group size which is wrong.
+    if (pi != pj) {
+        // Union by rank optimization - attaches smaller tree under larger one.
+        if (ss[i] &gt; ss[j]) swap(pi, pj);
+        p[pi] = pj;
+        ss[pj] += ss[pi];
     }
-    node = trie[node].next[idx];
-  }
-  trie[node].val = 1;
 }
 </code></pre>
-<p>I asked chatgpt for more optimizations, and it suggests me that use a 2d array
-<code>trie[n][next]</code> to go further with cache friendly. Too much for me!</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../algorithms/graph/pbds.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../algorithms/graph/trie.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../../algorithms/graph/union-find.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../algorithms/search.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -247,11 +223,11 @@ void insert(const string&amp; word) {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../algorithms/graph/pbds.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../algorithms/graph/trie.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../../algorithms/graph/union-find.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../algorithms/search.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
