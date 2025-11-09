@@ -13,6 +13,7 @@
     - [Fenwick Tree](algorithms/graph/fenwick_tree.md)
     - [Policy-Based Data Structures](algorithms/graph/pbds.md)
     - [Trie](algorithms/graph/trie.md)
+    - [Union-Find](algorithms/graph/union-find.md)
   - [Binary Search](algorithms/search.md)
   - [String](algorithms/string/README.md)
     - [kmp](algorithms/string/kmp.md)
