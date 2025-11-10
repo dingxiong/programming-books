@@ -9,6 +9,7 @@ expert in this area, then please answer the below questions.
 3. How about `int arr[5] = {1};`?
 4. For `vector<int> v(5);`, are all 5 elements initialized to zero?
 5. How about `vector<pair<int, int>> v(5);`?
+6. How about `array<int, 3> a;` and `vector<array<int, 3>> v(5);`?
 
 We need to cover at least concepts: `default initialization`,
 `zero initialization` and `value initialization`.
@@ -79,13 +80,30 @@ return ::new (static_cast<void*>(__location)) _Tp(std::forward<_Args>(__args)...
 ```
 
 For this vector example, `__args` is empty, thus it is simplified to
-`::new in();`. You can test it out[^note1], this is value initialization!
+`::new int();`. You can test it out[^note1], this is value initialization!
 Therefore, `vector<int> v(5);` initializes all elements to zero.
+
+#### Why is `new T(...)` value initialized?
+
+Let's present the result first:
+
+- `new T()` → value initialization (zeros for primitive types).
+- `new T` → default initialization (indeterminate for primitive types).
+
+[dcl.init#general-16.4](https://eel.is/c++draft/dcl.init#general-16.4) says "If
+the initializer is (), the object is value-initialized." But `()` cannot be
+used as initializer in most cases. The few exceptions include the `new`
+operator. Then [expr.new#24](https://eel.is/c++draft/expr.new#24) says "If the
+new-initializer is omitted, the object is default-initialized. Otherwise, the
+new-initializer is interpreted according to the initialization rules of
+[dcl.init] for direct-initialization." So it makes a huge difference if there
+is `()` or not in the `new` expression.
 
 Not just for `int`, it applies to `vector<pair<int, int>>` and
 `vector<tuple<int, float>>` as well. The default constructor of `pair` and
 `tuple` both value-initializes all elements. It is explicitly written in
-cppconference.com.
+cppconference.com. Similar goes with `vector<array<int, N>>`. The values are
+all zero.
 
 ### Array type.
 
@@ -109,6 +127,8 @@ Let's analyze three cases:
 3. The first element is `1`. The rest is `0`.
 4. Yes. All zeros;
 5. Yes. All pairs have zero first and zero second parts.
+6. `array<int, 3> a;` has random values. `vector<array<int, 3>> v(5);` are all
+   initialized to zero.
 
 [^note1]:
     Please do exactly as `int *p = new int();` because `int a();` won't give
