@@ -188,6 +188,7 @@ expert in this area, then please answer the below questions.</p>
 <li>How about <code>int arr[5] = {1};</code>?</li>
 <li>For <code>vector&lt;int&gt; v(5);</code>, are all 5 elements initialized to zero?</li>
 <li>How about <code>vector&lt;pair&lt;int, int&gt;&gt; v(5);</code>?</li>
+<li>How about <code>array&lt;int, 3&gt; a;</code> and <code>vector&lt;array&lt;int, 3&gt;&gt; v(5);</code>?</li>
 </ol>
 <p>We need to cover at least concepts: <code>default initialization</code>,
 <code>zero initialization</code> and <code>value initialization</code>.</p>
@@ -240,12 +241,27 @@ function. It basically says</p>
 <pre><code>return ::new (static_cast&lt;void*&gt;(__location)) _Tp(std::forward&lt;_Args&gt;(__args)...);
 </code></pre>
 <p>For this vector example, <code>__args</code> is empty, thus it is simplified to
-<code>::new in();</code>. You can test it out<sup class="footnote-reference" id="fr-note1-1"><a href="#footnote-note1">1</a></sup>, this is value initialization!
+<code>::new int();</code>. You can test it out<sup class="footnote-reference" id="fr-note1-1"><a href="#footnote-note1">1</a></sup>, this is value initialization!
 Therefore, <code>vector&lt;int&gt; v(5);</code> initializes all elements to zero.</p>
+<h4 id="why-is-new-t-value-initialized"><a class="header" href="#why-is-new-t-value-initialized">Why is <code>new T(...)</code> value initialized?</a></h4>
+<p>Let's present the result first:</p>
+<ul>
+<li><code>new T()</code> → value initialization (zeros for primitive types).</li>
+<li><code>new T</code> → default initialization (indeterminate for primitive types).</li>
+</ul>
+<p><a href="https://eel.is/c++draft/dcl.init#general-16.4">dcl.init#general-16.4</a> says "If
+the initializer is (), the object is value-initialized." But <code>()</code> cannot be
+used as initializer in most cases. The few exceptions include the <code>new</code>
+operator. Then <a href="https://eel.is/c++draft/expr.new#24">expr.new#24</a> says "If the
+new-initializer is omitted, the object is default-initialized. Otherwise, the
+new-initializer is interpreted according to the initialization rules of
+[dcl.init] for direct-initialization." So it makes a huge difference if there
+is <code>()</code> or not in the <code>new</code> expression.</p>
 <p>Not just for <code>int</code>, it applies to <code>vector&lt;pair&lt;int, int&gt;&gt;</code> and
 <code>vector&lt;tuple&lt;int, float&gt;&gt;</code> as well. The default constructor of <code>pair</code> and
 <code>tuple</code> both value-initializes all elements. It is explicitly written in
-cppconference.com.</p>
+cppconference.com. Similar goes with <code>vector&lt;array&lt;int, N&gt;&gt;</code>. The values are
+all zero.</p>
 <h3 id="array-type"><a class="header" href="#array-type">Array type.</a></h3>
 <p>Lastly, if <code>T</code> is an array type, then all its elements are value initialized.
 Let's analyze three cases:</p>
@@ -267,6 +283,8 @@ equivalent to <code>int arr[5] = {1, 2, 0, 0, 0};</code>.</li>
 <li>The first element is <code>1</code>. The rest is <code>0</code>.</li>
 <li>Yes. All zeros;</li>
 <li>Yes. All pairs have zero first and zero second parts.</li>
+<li><code>array&lt;int, 3&gt; a;</code> has random values. <code>vector&lt;array&lt;int, 3&gt;&gt; v(5);</code> are all
+initialized to zero.</li>
 </ol>
 <hr>
 <ol class="footnote-definition"><li id="footnote-note1">
