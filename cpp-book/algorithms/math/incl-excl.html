@@ -189,7 +189,7 @@ Formula: |A₁ ∪ ... ∪ Aₙ| =
 all these combinations? It is definitely extremely hard in the general case.
 However, in competitive programming context, <code>n</code> is usually less than <code>32</code>, so
 we can use bit mask to enumerate the set. The pseudocode is what follows.</p>
-<pre><code>// Input: vector&lt;int&gt; A =&gt; represent the array we need apply some count on it.
+<pre><code class="language-cpp">// Input: vector&lt;int&gt; A =&gt; represent the array we need apply some count on it.
 
 int n = A.size();
 int total = 0;
