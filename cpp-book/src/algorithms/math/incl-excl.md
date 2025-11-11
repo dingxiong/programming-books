@@ -14,7 +14,7 @@ all these combinations? It is definitely extremely hard in the general case.
 However, in competitive programming context, `n` is usually less than `32`, so
 we can use bit mask to enumerate the set. The pseudocode is what follows.
 
-```
+```cpp
 // Input: vector<int> A => represent the array we need apply some count on it.
 
 int n = A.size();
