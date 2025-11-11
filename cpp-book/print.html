@@ -1242,6 +1242,60 @@ object is actually destroyed. By that time, any template arguments that
 were incomplete types must have been completed.</p>
 </li>
 </ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="math"><a class="header" href="#math">Math</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="utility-functions"><a class="header" href="#utility-functions">Utility Functions</a></h1>
+<h2 id="gcd-greatest-common-divisor-and-lcm-least-common-multiplier"><a class="header" href="#gcd-greatest-common-divisor-and-lcm-least-common-multiplier">GCD (Greatest Common Divisor) and LCM (Least Common Multiplier)</a></h2>
+<p>Both <code>std::gcd</code> and <code>std::lcm</code> were introduced in c++17, so most time, you do
+not need to implement them by themself. However, for reference, see below
+one-liner implementation for <code>gcd</code>.</p>
+<pre><code class="language-cpp">int gcd(int a, int b) { return a == 0 ? b : gcd(b%a, a); };
+</code></pre>
+<p>Also, in some case, we need overflow protection, we can have below <code>lcm</code>
+implementation.</p>
+<pre><code class="language-cpp">using ll = long long;
+ll lcm(ll a, ll b, ll limit) {
+    int gcd = std::gcd(a, b);
+    if (a / gcd &gt; limit / b) return limit + 1; // return a number larger than limit indicating overflow.
+    return a / gcd * b;
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="inclusion-exclusion-principle"><a class="header" href="#inclusion-exclusion-principle">Inclusion-Exclusion Principle</a></h1>
+<p>The problem statement:</p>
+<pre><code>Goal: Count elements in A₁ ∪ A₂ ∪ ... ∪ Aₙ
+
+Formula: |A₁ ∪ ... ∪ Aₙ| =
+  Σ(single sets) - Σ(pairs) + Σ(triples) - ... + (-1)^(n+1) Σ(all n)
+</code></pre>
+<p>This formula looks daunting in the first appearance. How could you enumerate
+all these combinations? It is definitely extremely hard in the general case.
+However, in competitive programming context, <code>n</code> is usually less than <code>32</code>, so
+we can use bit mask to enumerate the set. The pseudocode is what follows.</p>
+<pre><code>// Input: vector&lt;int&gt; A =&gt; represent the array we need apply some count on it.
+
+int n = A.size();
+int total = 0;
+
+for (int mask = 1; mask &lt; (1&lt;&lt;n); mask++) {
+    int bits = 0; // number of element in the set.
+    for (int i = 0; i &lt; n; i++) {
+        if ((1&lt;&lt;i) &amp; mask) {
+            // A[i] is chosen, do the counting here.
+            ...
+
+            // Also, do not forget count included elements.
+            bits++;
+        }
+    }
+    cout == ... // business logic related
+
+    // Inclusion-exclusion: odd size adds, even size subtracts
+    if (bits % 2 == 1) {
+        total += count;
+    } else {
+        total -= count;
+    }
+}
+</code></pre>
 
                     </main>
 
