@@ -20,3 +20,6 @@
     - [Boyer–Moore](algorithms/string/Boyer-Moore.md)
     - [Z algorithm](algorithms/string/z-algorithm.md)
   - [Hash](algorithms/hash.md)
+  - [Math](algorithms/math/README.md)
+    - [Utility Functions](algorithms/math/utility.md)
+    - [Inclusion-Exclusion Principle](algorithms/math/incl-excl.md)
