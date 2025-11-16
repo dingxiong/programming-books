@@ -194,6 +194,21 @@ ll lcm(ll a, ll b, ll limit) {
     return a / gcd * b;
 }
 </code></pre>
+<h2 id="binomial-coefficients-without-overflow"><a class="header" href="#binomial-coefficients-without-overflow">Binomial Coefficients Without Overflow</a></h2>
+<p>I asked this question to claude.ai, and it gives me quite a few good
+approaches. Here, I just list the exact Multiplicative Formula approach.</p>
+<pre><code class="language-cpp">long long binomial(int n, int k) {
+    if (k &gt; n - k) k = n - k;  // Symmetry
+
+    long long result = 1;
+    for (int i = 0; i &lt; k; i++) {
+        result = result * (n - i) / (i + 1);
+    }
+    return result;
+}
+</code></pre>
+<p>You may wonder why <code>result * (n-i)</code> is divisible by <code>i+1</code>. This is because
+<code>C(n, k+1) = C(n, k) * (n-k) / (k+1)</code> which is guaranteed to be divisible.</p>
 
                     </main>
 
