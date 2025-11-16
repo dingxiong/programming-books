@@ -21,3 +21,23 @@ ll lcm(ll a, ll b, ll limit) {
     return a / gcd * b;
 }
 ```
+
+## Binomial Coefficients Without Overflow
+
+I asked this question to claude.ai, and it gives me quite a few good
+approaches. Here, I just list the exact Multiplicative Formula approach.
+
+```cpp
+long long binomial(int n, int k) {
+    if (k > n - k) k = n - k;  // Symmetry
+
+    long long result = 1;
+    for (int i = 0; i < k; i++) {
+        result = result * (n - i) / (i + 1);
+    }
+    return result;
+}
+```
+
+You may wonder why `result * (n-i)` is divisible by `i+1`. This is because
+`C(n, k+1) = C(n, k) * (n-k) / (k+1)` which is guaranteed to be divisible.
