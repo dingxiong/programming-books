@@ -58,3 +58,10 @@ unordred_set<int> dividents(int x) {
   return ans;
 }
 ```
+
+## Harmonic Series
+
+This is related to all dividends, some math problem may have complexity
+`N + N/2 + N/3 + .. + N/N`. This is called [Harmonic
+Series](https://en.wikipedia.org/wiki/Harmonic_series_(mathematics) which has
+complexity `log(N)`.
