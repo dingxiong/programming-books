@@ -41,3 +41,20 @@ long long binomial(int n, int k) {
 
 You may wonder why `result * (n-i)` is divisible by `i+1`. This is because
 `C(n, k+1) = C(n, k) * (n-k) / (k+1)` which is guaranteed to be divisible.
+
+## All dividends
+
+Not all problems require linear or `log(N)` complexity, some math problems can
+have a complexity factor of `sqrt(N)`. All dividends is one of them.
+
+```cpp
+unordred_set<int> dividents(int x) {
+  unordred_set<int> ans;
+  for (int i = 1; i * i <= x; i++) {
+    if (x % i != 0) continue;
+    ans.insert(i);
+    ans.insert(x/i);
+  }
+  return ans;
+}
+```
