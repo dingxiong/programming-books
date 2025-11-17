@@ -1274,6 +1274,19 @@ approaches. Here, I just list the exact Multiplicative Formula approach.</p>
 </code></pre>
 <p>You may wonder why <code>result * (n-i)</code> is divisible by <code>i+1</code>. This is because
 <code>C(n, k+1) = C(n, k) * (n-k) / (k+1)</code> which is guaranteed to be divisible.</p>
+<h2 id="all-dividends"><a class="header" href="#all-dividends">All dividends</a></h2>
+<p>Not all problems require linear or <code>log(N)</code> complexity, some math problems can
+have a complexity factor of <code>sqrt(N)</code>. All dividends is one of them.</p>
+<pre><code class="language-cpp">unordred_set&lt;int&gt; dividents(int x) {
+  unordred_set&lt;int&gt; ans;
+  for (int i = 1; i * i &lt;= x; i++) {
+    if (x % i != 0) continue;
+    ans.insert(i);
+    ans.insert(x/i);
+  }
+  return ans;
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="inclusion-exclusion-principle"><a class="header" href="#inclusion-exclusion-principle">Inclusion-Exclusion Principle</a></h1>
 <p>The problem statement:</p>
 <pre><code>Goal: Count elements in A₁ ∪ A₂ ∪ ... ∪ Aₙ
