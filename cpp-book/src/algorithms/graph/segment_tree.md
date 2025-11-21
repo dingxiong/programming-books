@@ -156,12 +156,12 @@ void update(NodeP node, int l, int r, int inc_amount) {
         return;
     }
     if (r <= m) {
-        insert(node->left, l, r);
+        update(node->left, l, r);
     } else if (l > m) {
-        insert(node->right, l, r);
+        update(node->right, l, r);
     } else {
-        insert(node->left, l, m);
-        insert(node->right, m+1, r);
+        update(node->left, l, m);
+        update(node->right, m+1, r);
     }
     // make sure left and right do not have un-realized updates.
     push(node->left); push(node->right);
