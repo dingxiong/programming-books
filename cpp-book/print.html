@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-460ec59d.js";
+            window.path_to_searchindex_js = "searchindex-7466a9b9.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-ceb34fc7.js"></script>
+        <script src="toc-6c4a140b.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1350,6 +1350,22 @@ have a complexity factor of <code>sqrt(N)</code>. All dividends is one of them.<
 <code>N + N/2 + N/3 + .. + N/N</code>. This is called [Harmonic
 Series](https://en.wikipedia.org/wiki/Harmonic_series_(mathematics) which has
 complexity <code>log(N)</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="bit-operation"><a class="header" href="#bit-operation">Bit Operation</a></h1>
+<p>A few commonly used std functions. There are corresponding CPU instructions for
+them, so it is very fast.</p>
+<ul>
+<li><code>std::popcount(T x)</code>: Returns the number of 1 bits in the value of x.</li>
+<li><code>std::bit_width(T x)</code>: the number of bits needed to store the value x.
+<ul>
+<li>MSB (most significant bit): <code>std::bit_width(x) - 1</code>.</li>
+</ul>
+</li>
+<li><code>std::countl_zero(T x)</code>.</li>
+<li><code>std::countl_one(T x)</code>.</li>
+</ul>
+<p>The LLVM implementation is
+<a href="https://github.com/llvm/llvm-project/tree/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__bit">here</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="inclusion-exclusion-principle"><a class="header" href="#inclusion-exclusion-principle">Inclusion-Exclusion Principle</a></h1>
 <p>The problem statement:</p>
