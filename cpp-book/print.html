@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-7466a9b9.js";
+            window.path_to_searchindex_js = "searchindex-da3422d3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-6c4a140b.js"></script>
@@ -1365,7 +1365,11 @@ them, so it is very fast.</p>
 <li><code>std::countl_one(T x)</code>.</li>
 </ul>
 <p>The LLVM implementation is
-<a href="https://github.com/llvm/llvm-project/tree/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__bit">here</a>.</p>
+<a href="https://github.com/llvm/llvm-project/tree/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__bit">here</a>.
+These functions are overkill for most cases. We can simply use a for loop to
+achieve we want</p>
+<pre><code class="language-cpp">for (int i = 31; i &gt;= 0; i--) if ((x &amp; (1&lt;&lt;i)) != 0)
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="inclusion-exclusion-principle"><a class="header" href="#inclusion-exclusion-principle">Inclusion-Exclusion Principle</a></h1>
 <p>The problem statement:</p>
