@@ -14,6 +14,7 @@
     - [Policy-Based Data Structures](algorithms/graph/pbds.md)
     - [Trie](algorithms/graph/trie.md)
     - [Union-Find](algorithms/graph/union-find.md)
+    - [Binary Lifting](algorithms/graph/binary-lifting.md)
   - [Binary Search](algorithms/search.md)
   - [String](algorithms/string/README.md)
     - [kmp](algorithms/string/kmp.md)
