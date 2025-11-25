@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-61b0d89a.js";
+            window.path_to_searchindex_js = "searchindex-460ec59d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-ceb34fc7.js"></script>
@@ -1330,6 +1330,19 @@ have a complexity factor of <code>sqrt(N)</code>. All dividends is one of them.<
     ans.insert(x/i);
   }
   return ans;
+}
+</code></pre>
+<h2 id="prime-factorization"><a class="header" href="#prime-factorization">Prime Factorization</a></h2>
+<pre><code class="language-cpp">vector&lt;int&gt; primeFactorization(int n) {
+    vector&lt;int&gt; factors;
+
+    while (n % 2 == 0) { factors.push_back(2); n = n / 2; }
+    for (int i = 3; i * i &lt;= n; i += 2) {
+        while (n % i == 0) { factors.push_back(i); n = n / i; }
+    }
+
+    if (n &gt; 1) factors.push_back(n);
+    return factors;
 }
 </code></pre>
 <h2 id="harmonic-series"><a class="header" href="#harmonic-series">Harmonic Series</a></h2>
