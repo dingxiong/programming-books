@@ -22,4 +22,5 @@
   - [Hash](algorithms/hash.md)
   - [Math](algorithms/math/README.md)
     - [Utility Functions](algorithms/math/utility.md)
+    - [Bit Operation](algorithms/math/bits.md)
     - [Inclusion-Exclusion Principle](algorithms/math/incl-excl.md)
