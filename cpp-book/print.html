@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-da3422d3.js";
+            window.path_to_searchindex_js = "searchindex-a5f3d51e.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-6c4a140b.js"></script>
+        <script src="toc-59ae6cc3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -893,6 +893,47 @@ sort(edges.begin(), edges.end());
 long long mst = 0;
 for (auto [w, u, v] : edges) {
     if (join(u, v)) mst += w;
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="binary-lifting"><a class="header" href="#binary-lifting">Binary Lifting</a></h1>
+<p>Binary lifting is an algorithmic technique primarily used in trees to
+efficiently answer queries related to ancestors, such as finding the <code>K-th</code>
+ancestor of a node or the Lowest Common Ancestor (LCA) of two nodes. It
+leverages dynamic programming and the binary representation of numbers to
+achieve logarithmic time complexity for queries after an initial preprocessing
+step.</p>
+<p>The central idea is to precompute and store the ancestors of each node at
+specific powers of two. For a node <code>u</code>, we store its <code>2^0</code>-th ancestor (its
+direct parent), its <code>2^1</code>-th ancestor (its grandparent), its <code>2^2</code>-th ancestor,
+and so on, up to the <code>2^k</code>-th ancestor where <code>2^k</code> is approximately equal to
+the height of the tree. This information is typically stored in a 2D array, say
+<code>up[node][k]</code>, which represents the <code>2^k</code>-th ancestor of node.</p>
+<pre><code class="language-cpp">using vi = vector&lt;int&gt;;
+vector&lt;vi&gt; up;
+
+build_power2_ancestors(int n, vector&lt;int&gt;&amp; parent) {
+    int dep = ceil(log2(n));
+    up.resize(dep, vi(n, -1));
+
+    for (int i = 0; i &lt; n; i++) up[0][i] = parent[i];
+    for (int p = 1; p &lt; dep; p++) {
+        for (int i = 0; i &lt; n; i++) {
+            int a = up[p-1][i];
+            if (a == -1) up[p][i] = -1;
+            else up[p][i] = up[p-1][a];
+        }
+    }
+}
+
+int get_kth_ancestor(int node, int k) {
+    for (int i = 31; i &gt;= 0; i--) {
+        if ((k &amp; (1&lt;&lt;i)) == 0) continue;
+        if (i &gt; up.size()-1) return -1;
+        node = up[i][node];
+        if (node == -1) return -1;
+    }
+    return node;
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
