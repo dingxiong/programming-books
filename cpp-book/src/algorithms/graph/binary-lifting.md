@@ -22,11 +22,13 @@ Use cases:
 
 ```cpp
 using vi = vector<int>;
+
 vector<vi> up;
+int LOG;
 
 build_power2_ancestors(int n, vector<int>& parent) {
-    int dep = ceil(log2(n));
-    up.resize(dep, vi(n, -1));
+    LOG = ceil(log2(n)) + 1;
+    up.resize(LOG, vi(n, -1));
 
     for (int i = 0; i < n; i++) up[0][i] = parent[i];
     for (int p = 1; p < dep; p++) {
@@ -38,13 +40,35 @@ build_power2_ancestors(int n, vector<int>& parent) {
     }
 }
 
-int get_kth_ancestor(int node, int k) {
-    for (int i = 31; i >= 0; i--) {
+int kth_ancestor(int node, int k) {
+    for (int i = LOG-1; i >= 0; i--) {
         if ((k & (1<<i)) == 0) continue;
         if (i > up.size()-1) return -1;
         node = up[i][node];
         if (node == -1) return -1;
     }
     return node;
+}
+
+int lca(int u, int v) {
+   // Make u the deeper node
+   if (depth[u] < depth[v]) swap(u, v);
+
+   // Bring u to the same level as v
+   int diff = depth[u] - depth[v];
+   u = kth_ancestor(u, diff);
+
+   // If u and v are the same after leveling
+   if (u == v) return u;
+
+   // Binary search for LCA
+   for (int j = LOG - 1; j >= 0; j--) {
+       if (up[j][u] != up[j][v]) {
+           u = up[j][u];
+           v = up[j][v];
+       }
+   }
+
+   return up[0][u];
 }
 ```
