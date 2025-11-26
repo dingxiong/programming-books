@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-a5f3d51e.js";
+            window.path_to_searchindex_js = "searchindex-5dbe7232.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-59ae6cc3.js"></script>
@@ -909,6 +909,12 @@ direct parent), its <code>2^1</code>-th ancestor (its grandparent), its <code>2^
 and so on, up to the <code>2^k</code>-th ancestor where <code>2^k</code> is approximately equal to
 the height of the tree. This information is typically stored in a 2D array, say
 <code>up[node][k]</code>, which represents the <code>2^k</code>-th ancestor of node.</p>
+<p>Use cases:</p>
+<ol>
+<li>kth ancestor.</li>
+<li>Least Common Ancestor (LCA).</li>
+<li>Path aggregates using binary lifting.</li>
+</ol>
 <pre><code class="language-cpp">using vi = vector&lt;int&gt;;
 vector&lt;vi&gt; up;
 
