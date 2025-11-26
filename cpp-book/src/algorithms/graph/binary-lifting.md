@@ -14,6 +14,12 @@ and so on, up to the `2^k`-th ancestor where `2^k` is approximately equal to
 the height of the tree. This information is typically stored in a 2D array, say
 `up[node][k]`, which represents the `2^k`-th ancestor of node.
 
+Use cases:
+
+1. kth ancestor.
+2. Least Common Ancestor (LCA).
+3. Path aggregates using binary lifting.
+
 ```cpp
 using vi = vector<int>;
 vector<vi> up;
