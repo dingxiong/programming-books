@@ -16,6 +16,8 @@
     - [Union-Find](algorithms/graph/union-find.md)
     - [Binary Lifting](algorithms/graph/binary-lifting.md)
   - [Binary Search](algorithms/search.md)
+  - [DP](algorithms/dp/README.md)
+    - [Digit DP](algorithms/dp/digit-dp.md)
   - [String](algorithms/string/README.md)
     - [kmp](algorithms/string/kmp.md)
     - [Boyer–Moore](algorithms/string/Boyer-Moore.md)

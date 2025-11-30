@@ -1,8 +1,13 @@
 # Fermat's Little Theorem
 
 [Fermat's little theorem](https://en.wikipedia.org/wiki/Fermat%27s_little_theorem)
-states that \\[ a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$
-is coprime to $p$.} \\]
+states that
+
+<!-- prettier-ignore-start -->
+\\[ 
+a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$ is coprime to $p$.} 
+\\]
+<!-- prettier-ignore-end -->
 
 `Coprime` means the only positive integer that is a divisor of both of `a` and
 `p` is 1. Since `p` is a prime, this means as long as `a` is smaller than p,
@@ -14,8 +19,11 @@ number like `1e9 + 7`, so the coprime condition is valid.
 One common application in competitive programming is evaluating modulo of
 fraction numbers.
 
-\\[ \frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdot
-a^{p-2} \pmod{p} \\]
+<!-- prettier-ignore-start -->
+\\[ 
+\frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdota^{p-2} \pmod{p} 
+\\]
+<!-- prettier-ignore-end -->
 
 ### Example: Multinomial Coefficient
 
