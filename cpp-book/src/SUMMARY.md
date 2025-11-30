@@ -23,5 +23,6 @@
   - [Hash](algorithms/hash.md)
   - [Math](algorithms/math/README.md)
     - [Utility Functions](algorithms/math/utility.md)
+    - [Fermat's Little Theorem](algorithms/math/little-theorem.md)
     - [Bit Operation](algorithms/math/bits.md)
     - [Inclusion-Exclusion Principle](algorithms/math/incl-excl.md)
