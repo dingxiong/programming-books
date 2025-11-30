@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-87b658dd.js";
+            window.path_to_searchindex_js = "searchindex-fcaf3ed4.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-89d99dbe.js"></script>
+        <script src="toc-1b2c453a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -994,6 +994,73 @@ The idea is very similar to radix sort. You try out index <code>1xxxxx</code> fi
 the value at index <code>100...0</code> is larger than the target, then you to <code>0xxxxx</code>.
 Otherwise, you go to the second significant bit <code>11xxxx</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="dp"><a class="header" href="#dp">DP</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="digit-dp"><a class="header" href="#digit-dp">Digit DP</a></h1>
+<p>Problem statement:</p>
+<pre><code>Count the number of integer say ‘x’ in the range [a, b]
+such that x satisfies some conditions related to digits.
+</code></pre>
+<p><a href="https://codeforces.com/blog/entry/53960">cf blog</a> is a good introduction with
+intuition. But I do not like the top-down recursive code it provides. I am more
+interested in the bottom-up solution with clear base condition and recursion
+formula.</p>
+<p>Let’s define function <code>int calc(int num);</code> returns the satisfied integers in
+range <code>[1, num]</code>, then the answer is <code>calc(b) - calc(a-1)</code>. Sometimes, it is
+not trivial to calculate <code>a-1</code>. We can have a small trick in the dp process to
+account for the inclusiveness. So the function interface becomes
+<code>int cal(int num, bool inclusive);</code></p>
+<p>The core part of digit dp is the concept of “tightness”. Let’s assume</p>
+<pre><code>n: the total number of digits of intger num.
+d0, d1, d_{n-1}: num's digits from left to right.
+</code></pre>
+<p>Then define</p>
+<pre><code>dp[pos][k][tight]:
+    Assume digits at position [0, pos-1] are all known,
+    then the count for valid configurations up to `pos`.
+
+---
+pos: 0, 1, 2, ..., n
+
+k: probelm related attribute/constraint. For example,
+  - If the constraint is that the number has fixed number of odd digits,
+    then k is the total odd digits in position [0, pos-1]
+  - If the constraint is that adjencent digit are different, then k is the
+    previous digit.
+
+tight: boolean -&gt; digits in position [0, pos-1] are not tight or not.
+</code></pre>
+<h2 id="recursion-formula"><a class="header" href="#recursion-formula">Recursion formula</a></h2>
+<!-- prettier-ignore-start -->
+<p>\[
+dp[pos][k][tight] = \sum_{i = 0}^{i \le up} dp[pos+1][k^{\prime}][tight^{\prime}]
+\]</p>
+<!-- prettier-ignore-end -->
+<p>Here <code>up = tight ? d_pos : 9</code>. Basically, it means at position <code>pos</code>, you can
+use digit <code>0</code>, <code>1</code>, …, <code>up</code>. And the new tight is determined by existing
+tight and the digit chosen, i.e., <code>new_tight = tight == 0 or i &lt; up ? 0 : 1;</code>.</p>
+<h2 id="base-condition"><a class="header" href="#base-condition">Base condition</a></h2>
+<p>We initialize dp matrix as <code>dp[n+1][max_k][2]</code>. Why <code>n+1</code>? As said,
+<code>dp[n][k][tight]</code> means the first <code>n</code> digits <code>[0, n-1]</code> are all fixed. So we
+have base conditions.</p>
+<pre><code>dp[n][valid k][0] = 1;
+
+# The base tight case is equivalent to say num is counted or not.
+dp[n][valid k][1] = inclusive ? 1 : 0;
+</code></pre>
+<h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
+<p>So far, we have assumed that the integer constraint has no relation with the
+leading zero digits. For example, if the constraint is the total number of odd
+digit should be fixed, then in this case <code>005</code> and <code>05</code> has the same odd digit
+count. What if the constraint is the number of even digit. Then in the
+recursion formula, when you choose <code>0</code> for the current digit, do you add it to
+the event digit count? It depends whether this digit belongs to the leading
+zero digits or not.</p>
+<p>In this case, we introduce a new boolean dimension <code>started</code>:
+<code>dp[pos][k][tight][started]</code>. The recursive formula for this dimension is</p>
+<pre><code>new_started = started or (digit &gt; 0)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="string"><a class="header" href="#string">String</a></h1>
 <h2 id="string-append"><a class="header" href="#string-append">String Append</a></h2>
 <p>There are many ways to append one string to the end of another string.</p>
@@ -1424,8 +1491,12 @@ complexity <code>log(N)</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="fermats-little-theorem"><a class="header" href="#fermats-little-theorem">Fermat’s Little Theorem</a></h1>
 <p><a href="https://en.wikipedia.org/wiki/Fermat%27s_little_theorem">Fermat’s little theorem</a>
-states that \[ a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$
-is coprime to $p$.} \]</p>
+states that</p>
+<!-- prettier-ignore-start -->
+<p>\[
+a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$ is coprime to $p$.}
+\]</p>
+<!-- prettier-ignore-end -->
 <p><code>Coprime</code> means the only positive integer that is a divisor of both of <code>a</code> and
 <code>p</code> is 1. Since <code>p</code> is a prime, this means as long as <code>a</code> is smaller than p,
 then they are coprimes. In most competitive programming, <code>p</code> is super large
@@ -1433,8 +1504,11 @@ number like <code>1e9 + 7</code>, so the coprime condition is valid.</p>
 <h2 id="applications-1"><a class="header" href="#applications-1">Applications</a></h2>
 <p>One common application in competitive programming is evaluating modulo of
 fraction numbers.</p>
-<p>\[ \frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdot
-a^{p-2} \pmod{p} \]</p>
+<!-- prettier-ignore-start -->
+<p>\[
+\frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdota^{p-2} \pmod{p}
+\]</p>
+<!-- prettier-ignore-end -->
 <h3 id="example-multinomial-coefficient"><a class="header" href="#example-multinomial-coefficient">Example: Multinomial Coefficient</a></h3>
 <pre><code class="language-cpp">long fact[100'001];
 int mod = 1e9 + 7;

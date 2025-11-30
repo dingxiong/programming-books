@@ -38,10 +38,10 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-87b658dd.js";
+            window.path_to_searchindex_js = "../../searchindex-fcaf3ed4.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../toc-89d99dbe.js"></script>
+        <script src="../../toc-1b2c453a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -179,8 +179,12 @@
                     <main>
                         <h1 id="fermats-little-theorem"><a class="header" href="#fermats-little-theorem">Fermat’s Little Theorem</a></h1>
 <p><a href="https://en.wikipedia.org/wiki/Fermat%27s_little_theorem">Fermat’s little theorem</a>
-states that \[ a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$
-is coprime to $p$.} \]</p>
+states that</p>
+<!-- prettier-ignore-start -->
+<p>\[
+a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$ is coprime to $p$.}
+\]</p>
+<!-- prettier-ignore-end -->
 <p><code>Coprime</code> means the only positive integer that is a divisor of both of <code>a</code> and
 <code>p</code> is 1. Since <code>p</code> is a prime, this means as long as <code>a</code> is smaller than p,
 then they are coprimes. In most competitive programming, <code>p</code> is super large
@@ -188,8 +192,11 @@ number like <code>1e9 + 7</code>, so the coprime condition is valid.</p>
 <h2 id="applications"><a class="header" href="#applications">Applications</a></h2>
 <p>One common application in competitive programming is evaluating modulo of
 fraction numbers.</p>
-<p>\[ \frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdot
-a^{p-2} \pmod{p} \]</p>
+<!-- prettier-ignore-start -->
+<p>\[
+\frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdota^{p-2} \pmod{p}
+\]</p>
+<!-- prettier-ignore-end -->
 <h3 id="example-multinomial-coefficient"><a class="header" href="#example-multinomial-coefficient">Example: Multinomial Coefficient</a></h3>
 <pre><code class="language-cpp">long fact[100'001];
 int mod = 1e9 + 7;

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Queue - All I know about C++</title>
+        <title>DP - All I know about C++</title>
 
 
         <!-- Custom HTML head -->
@@ -12,36 +12,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
-        <link rel="stylesheet" href="../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../css/general-2459343d.css">
-        <link rel="stylesheet" href="../css/chrome-ae938929.css">
-        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/code-details-6df1f091.css">
+        <link rel="stylesheet" href="../../theme/code-details-6df1f091.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../";
+            const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-fcaf3ed4.js";
+            window.path_to_searchindex_js = "../../searchindex-fcaf3ed4.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-1b2c453a.js"></script>
+        <script src="../../toc-1b2c453a.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -108,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -143,7 +143,7 @@
                     <h1 class="menu-title">All I know about C++</h1>
 
                     <div class="right-buttons">
-                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -177,83 +177,17 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="priority-queue"><a class="header" href="#priority-queue">Priority Queue</a></h1>
-<p>I do not like <code>std::priority_queue</code> because it does not provide the <code>begin</code> nor
-<code>end</code> iterator. Later on, I learned a set of functions to deal with max heap
-directly: <code>make_heap</code>, <code>push_heap</code> and <code>pop_heap</code>. I am very happy with it
-because it allows me implementing priority queue on top of vector, and I can
-iterate vector! Then I suspect the push/pop operation of <code>std::priority_queue</code>
-is just a wrapper of <code>push_heap</code>/<code>pop_heap</code>. It is! See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/queue#L899">code</a>.</p>
-<h2 id="constructors"><a class="header" href="#constructors">Constructors</a></h2>
-<p>A few examples.</p>
-<pre><code class="language-cpp">priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; pq;
-</code></pre>
-<pre><code class="language-cpp">auto comp = std::greater&lt;int&gt;{};
-priority_queue&lt;int, std::vector&lt;int&gt;, decltype(comp)&gt; pq(comp);
-</code></pre>
-<pre><code class="language-cpp">vector v = {1, 2, 3, 5};
-priority_queue&lt;int&gt; pq(v.begin(), v.end());
-</code></pre>
-<p>Just want to point out the last constructor has time complexity <code>O(N)</code>, not
-<code>O(NlogN)</code>. Underneath, it just calls
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/queue#L786">std::make_heap</a>.</p>
-<h2 id="heap"><a class="header" href="#heap">Heap</a></h2>
-<p>What is a max heap?</p>
-<ol>
-<li>
-<p>A heap must be a complete binary tree, meaning all levels are fully filled
-except possibly the last level, which fills from left to right. If we store
-it in an array <code>arr</code> with <code>arr[0]</code> being the root, then left and right of
-<code>arr[i]</code> are <code>arr[2*i+1]</code> and <code>arr[2*i+2]</code>.</p>
-</li>
-<li>
-<p>For max heap, every parent node is greater or equal to its children. Min
-heap is reverse.</p>
-</li>
-</ol>
-<p>The bottom-up heapify process takes <code>O(N)</code> steps.</p>
-<pre><code class="language-cpp">void heapify_down(vector&lt;int&gt;&amp; a, int n, int i) {
-    int mx = i, l = 2*i + 1, r = 2*i + 2;
-    if (l &lt; n &amp;&amp; a[l] &gt; a[mx]) mx = l;
-    if (r &lt; n &amp;&amp; a[r] &gt; a[mx]) mx = r;
-    if (mx != i) {
-        swap(a[i], a[mx]);
-        heapify_down(a, n, mx);
-    }
-}
-
-// Build max heap - O(n)
-void make_heap(vector&lt;int&gt;&amp; a) {
-    for (int i = a.size()/2 - 1; i &gt;= 0; i--)
-        heapify_down(a, a.size(), i);
-}
-
-// Insert element at end and heapify up - O(log n)
-void push_heap(vector&lt;int&gt;&amp; a) {
-    int i = a.size() - 1;
-    while (i &gt; 0 &amp;&amp; a[(i-1)/2] &lt; a[i]) { // parent at index (i-1)/2
-        swap(a[i], a[(i-1)/2]);
-        i = (i-1)/2;
-    }
-}
-
-// Remove max (root), move last to root, heapify down - O(log n)
-void pop_heap(vector&lt;int&gt;&amp; a) {
-    swap(a[0], a[a.size()-1]);
-    heapify_down(a, a.size()-1, 0);
-}
-</code></pre>
+                        <h1 id="dp"><a class="header" href="#dp">DP</a></h1>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../algorithms/sort.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../algorithms/search.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../algorithms/graph/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../algorithms/dp/digit-dp.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -263,11 +197,11 @@ void pop_heap(vector&lt;int&gt;&amp; a) {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../algorithms/sort.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../algorithms/search.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../algorithms/graph/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../algorithms/dp/digit-dp.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -287,13 +221,13 @@ void pop_heap(vector&lt;int&gt;&amp; a) {
         </script>
 
 
-        <script src="../elasticlunr-ef4e11c1.min.js"></script>
-        <script src="../mark-09e88c2c.min.js"></script>
-        <script src="../searcher-c2a407aa.js"></script>
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
 
-        <script src="../clipboard-1626706a.min.js"></script>
-        <script src="../highlight-abc7f01d.js"></script>
-        <script src="../book-a0b12cfe.js"></script>
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 
