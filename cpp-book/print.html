@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-367e5f4c.js";
+            window.path_to_searchindex_js = "searchindex-87b658dd.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-59ae6cc3.js"></script>
+        <script src="toc-89d99dbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1421,6 +1421,45 @@ have a complexity factor of <code>sqrt(N)</code>. All dividends is one of them.<
 <code>N + N/2 + N/3 + .. + N/N</code>. This is called [Harmonic
 Series](https://en.wikipedia.org/wiki/Harmonic_series_(mathematics) which has
 complexity <code>log(N)</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="fermats-little-theorem"><a class="header" href="#fermats-little-theorem">Fermat’s Little Theorem</a></h1>
+<p><a href="https://en.wikipedia.org/wiki/Fermat%27s_little_theorem">Fermat’s little theorem</a>
+states that \[ a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$
+is coprime to $p$.} \]</p>
+<p><code>Coprime</code> means the only positive integer that is a divisor of both of <code>a</code> and
+<code>p</code> is 1. Since <code>p</code> is a prime, this means as long as <code>a</code> is smaller than p,
+then they are coprimes. In most competitive programming, <code>p</code> is super large
+number like <code>1e9 + 7</code>, so the coprime condition is valid.</p>
+<h2 id="applications-1"><a class="header" href="#applications-1">Applications</a></h2>
+<p>One common application in competitive programming is evaluating modulo of
+fraction numbers.</p>
+<p>\[ \frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdot
+a^{p-2} \pmod{p} \]</p>
+<h3 id="example-multinomial-coefficient"><a class="header" href="#example-multinomial-coefficient">Example: Multinomial Coefficient</a></h3>
+<pre><code class="language-cpp">long fact[100'001];
+int mod = 1e9 + 7;
+
+long modpow(long x, int n) {
+  if (n == 0) return 1;
+  long h = modpow(x, n/2);
+  return h * h % mod * (n%2==1 ? x : 1) % mod;
+}
+
+// Calculate multinomial coefficient n!/(n1! * n2! * ...)
+// where n = n1 + n2 + ...
+long multinomial(const vector&lt;int&gt;&amp; ns) {
+    int n = accumulate(ns.begin(), ns.end(), 0);
+    fact[0] = 1;
+    for (int i = 1; i &lt;= n; i++) {
+        fact[i] = i * fact[i-1] % mod;
+    }
+    long ans = fact[n];
+    for (int ni : ns) {
+        ans = ans * modpow(fact[ni], mod-2) % mod;
+    }
+    return ans;
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="bit-operation"><a class="header" href="#bit-operation">Bit Operation</a></h1>
 <p>A few commonly used std functions. There are corresponding CPU instructions for

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Hash - All I know about C++</title>
+        <title>Fermat&#x27;s Little Theorem - All I know about C++</title>
 
 
         <!-- Custom HTML head -->
@@ -12,36 +12,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
-        <link rel="stylesheet" href="../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../css/general-2459343d.css">
-        <link rel="stylesheet" href="../css/chrome-ae938929.css">
-        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../theme/code-details-6df1f091.css">
+        <link rel="stylesheet" href="../../theme/code-details-6df1f091.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../";
+            const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-87b658dd.js";
+            window.path_to_searchindex_js = "../../searchindex-87b658dd.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-89d99dbe.js"></script>
+        <script src="../../toc-89d99dbe.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -108,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -143,7 +143,7 @@
                     <h1 class="menu-title">All I know about C++</h1>
 
                     <div class="right-buttons">
-                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -177,106 +177,54 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="hash"><a class="header" href="#hash">Hash</a></h1>
-<p>Types supported by std::hash:</p>
-<ul>
-<li>
-<p>all integral types: bool, int, float, enum, etc</p>
-</li>
-<li>
-<p><code>std::string</code>: It uses murmur hash.</p>
-</li>
-<li>
-<p>Raw pointer: hash the address. See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__functional/hash.h#L332">code</a>.</p>
-<p>This basically means below code <code>h(&amp;a)</code> and <code>h(&amp;b)</code> return different values.</p>
-<pre><code>struct MyClass {};
-MyClass a, b;
-std::hash&lt;MyClass*&gt; h;
-</code></pre>
-</li>
-<li>
-<p><code>std::unique_ptr</code>: hash the address. See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__memory/unique_ptr.h#L802">code</a>.
-This is similar to raw pointer.</p>
-</li>
-<li>
-<p><code>std::optional</code>: hash the value if present or just return zero. See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/optional#L1278">code</a>.</p>
-</li>
-<li>
-<p><code>std::variant</code>: combine hash of the value and index. See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/variant#L1606">code</a>.
-This makes sense because union types only has one correct view. It is
-essentially the same as the backing type. But, not sure why we combine the
-index information. To distinguish the two possibilities of
-<code>variant&lt;int, int&gt;</code>? Wait. This is not even a valid variant.</p>
-</li>
-</ul>
-<p>It does not support <code>vector</code> in general, but has a specialization for
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__vector/vector_bool.h#L1095">vector<bool></bool></a>.
-What the hell!</p>
-<h2 id="combine-hash"><a class="header" href="#combine-hash">Combine hash</a></h2>
-<p>For non-supported types, we need to write the hash function by ourselves. It is
-usually an art of combining hashes. See below example for <code>std::pair</code>.</p>
-<pre><code class="language-cpp">class HashPair {
+                        <h1 id="fermats-little-theorem"><a class="header" href="#fermats-little-theorem">Fermat’s Little Theorem</a></h1>
+<p><a href="https://en.wikipedia.org/wiki/Fermat%27s_little_theorem">Fermat’s little theorem</a>
+states that \[ a^{p-1} \equiv 1 \pmod{p} \quad \text{if $p$ is prime and $a$
+is coprime to $p$.} \]</p>
+<p><code>Coprime</code> means the only positive integer that is a divisor of both of <code>a</code> and
+<code>p</code> is 1. Since <code>p</code> is a prime, this means as long as <code>a</code> is smaller than p,
+then they are coprimes. In most competitive programming, <code>p</code> is super large
+number like <code>1e9 + 7</code>, so the coprime condition is valid.</p>
+<h2 id="applications"><a class="header" href="#applications">Applications</a></h2>
+<p>One common application in competitive programming is evaluating modulo of
+fraction numbers.</p>
+<p>\[ \frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdot
+a^{p-2} \pmod{p} \]</p>
+<h3 id="example-multinomial-coefficient"><a class="header" href="#example-multinomial-coefficient">Example: Multinomial Coefficient</a></h3>
+<pre><code class="language-cpp">long fact[100'001];
+int mod = 1e9 + 7;
 
-  template&lt;class A, class B&gt;
-  size_t operator()(const pair&lt;A, B&gt;&amp; p) const {
-    return std::hash&lt;A&gt;{}(p.first) ^ (std::hash&lt;B&gt;{}(p.second) &lt;&lt; 1);
-  }
-};
+long modpow(long x, int n) {
+  if (n == 0) return 1;
+  long h = modpow(x, n/2);
+  return h * h % mod * (n%2==1 ? x : 1) % mod;
+}
+
+// Calculate multinomial coefficient n!/(n1! * n2! * ...)
+// where n = n1 + n2 + ...
+long multinomial(const vector&lt;int&gt;&amp; ns) {
+    int n = accumulate(ns.begin(), ns.end(), 0);
+    fact[0] = 1;
+    for (int i = 1; i &lt;= n; i++) {
+        fact[i] = i * fact[i-1] % mod;
+    }
+    long ans = fact[n];
+    for (int ni : ns) {
+        ans = ans * modpow(fact[ni], mod-2) % mod;
+    }
+    return ans;
+}
 </code></pre>
-<h3 id="why-h1--h2--1"><a class="header" href="#why-h1--h2--1">Why <code>h1 ^ (h2 &lt;&lt; 1)</code>?</a></h3>
-<p>Why XOR? Among the three simplest bit operator AND, OR and XOR, XOR’s result is
-evenly distributed. For example, for the 4 combinations of <code>0</code>, <code>1</code>, the XOR’s
-result has two <code>0</code>s and two <code>1</code>s. AND produces one <code>1</code> and three <code>0</code>s. OR
-produces three <code>1</code>s, and one <code>0</code>.</p>
-<p>Why left shift? It makes order sensitive, so <code>hash(a, b) != hash(b, a)</code>.</p>
-<h2 id="how-is-hash-requirement-enforced"><a class="header" href="#how-is-hash-requirement-enforced">How is hash requirement enforced?</a></h2>
-<p>Some of them uses
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__functional/hash.h#L537">__enable_hash_helper</a>.
-It requires all key types to be hashable.</p>
-<p>Some of them put it in the destructor. See
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/unordered_set#L1337">example</a>.
-Why?</p>
-<p>Below is AI’s response.</p>
-<ol>
-<li>
-<p>Incomplete Types at Instantiation: When you instantiate a class template
-like std::unordered_set<mytype>, MyType can be an incomplete type at that
-point. An incomplete type is a type that has been declared but not yet
-fully defined (e.g., class MyType;). You can have pointers and references
-to incomplete types, but you can’t know their size or access their members.</mytype></p>
-</li>
-<li>
-<p><code>static_assert</code> Requires Complete Types: A static_assert that inspects the
-properties of a type (like checking if it’s copy-constructible or if it has
-a specific function call operator) requires the type to be complete. If the
-static_assert were placed at the top of the unordered_set class definition,
-it would be checked as soon as you write std::unordered_set<mytype>. If
-MyType is incomplete at that point, the compilation would fail, even if
-MyType is defined later in the same file.</mytype></p>
-</li>
-<li>
-<p>Delayed Instantiation of the Destructor: The body of a class template’s
-member function (including the destructor) is not instantiated until it is
-actually used or explicitly instantiated. By placing the static_assert in
-the destructor, the check is delayed until the point where an unordered_set
-object is actually destroyed. By that time, any template arguments that
-were incomplete types must have been completed.</p>
-</li>
-</ol>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../algorithms/string/z-algorithm.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../algorithms/math/utility.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../algorithms/math/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../algorithms/math/bits.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -286,11 +234,11 @@ were incomplete types must have been completed.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../algorithms/string/z-algorithm.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../algorithms/math/utility.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../algorithms/math/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../algorithms/math/bits.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -310,13 +258,13 @@ were incomplete types must have been completed.</p>
         </script>
 
 
-        <script src="../elasticlunr-ef4e11c1.min.js"></script>
-        <script src="../mark-09e88c2c.min.js"></script>
-        <script src="../searcher-c2a407aa.js"></script>
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
 
-        <script src="../clipboard-1626706a.min.js"></script>
-        <script src="../highlight-abc7f01d.js"></script>
-        <script src="../book-a0b12cfe.js"></script>
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 
