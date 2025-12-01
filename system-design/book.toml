@@ -1,0 +1,9 @@
+[book]
+authors = ["Xiong Ding"]
+language = "en"
+src = "src"
+title = "System Design"
+
+[output.html]
+site-url = "/system-design/"
+mathjax-support = true
