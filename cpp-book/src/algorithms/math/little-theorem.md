@@ -21,7 +21,7 @@ fraction numbers.
 
 <!-- prettier-ignore-start -->
 \\[ 
-\frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdota^{p-2} \pmod{p} 
+\frac{x}{a} \equiv \frac{x\cdot a^{p-2}}{a \cdot a^{p-2}} \equiv x \cdot a^{p-2} \pmod{p} 
 \\]
 <!-- prettier-ignore-end -->
 
