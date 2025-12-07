@@ -38,10 +38,10 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-96c4b192.js";
+            window.path_to_searchindex_js = "../searchindex-cad11398.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../toc-1b2c453a.js"></script>
+        <script src="../toc-3e08cff0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -188,11 +188,24 @@ equal to the target.</p>
 The former is implemented
 <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/lower_bound.h#L30">here</a>.
 The latter is implemented
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__tree#L2156">here</a>.</p>
-<p><code>std::lower_bound</code> only requires <code>ForwardIterator</code>. The time complexity is
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__tree#L2156">here</a>.
+<code>std::lower_bound</code> only requires <code>ForwardIterator</code>. The time complexity is
 <code>O(logN)</code> for <code>RandomAccessIterator</code> but <code>O(NlogN)</code> for non random access
 iterators because it uses <code>std::advance</code>. On the other hand, <code>map::lower_bound</code>
 bisects to the left or right branch, so it is always <code>O(logN)</code>.</p>
+<p>Another difference between <code>std::lower_bound</code> and <code>map::lower_bound</code> is that
+the latter does not take an optional comparator because the comparator is
+inherited from the map definition. The former can take an optional <code>comp</code>
+argument. But be careful that this comparator is called as
+<code>comp(*iter, target_value)</code>. This is useful when you have an sorted indices of
+the original array. See example below. See the difference of the two
+comparators.</p>
+<pre><code class="language-cpp">vector&lt;int&gt; nums = {3, 1, 2};
+vector&lt;int&gt; idxs = {0, 1, 2};
+sort(idxs.begin(), idxs.end(), [&amp;nums](int a, int b) {return nums[a] &lt; nums[b]; }};
+lower_bound(idxs.begin(), idxs.end(), [&amp;nums](int a, int b) {return nums[a] &lt; b; });
+</code></pre>
+<h2 id="binary-search"><a class="header" href="#binary-search">Binary Search</a></h2>
 <p><code>std::binary_search</code> is just a wrapper of <code>std::lower_bound</code>. See
 <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/binary_search.h#L27">code</a>.
 It returns <code>__first != __last &amp;&amp; !__comp(__value, *__first)</code>, i.e., a boolean
