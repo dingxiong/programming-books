@@ -26,5 +26,6 @@
   - [Math](algorithms/math/README.md)
     - [Utility Functions](algorithms/math/utility.md)
     - [Fermat's Little Theorem](algorithms/math/little-theorem.md)
+    - [Sieve of Eratosthenes](algorithms/math/sieve.md)
     - [Bit Operation](algorithms/math/bits.md)
     - [Inclusion-Exclusion Principle](algorithms/math/incl-excl.md)

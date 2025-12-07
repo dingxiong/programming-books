@@ -12,11 +12,27 @@ The former is implemented
 [here](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/lower_bound.h#L30).
 The latter is implemented
 [here](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__tree#L2156).
-
 `std::lower_bound` only requires `ForwardIterator`. The time complexity is
 `O(logN)` for `RandomAccessIterator` but `O(NlogN)` for non random access
 iterators because it uses `std::advance`. On the other hand, `map::lower_bound`
 bisects to the left or right branch, so it is always `O(logN)`.
+
+Another difference between `std::lower_bound` and `map::lower_bound` is that
+the latter does not take an optional comparator because the comparator is
+inherited from the map definition. The former can take an optional `comp`
+argument. But be careful that this comparator is called as
+`comp(*iter, target_value)`. This is useful when you have an sorted indices of
+the original array. See example below. See the difference of the two
+comparators.
+
+```cpp
+vector<int> nums = {3, 1, 2};
+vector<int> idxs = {0, 1, 2};
+sort(idxs.begin(), idxs.end(), [&nums](int a, int b) {return nums[a] < nums[b]; }};
+lower_bound(idxs.begin(), idxs.end(), [&nums](int a, int b) {return nums[a] < b; });
+```
+
+## Binary Search
 
 `std::binary_search` is just a wrapper of `std::lower_bound`. See
 [code](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__algorithm/binary_search.h#L27).
