@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cad11398.js";
+            window.path_to_searchindex_js = "searchindex-2c89c225.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-3e08cff0.js"></script>
+        <script src="toc-6b586294.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -302,6 +302,35 @@ initialized to zero.</li>
 what you want. Checkout “most vexing parse”. <a href="#fr-note1-1">↩</a></p>
 </li>
 </ol>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="abbreviated-function-template"><a class="header" href="#abbreviated-function-template">Abbreviated function template</a></h1>
+<p>C++20 introduced a new syntax
+<a href="https://en.cppreference.com/w/cpp/language/function_template.html">Abbreviated function template</a>.
+The proposal is <code>P1141R2</code>. <a href="https://eel.is/c%2B%2Bdraft/dcl.fct#21">dcl.fct#21</a>
+provides some good examples. Basically, when you write a function parameter as
+auto, the compiler automatically generates a template.</p>
+<p>TODO: write more details about LLVM implementation.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="template"><a class="header" href="#template">Template</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="ctad-class-template-argument-deduction"><a class="header" href="#ctad-class-template-argument-deduction">CTAD (Class template argument deduction)</a></h1>
+<h2 id="greater"><a class="header" href="#greater">greater&lt;&gt;</a></h2>
+<p>Many times, you can omit the type parameter in functional operators such as
+<code>std::greater&lt;&gt;</code>. This is a new feature of C++14. See the implementation of
+<code>std::greater</code>
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__functional/operations.h#L447">code1</a>
+and
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__functional/operations.h#L460">code2</a>
+for example. The trick is simple: the template parameter has a default <code>void</code>
+value, and the void specialization perfectly forwards all arguments are
+perfectly forward all arguments to <code>operator()(...)</code>.</p>
+<p>See <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3421.htm">n3421</a>
+for the motivation and why choosing this approach.</p>
+<h2 id="vector-v"><a class="header" href="#vector-v">vector v;</a></h2>
+<p>We do not need to write boilerplate code like
+<code>vector&lt;vector&lt;int&gt;&gt; v(5, vector&lt;int&gt;(6));</code> any more. In C++17, we can simply
+write <code>vector v(5, vector&lt;int&gt;(6));</code> Thanks to
+<a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html">P0091R3: Template argument deduction for class templates</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="competitive-programming"><a href="#competitive-programming" class="header">Competitive Programming</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
