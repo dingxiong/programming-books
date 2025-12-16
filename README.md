@@ -37,7 +37,7 @@ Add a lint-staged block and also, add yarn lint-staged in .husky/pre-commit.
 
 Node, every time, we need do nvm use before commit.
 
-## cpp-book
+## dev-notes
 
 Local development
 

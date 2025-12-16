@@ -2,9 +2,13 @@
 authors = ["Xiong Ding"]
 language = "en"
 src = "src"
-title = "All I know about C++"
+title = "Life as a Programmer"
 
 [output.html]
-site-url = "/cpp-book/"
+site-url = "/dev-notes/"
 mathjax-support = true
 additional-css = ["theme/code-details.css"]
+
+[output.html.fold]
+enable = true
+level = 2

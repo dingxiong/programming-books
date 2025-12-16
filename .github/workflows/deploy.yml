@@ -18,10 +18,10 @@ jobs:
 
       - name: Build cpp-book
         run: |
-          cd cpp-book 
+          cd dev-notes
           mdbook build
           mkdir -p ../gh-pages
-          cp -r book ../gh-pages/cpp-book
+          cp -r book ../gh-pages/dev-notes
 
       - name: copy the root index file 
         run: |
