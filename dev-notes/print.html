@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-0f65e578.js";
+            window.path_to_searchindex_js = "searchindex-9e4b3991.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-e09b64e7.js"></script>
+        <script src="toc-183911b0.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -181,6 +181,34 @@
                         <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p>This book contains all I know as a software engineer. From the content you can
 see how miserable it is!</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="security"><a class="header" href="#security">Security</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="tls"><a class="header" href="#tls">TLS</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="mtls"><a class="header" href="#mtls">mTLS</a></h1>
+<h2 id="encrypted-private-key"><a class="header" href="#encrypted-private-key">Encrypted private key</a></h2>
+<pre><code class="language-bash">openssl rsa -in encrypted-private-key.pem -out decrypted-private-key.pem \
+-passin file:passphrase.txt
+</code></pre>
+<h2 id="mtls-support-in-curl"><a class="header" href="#mtls-support-in-curl">mTLS support in <code>curl</code></a></h2>
+<p>To specify client’s certificate, we should do as follows,</p>
+<pre><code class="language-bash">curl ... \
+--key &lt;private-key-file&gt; \
+--cert &lt;client-certificate-file&gt; \
+--pass &lt;plain-text-passphrase&gt;
+</code></pre>
+<p>First, note that private key and certificate are passed in as file name, but
+passphrase is passed in as plain text. You can tell the difference from
+<code>curl</code>’s cmd line
+<a href="https://github.com/curl/curl/blob/425a2aa1af0fec9ab41fcc1bcb316b623cebccc7/src/tool_getparam.c#L2216">option parsing logic</a>
+and
+<a href="https://github.com/curl/curl/blob/425a2aa1af0fec9ab41fcc1bcb316b623cebccc7/lib/urldata.h#L276">ssl config</a>.
+Why? This is because internally, curl does not do TLS by itself. All work is
+delegate to Openssl. See
+<a href="https://github.com/curl/curl/blob/425a2aa1af0fec9ab41fcc1bcb316b623cebccc7/lib/vtls/openssl.c#L1546">code</a>.
+Openssl’s C interface just works this way. It takes private key and certificate
+file name, but passphrase as string value in its APIs.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="all-i-know-about-c"><a class="header" href="#all-i-know-about-c">All I know about C++</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
@@ -1650,6 +1678,16 @@ for (int mask = 1; mask &lt; (1&lt;&lt;n); mask++) {
         total -= count;
     }
 }
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="build-from-source"><a class="header" href="#build-from-source">Build from source</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="curl"><a class="header" href="#curl">curl</a></h1>
+<p>Curl’s <a href="https://curl.se/docs/install.html">official installation page</a> is not
+accurate. To build <code>curl</code> locally, see below instructions.</p>
+<pre><code class="language-bash">./buildconf
+./configure --with-openssl
+bear -- make -j5
 </code></pre>
 
                     </main>
