@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Boyer–Moore - Life as a Programmer</title>
+        <title>Dijkstra - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -177,21 +177,58 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="boyermoore"><a class="header" href="#boyermoore">Boyer–Moore</a></h1>
-<p>This is also a string matching algorithm. It has sublinear time complexity for
-regular cases, but worse <code>O(n*m)</code> complexity, so it is frequently used in
-practice, but not good for competitive programming. By the way, C++ 17 and
-above has std implementation for Boyer-Moore search algorithm.</p>
+                        <h1 id="dijkstra"><a class="header" href="#dijkstra">Dijkstra</a></h1>
+<p>Dijkstra works for both directed and undirected graphs. Below is my favorite
+implementation.</p>
+<pre><code class="language-cpp">// a graph with nodes 0, 1, ,, n-1.
+// graph[i] is node i's neighbors and the corresponding distance/cost.
+vector&lt;int&gt; shortest_distance(int from, const vector&lt;vector&lt;pii&gt;&gt;&amp; graph) {
+  int n = graph.size();
+  vector&lt;int&gt; ds(n, INT_MAX); ds[from] = 0;
+
+  auto comp = [&amp;ds](int a, int b) {
+      if (ds[a] != ds[b]) return ds[a] &lt; ds[b];
+      return a &lt; b;
+  };
+  set&lt;int, decltype(comp)&gt; q(comp);
+
+  for (int i = 0; i &lt; N; i++) q.insert(i);
+
+  while(q.size()) {
+      int idx = *q.begin(); q.erase(q.begin());
+      if (ds[idx] == INT_MAX)
+          return ds; // we cannot reach remaining nodes, so we can return early.
+      for (const auto&amp; [next, cost] : graph[idx]) {
+          int newc = ds[idx] + cost;
+          if (newc &lt; ds[next]) {
+              q.erase(next);
+              ds[next] = newc;
+              q.insert(next);
+          }
+      }
+  }
+  return ds;
+}
+</code></pre>
+<p>A few notes:</p>
+<ol>
+<li>Why use <code>set</code> instead of <code>priority_queue</code>? This is because the same vertex
+can be relaxed multiple times. Priority queue can process the same node
+unnecessarily.</li>
+<li>When updating (i.e. remove + insert) a set element, remove first, and then
+update distance value.</li>
+</ol>
+<p>Time complexity: O(VlogV + E)</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/string/kmp.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../../cpp/algorithms/graph/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/string/z-algorithm.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../../cpp/algorithms/graph/segment_tree.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -201,11 +238,11 @@ above has std implementation for Boyer-Moore search algorithm.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/string/kmp.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../../cpp/algorithms/graph/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/string/z-algorithm.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../../cpp/algorithms/graph/segment_tree.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
