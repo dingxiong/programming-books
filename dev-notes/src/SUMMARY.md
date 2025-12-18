@@ -17,6 +17,7 @@
     - [Sort](cpp/algorithms/sort.md)
     - [Queue](cpp/algorithms/queue.md)
     - [Tree, Graph](cpp/algorithms/graph/README.md)
+      - [Dijkstra](cpp/algorithms/graph/dijkstra.md)
       - [Segment Tree](cpp/algorithms/graph/segment_tree.md)
       - [Fenwick Tree](cpp/algorithms/graph/fenwick_tree.md)
       - [Policy-Based Data Structures](cpp/algorithms/graph/pbds.md)
