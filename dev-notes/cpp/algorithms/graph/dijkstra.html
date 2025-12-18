@@ -38,7 +38,7 @@
             const path_to_root = "../../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-0b79f238.js";
+            window.path_to_searchindex_js = "../../../searchindex-24828ad8.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../../toc-adb45436.js"></script>
@@ -191,8 +191,7 @@ vector&lt;int&gt; shortest_distance(int from, const vector&lt;vector&lt;pii&gt;&
       return a &lt; b;
   };
   set&lt;int, decltype(comp)&gt; q(comp);
-
-  for (int i = 0; i &lt; N; i++) q.insert(i);
+  for (int i = 0; i &lt; n; i++) q.insert(i);
 
   while(q.size()) {
       int idx = *q.begin(); q.erase(q.begin());
@@ -217,8 +216,27 @@ can be relaxed multiple times. Priority queue can process the same node
 unnecessarily.</li>
 <li>When updating (i.e. remove + insert) a set element, remove first, and then
 update distance value.</li>
+<li>When you see <code>ds[idx] == INT_MAX</code> when working on the queue, then it mean
+you encounter a node that is not accessible from the source node. The rest
+nodes were not accessible either. It is time to stop the algorithm.</li>
+<li>The <code>while</code> loop executes exactly <code>n</code> times if all nodes are accessible, and
+less than <code>n</code> times if we abort early. This is because in each iteration we
+pop out one vertex.</li>
 </ol>
-<p>Time complexity: O(VlogV + E)</p>
+<h2 id="time-complexity"><a class="header" href="#time-complexity">Time complexity</a></h2>
+<p>The time complexity of above implementation is <code>(E+V)*logE</code>. Different
+implementation can have different complexity.</p>
+<ul>
+<li><code>E*logE</code> comes from two parts. We insert <code>0:n</code> to the <code>set</code>, The inside the
+loop, we pop out the beginning element.</li>
+<li><code>V*logE</code> comes from the relaxing stage. The <code>erase</code> and <code>insert</code> operation
+takes <code>logE</code> time, and we can have at most <code>V</code> relaxations. Each edge can be
+used at most once to relax a vertex.</li>
+</ul>
+<p>It seems we can further simplify the expression to <code>V*logE</code>, but that is only
+valid for dense graph. For a sparse graph <code>E</code> is much smaller than <code>V</code>, so in
+general case, we do not know which one is larger. Then it is better to have
+both.</p>
 
                     </main>
 
