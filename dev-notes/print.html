@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-24828ad8.js";
+            window.path_to_searchindex_js = "searchindex-12ca58db.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-adb45436.js"></script>
@@ -586,6 +586,13 @@ used at most once to relax a vertex.</li>
 valid for dense graph. For a sparse graph <code>E</code> is much smaller than <code>V</code>, so in
 general case, we do not know which one is larger. Then it is better to have
 both.</p>
+<h2 id="shortest-path"><a class="header" href="#shortest-path">Shortest Path</a></h2>
+<p>If you need the shortest path as well, you can simply update the parent
+information whenever relaxation happens.</p>
+<h2 id="array-implementation-variant"><a class="header" href="#array-implementation-variant">Array implementation variant</a></h2>
+<p><a href="https://cp-algorithms.com/graph/dijkstra.html">cp-algorithms</a> has a different
+implementation which has time complexity <code>E^2</code>. It is better than the heap
+implementation above for dense graph.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="segment-tree"><a class="header" href="#segment-tree">Segment Tree</a></h1>
 <p>A segment tree is a binary tree data structure used to efficiently answer range
