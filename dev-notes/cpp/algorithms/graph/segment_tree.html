@@ -38,7 +38,7 @@
             const path_to_root = "../../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-12ca58db.js";
+            window.path_to_searchindex_js = "../../../searchindex-cf287e07.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../../toc-adb45436.js"></script>
@@ -220,9 +220,9 @@ int query(NodeP node, int l, int r) {
         return node-&gt;s;
     }
 
-    if (r &lt;= m) return search(node-&gt;left, l, r);
-    else if (l &gt; m) return search(node-&gt;right, l, r);
-    else return search(node-&gt;left, l, m) + search(node-&gt;right, m+1, r);
+    if (r &lt;= m) return query(node-&gt;left, l, r);
+    else if (l &gt; m) return query(node-&gt;right, l, r);
+    else return query(node-&gt;left, l, m) + query(node-&gt;right, m+1, r);
 }
 
 // Add val to the existing value at node i.
@@ -307,9 +307,9 @@ int query(NodeP node, int l, int r) {
         return node-&gt;s;
     }
 
-    if (r &lt;= m) return search(node-&gt;left, l, r);
-    else if (l &gt; m) return search(node-&gt;right, l, r);
-    else return search(node-&gt;left, l, m) + search(node-&gt;right, m+1, r);
+    if (r &lt;= m) return query(node-&gt;left, l, r);
+    else if (l &gt; m) return query(node-&gt;right, l, r);
+    else return query(node-&gt;left, l, m) + query(node-&gt;right, m+1, r);
 }
 
 void update(NodeP node, int l, int r, int inc_amount) {
