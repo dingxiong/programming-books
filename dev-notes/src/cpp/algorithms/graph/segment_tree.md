@@ -47,9 +47,9 @@ int query(NodeP node, int l, int r) {
         return node->s;
     }
 
-    if (r <= m) return search(node->left, l, r);
-    else if (l > m) return search(node->right, l, r);
-    else return search(node->left, l, m) + search(node->right, m+1, r);
+    if (r <= m) return query(node->left, l, r);
+    else if (l > m) return query(node->right, l, r);
+    else return query(node->left, l, m) + query(node->right, m+1, r);
 }
 
 // Add val to the existing value at node i.
@@ -140,9 +140,9 @@ int query(NodeP node, int l, int r) {
         return node->s;
     }
 
-    if (r <= m) return search(node->left, l, r);
-    else if (l > m) return search(node->right, l, r);
-    else return search(node->left, l, m) + search(node->right, m+1, r);
+    if (r <= m) return query(node->left, l, r);
+    else if (l > m) return query(node->right, l, r);
+    else return query(node->left, l, m) + query(node->right, m+1, r);
 }
 
 void update(NodeP node, int l, int r, int inc_amount) {
