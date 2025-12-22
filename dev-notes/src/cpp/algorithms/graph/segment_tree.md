@@ -123,6 +123,7 @@ void push(NodeP node) {
         node->s += node->lazy * (node->r - node->l + 1);
         // only push down when it is not a leaf node.
         if (node->l != node->r) {
+            create_children(node);
             node->left->lazy += node->lazy;
             node->right->lazy += node->lazy;
         }
