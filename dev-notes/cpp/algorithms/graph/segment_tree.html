@@ -38,7 +38,7 @@
             const path_to_root = "../../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-cf287e07.js";
+            window.path_to_searchindex_js = "../../../searchindex-f1d97083.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../../toc-adb45436.js"></script>
@@ -290,6 +290,7 @@ void push(NodeP node) {
         node-&gt;s += node-&gt;lazy * (node-&gt;r - node-&gt;l + 1);
         // only push down when it is not a leaf node.
         if (node-&gt;l != node-&gt;r) {
+            create_children(node);
             node-&gt;left-&gt;lazy += node-&gt;lazy;
             node-&gt;right-&gt;lazy += node-&gt;lazy;
         }
