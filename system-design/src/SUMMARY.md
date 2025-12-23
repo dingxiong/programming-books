@@ -4,3 +4,4 @@
 
 - [Geo Search](./geo-search.md)
 - [Payment system](./payment.md)
+- [Caching](./cache.md)
