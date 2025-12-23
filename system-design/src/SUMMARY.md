@@ -2,6 +2,6 @@
 
 [Introduction](README.md)
 
-- [Geo Search](./geo-search.md)
+- [Real-time Marketplace](./real-time-marketplace.md)
 - [Payment system](./payment.md)
 - [Caching](./cache.md)

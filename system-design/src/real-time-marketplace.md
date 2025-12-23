@@ -1,4 +1,8 @@
-# Geo Search
+# Real-time Marketplace
+
+Design Uber/Lyft/Doordash/Yelp.
+
+## Background knowledge
 
 ### Redis GEO
 
@@ -10,6 +14,11 @@ as the score of a sorted set. Radius queries are implemented as multiple
 sorted-set range scans over neighboring geohash cells, followed by exact
 distance filtering. This avoids complex spatial indexes and keeps writes
 extremely cheap, which is ideal for high-frequency location updates.
+
+[Wikipedia](https://en.wikipedia.org/wiki/Geohash) has vivid example of how
+this hash is constructed. `Redis`'s implementation is mainly inside the
+[geo.c](https://github.com/redis/redis/blob/238a62685954b1128c25d7f60c326fd20b2cd9ea/src/geo.c#L365)
+file.
 
 ### Postgres
 
@@ -57,3 +66,29 @@ So in summary,
 
 - write: 20k QPS
 - read: 60k QPS
+
+### Rider driver matching
+
+Matching is a multi-stage pipeline: geo filtering using Redis GEO, hard
+constraint filtering, heuristic scoring based on ETA and fairness, atomic
+reservation to prevent double assignment, and sequential dispatch to drivers
+with timeouts. The system is optimized for low latency and high write
+throughput rather than perfect global optimality.
+
+1. Rider sends a request to Uber
+   `(rider_id, pickup_lat, pickup_lon, vehicle_type)`.
+2. Matching service looks up nearby drivers
+   `GEORADIUS drivers pickup_lon pickup_lat 2 km`.
+3. Filter by hard constraint.
+   - driver.status == AVAILABLE
+   - no tentative lock on the driver.
+   - vehicle_type == requested
+4. Score drivers. `score = f(ETA, cancellation_risk, driver fairness, ...)`
+5. Tentative reservation. Add a lock key with 10s TTL.
+6. Send the offer to driver.
+7. Driver accepts the offer => `driver.status = BOOKED`.
+
+   Driver declines the offer => `driver.status = AVAILABLE` and delete the
+   lock.
+
+8. Send the update to Driver. Processing payment staff, etc.
