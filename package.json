@@ -8,7 +8,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "format-all": "prettier --write 'dev-notes/*'",
+    "format-all": "prettier --write 'dev-notes/src' && prettier --write 'system-design/src'",
     "format": "prettier --write"
   },
   "lint-staged": {
