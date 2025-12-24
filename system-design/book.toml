@@ -7,3 +7,7 @@ title = "System Design"
 [output.html]
 site-url = "/system-design/"
 mathjax-support = true
+
+[output.html.fold]
+enable = true
+level = 2
