@@ -132,3 +132,6 @@ non-exist or complete.
 4. Client assembles file.
 
 ### How does syncing work?
+
+For local to remote sync, use a file watcher. For remote to local, use polling
+or websocket. We may need CDC and Kafka queue here.
