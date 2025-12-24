@@ -90,6 +90,18 @@ need to explicit build a secondary index.
 The core idea is chunking and separation between metadata store and object
 store.
 
+### Traffic estimation
+
+Dropbox is client side heavy, meaning upload/download work is done on the
+client side by talking to the blob storage directly, so it it naturally
+distributed. If we use a scalable object store like S3, the we only need to
+worry about the scalability of the metadata service.
+
+Metadata service is only called for uploading a file and file sync. Suppose
+total 1B users, and on average each user need to upload/sync one file per day.
+That is `2e9 / 86400 = 23148` qps. With a peak 3x traffic. We need to handle
+700k qps. We can shard the db, or use a nosql db such as dynomodb.
+
 ### How does upload work?
 
 1. Client first splits the file into chunks, and hash each chunk. No need to
@@ -124,6 +136,10 @@ Because of this, user never sees partial data. The chunk file is either
 non-exist or complete.
 
 ### How does download work?
+
+First, if auto sync is on and the file already exists in the local disk, then
+nothing to do. Downloading only needed if we go to dropbox.com to download the
+file manually.
 
 1. Client requests file
 2. Metadata service checks whether all chunks are uploaded already. If yes,
