@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-1bd157b9.js";
+            window.path_to_searchindex_js = "searchindex-e67ba8b2.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-b9359299.js"></script>
+        <script src="toc-cb9dc5fa.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -209,6 +209,189 @@ delegate to Openssl. See
 <a href="https://github.com/curl/curl/blob/425a2aa1af0fec9ab41fcc1bcb316b623cebccc7/lib/vtls/openssl.c#L1546">code</a>.
 Openssl’s C interface just works this way. It takes private key and certificate
 file name, but passphrase as string value in its APIs.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="sso"><a class="header" href="#sso">SSO</a></h1>
+<h2 id="use-google-single-signon"><a class="header" href="#use-google-single-signon">Use google single signon</a></h2>
+<p>The are many ways to use google signon. It has basically two steps.</p>
+<ol>
+<li>create google client id and secret in google cloud console. Note, make sure
+add both <code>http:localhost</code> and <code>http:localhost:&lt;port number&gt;</code> to
+<code>Authorized JavaScript origins</code>, otherwise you will see 401 error. I
+struggled a few hours on this part.</li>
+<li>Use some library to get the JWT and user info</li>
+</ol>
+<p>For the second step, there are many approaches. The native approaches is
+following
+<a href="https://developers.google.com/identity/gsi/web/guides/overview">google identity service</a>
+that uses google js library to fetch <code>id_token</code> and sends it to backend service
+for further login.</p>
+<p>Meanwhile, different frameworks provide different utility modules to handle
+google login. In python, <a href="https://github.com/lepture/authlib">authlib</a> is the
+most popular library for sso. It has Flask, Django, starlette and other
+integration as well. See
+<a href="https://developers.google.com/identity/protocols/oauth2/openid-connect#createxsrftoken">https://developers.google.com/identity/protocols/oauth2/openid-connect#createxsrftoken</a></p>
+<p>Some pitfalls for google oauth2 secret</p>
+<ol>
+<li>
+<p>Quote from
+<a href="https://developers.google.com/identity/protocols/oauth2#expiration">https://developers.google.com/identity/protocols/oauth2#expiration</a></p>
+<blockquote>
+<p>A Google Cloud Platform project with an OAuth consent screen configured
+for an external user type and a publishing status of “Testing” is issued a
+refresh token expiring in 7 days. so for testing, token will expire in 7
+days.</p>
+</blockquote>
+</li>
+<li>
+<p>See <code>fastapi-google-signin-example</code></p>
+</li>
+</ol>
+<h2 id="buzzfeed-sso"><a class="header" href="#buzzfeed-sso">Buzzfeed sso</a></h2>
+<p>Buzzfeed sso is a proxy that you set it up and then you can use it to
+authenticate multiple websites.</p>
+<h3 id="configurations"><a class="header" href="#configurations">Configurations</a></h3>
+<p>This part confused me a lot in the beginning. sso-proxy uses a lot of packages
+and libraries to glue various components together to load the configuration
+file. Let’s see the evils inside!</p>
+<p>As an end user, I only need to define a config map which contains a yaml file
+<code>upstream_configs.yml</code> that lists the backend services as below</p>
+<pre><code>apiVersion: v1
+kind: ConfigMap
+...
+data:
+  upstream_configs.yml: |-
+    - service: hello-world
+      default:
+        from: hello-world.tryevergreen.com
+        to: http://hello-world.default.svc.cluster.local
+    - service: one-off-master-staging
+      default:
+        from: staging-oneoff.tryevergreen.com
+        to: http://one-off-master.staging-oneoff.svc.cluster.local:8004
+        options:
+          flush_interval: 100ms
+...
+</code></pre>
+<p>Then in the deployment spec, I configure the volume and environment variable</p>
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+        - image: buzzfeed/sso:v2.1.0
+          env:
+            - name: UPSTREAM_CONFIGS
+              value: /sso/upstream_configs.yml
+          volumeMounts:
+            - name: upstream-configs
+              mountPath: /sso
+      volumes:
+        - name: upstream-configs
+          configMap:
+            name: upstream-configs
+</code></pre>
+<p>So from this setup, you naturally think that there is a stage in the <code>main</code>
+function that reads environment variable <code>UPSTREAM_CONFIGS</code> and gets the file
+path and then unmarshals the yaml file to a golang struct. You are basically
+right. The configuration is done by this line
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/cmd/sso-proxy/main.go#L22">config, err := proxy.LoadConfig()</a>
+But if you search <code>UPSTREAM_CONFIGS</code> in the repo, you will be disappointed
+because at nowhere this variable is looked up! OK! Don’t panic. Let’s follow
+the entry point. The <code>LoadConfig</code> function has these
+<a href="https://github.com/buzzfeed/sso/blob/a1b1b74c2e6448f9e05efdbcf3e2b6920fe0c6a5/internal/proxy/configuration.go#L436-L437">two lines</a></p>
+<pre><code>	conf := config.NewConfig()
+	err := conf.Load(env.NewSource())
+</code></pre>
+<p>Let’s read <code>env.NewSource()</code> first. It turns out that sso uses a package called
+<code>go-micro</code> which is a framework to build micro services in go. From the
+description there, you understand that this magic env store splits any
+environment variable by underscore and then construct a nested configuration
+tree. In our case, it will generate
+<code>{"upstream": {"configs": "/sso/upstream_configs.yml"}}</code>. It iterates
+<a href="https://github.com/go-micro/go-micro/blob/master/config/source/env/env.go#L26">all environment variables</a>,
+so you cannot find where <code>UPSTREAM_CONFIGS</code> is read in sso repo. After
+<code>conf.Load(env.NewSource())</code>, <code>conf</code> contains a dictionary
+<code>{"upstream": {"configs": "/sso/upstream_configs.yml"}}</code>.</p>
+<p>Then let’s read a few lines below</p>
+<pre><code>decoder, err := mapstructure.NewDecoder(&amp;mapstructure.DecoderConfig{
+...
+err = decoder.Decode(conf.Map())
+</code></pre>
+<p>sso uses package <code>mapstructure</code> to convert the dictionary above to the
+<a href="https://github.com/buzzfeed/sso/blob/a1b1b74c2e6448f9e05efdbcf3e2b6920fe0c6a5/internal/proxy/configuration.go#L129">Configuration struct</a>.</p>
+<p>Let’s come back to <code>main</code>
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/cmd/sso-proxy/main.go#L47">function</a></p>
+<pre><code>	err = proxy.SetUpstreamConfigs(
+		&amp;config.UpstreamConfigs,
+		config.SessionConfig.CookieConfig,
+		&amp;config.ServerConfig,
+	)
+</code></pre>
+<p>This part is the core part that reads the config yaml file and populates the
+upstream services. The core function down the call chain is
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/internal/proxy/proxy_config.go#L290">this</a>,
+which unmarshals the yaml file to a <code>ServiceConfig</code> struct. When I read about
+this part, I keep asking myself: where are <code>from</code> and <code>to</code> fields in
+<code>UpstreamConfig</code>? Actually, they are hidden inside
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/internal/proxy/proxy_config.go#L46">RouteConfig</a>
+because it has annotation <code>yaml:",inline"</code> :(</p>
+<pre><code>	RouteConfig RouteConfig `yaml:",inline"`
+</code></pre>
+<p>So now, I understand all the pieces of how config yaml is read and mapped to
+the <code>Configuration</code> struct. What a pity that I spent about two hours jumping
+around!</p>
+<p>Another thing to note is how <code>mapstructure</code> maps a string value to a slice. See
+<a href="https://github.com/buzzfeed/sso/blob/a1b1b74c2e6448f9e05efdbcf3e2b6920fe0c6a5/internal/proxy/configuration.go#L446">here</a>.</p>
+<h2 id="internal-vs-external-provider-url"><a class="header" href="#internal-vs-external-provider-url">internal vs external provider url</a></h2>
+<p>Sample of sso-proxy provider configuration is as follows,</p>
+<pre><code>- name: PROVIDER_URL_EXTERNAL
+  value: https://sso-auth.tryevergreen.com
+- name: PROVIDER_URL_INTERNAL
+  value: http://sso-auth.sso.svc.cluster.local
+</code></pre>
+<p>The relevant code is
+<a href="https://github.com/buzzfeed/sso/blob/d473b35b00baac74a835ba081feec40bba93d4b0/internal/proxy/providers/sso.go#L71">here</a>.
+You see that the internal url wil be used for <code>redeem</code>, <code>refresh</code>, <code>validate</code>
+and <code>profile</code> endpoints. If not specified, internal url will reuse exernal url.</p>
+<h2 id="how-to-build--test"><a class="header" href="#how-to-build--test">How to build &amp; test</a></h2>
+<pre><code>docker buildx build --platform linux/amd64 --push -t dingxiong/sso:0.0.3 .
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="sasl"><a class="header" href="#sasl">sasl</a></h1>
+<p>SASL stands for “Simple Authentication and Security Layer”.</p>
+<p>The best material about SASL is probably
+<a href="https://www.gnu.org/software/gsasl/manual/html_node/SASL-Overview.html">gsasl</a>.
+SASL is a framework, not an authentication implementation. When using SASL, you
+are responsible for picking up a underlying authentication mechanism. Here, we
+discuss a few commonly used mechanisms.</p>
+<h2 id="plain"><a class="header" href="#plain">PLAIN</a></h2>
+<p>This is simplest authentication mechanism: (user id, clear-text password). It
+is so simple that you can finish reading its
+<a href="https://www.rfc-editor.org/rfc/rfc4616.html">standard doc</a> in five minutes.
+However, as it communicates clear-text password to server, it should be used on
+top of a secure transportation layer, i.e., TLS. I think most Kafka users must
+have heard about SASL/PLAIN.</p>
+<h2 id="cram-md5"><a class="header" href="#cram-md5">CRAM-MD5</a></h2>
+<p>CRAM stands for Challenge Response Authentication Mechanism.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="aes-advanced-encryption-standard"><a class="header" href="#aes-advanced-encryption-standard">AES (Advanced Encryption Standard)</a></h1>
+<p>AES is block cypher. It describe the process to encrypt a 128bit data block.
+However, AES itself does not specify how to encrypt a stream of bytes. You may
+think a naive way is to divide the byte stream into 128bit, i.e., 16 bytes
+chunks, and pad the last chunk if its size is less than 16 bytes, but nobody
+does it this way as it is easy to crack. (TODO: read more to verify this
+statement). Usually, people choose a block cypher mode to accomplish AES.
+Basically, you can think of this cypher mode will use and update an
+initialization vector between encrypting each 128bit block.</p>
+<p>Many different block cypher modes exit. The good paper on this subject is
+<a href="http://ciit.finki.ukim.mk/data/papers/10CiiT/10CiiT-46.pdf">MODES OF OPERATION OF THE AES ALGORITHM</a>.
+Below we just cover the most popular ones.</p>
+<h2 id="gcm-mode-galoiscounter-mode"><a class="header" href="#gcm-mode-galoiscounter-mode">GCM mode: Galois/Counter mode</a></h2>
+<h2 id="aes-gcm-siv"><a class="header" href="#aes-gcm-siv">AES-GCM-SIV</a></h2>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="cors-cross-origin-resource-sharing"><a class="header" href="#cors-cross-origin-resource-sharing">CORS (Cross-Origin Resource Sharing)</a></h1>
+<h2 id="preflight-request"><a class="header" href="#preflight-request">preflight request</a></h2>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="database"><a class="header" href="#database">Database</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>

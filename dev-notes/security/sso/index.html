@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Competitive Programming - Life as a Programmer</title>
+        <title>SSO - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -177,16 +177,163 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        
+                        <h1 id="sso"><a class="header" href="#sso">SSO</a></h1>
+<h2 id="use-google-single-signon"><a class="header" href="#use-google-single-signon">Use google single signon</a></h2>
+<p>The are many ways to use google signon. It has basically two steps.</p>
+<ol>
+<li>create google client id and secret in google cloud console. Note, make sure
+add both <code>http:localhost</code> and <code>http:localhost:&lt;port number&gt;</code> to
+<code>Authorized JavaScript origins</code>, otherwise you will see 401 error. I
+struggled a few hours on this part.</li>
+<li>Use some library to get the JWT and user info</li>
+</ol>
+<p>For the second step, there are many approaches. The native approaches is
+following
+<a href="https://developers.google.com/identity/gsi/web/guides/overview">google identity service</a>
+that uses google js library to fetch <code>id_token</code> and sends it to backend service
+for further login.</p>
+<p>Meanwhile, different frameworks provide different utility modules to handle
+google login. In python, <a href="https://github.com/lepture/authlib">authlib</a> is the
+most popular library for sso. It has Flask, Django, starlette and other
+integration as well. See
+<a href="https://developers.google.com/identity/protocols/oauth2/openid-connect#createxsrftoken">https://developers.google.com/identity/protocols/oauth2/openid-connect#createxsrftoken</a></p>
+<p>Some pitfalls for google oauth2 secret</p>
+<ol>
+<li>
+<p>Quote from
+<a href="https://developers.google.com/identity/protocols/oauth2#expiration">https://developers.google.com/identity/protocols/oauth2#expiration</a></p>
+<blockquote>
+<p>A Google Cloud Platform project with an OAuth consent screen configured
+for an external user type and a publishing status of “Testing” is issued a
+refresh token expiring in 7 days. so for testing, token will expire in 7
+days.</p>
+</blockquote>
+</li>
+<li>
+<p>See <code>fastapi-google-signin-example</code></p>
+</li>
+</ol>
+<h2 id="buzzfeed-sso"><a class="header" href="#buzzfeed-sso">Buzzfeed sso</a></h2>
+<p>Buzzfeed sso is a proxy that you set it up and then you can use it to
+authenticate multiple websites.</p>
+<h3 id="configurations"><a class="header" href="#configurations">Configurations</a></h3>
+<p>This part confused me a lot in the beginning. sso-proxy uses a lot of packages
+and libraries to glue various components together to load the configuration
+file. Let’s see the evils inside!</p>
+<p>As an end user, I only need to define a config map which contains a yaml file
+<code>upstream_configs.yml</code> that lists the backend services as below</p>
+<pre><code>apiVersion: v1
+kind: ConfigMap
+...
+data:
+  upstream_configs.yml: |-
+    - service: hello-world
+      default:
+        from: hello-world.tryevergreen.com
+        to: http://hello-world.default.svc.cluster.local
+    - service: one-off-master-staging
+      default:
+        from: staging-oneoff.tryevergreen.com
+        to: http://one-off-master.staging-oneoff.svc.cluster.local:8004
+        options:
+          flush_interval: 100ms
+...
+</code></pre>
+<p>Then in the deployment spec, I configure the volume and environment variable</p>
+<pre><code>apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      containers:
+        - image: buzzfeed/sso:v2.1.0
+          env:
+            - name: UPSTREAM_CONFIGS
+              value: /sso/upstream_configs.yml
+          volumeMounts:
+            - name: upstream-configs
+              mountPath: /sso
+      volumes:
+        - name: upstream-configs
+          configMap:
+            name: upstream-configs
+</code></pre>
+<p>So from this setup, you naturally think that there is a stage in the <code>main</code>
+function that reads environment variable <code>UPSTREAM_CONFIGS</code> and gets the file
+path and then unmarshals the yaml file to a golang struct. You are basically
+right. The configuration is done by this line
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/cmd/sso-proxy/main.go#L22">config, err := proxy.LoadConfig()</a>
+But if you search <code>UPSTREAM_CONFIGS</code> in the repo, you will be disappointed
+because at nowhere this variable is looked up! OK! Don’t panic. Let’s follow
+the entry point. The <code>LoadConfig</code> function has these
+<a href="https://github.com/buzzfeed/sso/blob/a1b1b74c2e6448f9e05efdbcf3e2b6920fe0c6a5/internal/proxy/configuration.go#L436-L437">two lines</a></p>
+<pre><code>	conf := config.NewConfig()
+	err := conf.Load(env.NewSource())
+</code></pre>
+<p>Let’s read <code>env.NewSource()</code> first. It turns out that sso uses a package called
+<code>go-micro</code> which is a framework to build micro services in go. From the
+description there, you understand that this magic env store splits any
+environment variable by underscore and then construct a nested configuration
+tree. In our case, it will generate
+<code>{"upstream": {"configs": "/sso/upstream_configs.yml"}}</code>. It iterates
+<a href="https://github.com/go-micro/go-micro/blob/master/config/source/env/env.go#L26">all environment variables</a>,
+so you cannot find where <code>UPSTREAM_CONFIGS</code> is read in sso repo. After
+<code>conf.Load(env.NewSource())</code>, <code>conf</code> contains a dictionary
+<code>{"upstream": {"configs": "/sso/upstream_configs.yml"}}</code>.</p>
+<p>Then let’s read a few lines below</p>
+<pre><code>decoder, err := mapstructure.NewDecoder(&amp;mapstructure.DecoderConfig{
+...
+err = decoder.Decode(conf.Map())
+</code></pre>
+<p>sso uses package <code>mapstructure</code> to convert the dictionary above to the
+<a href="https://github.com/buzzfeed/sso/blob/a1b1b74c2e6448f9e05efdbcf3e2b6920fe0c6a5/internal/proxy/configuration.go#L129">Configuration struct</a>.</p>
+<p>Let’s come back to <code>main</code>
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/cmd/sso-proxy/main.go#L47">function</a></p>
+<pre><code>	err = proxy.SetUpstreamConfigs(
+		&amp;config.UpstreamConfigs,
+		config.SessionConfig.CookieConfig,
+		&amp;config.ServerConfig,
+	)
+</code></pre>
+<p>This part is the core part that reads the config yaml file and populates the
+upstream services. The core function down the call chain is
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/internal/proxy/proxy_config.go#L290">this</a>,
+which unmarshals the yaml file to a <code>ServiceConfig</code> struct. When I read about
+this part, I keep asking myself: where are <code>from</code> and <code>to</code> fields in
+<code>UpstreamConfig</code>? Actually, they are hidden inside
+<a href="https://github.com/buzzfeed/sso/blob/348c2fccafbd795569f2119013fc6cba8032f183/internal/proxy/proxy_config.go#L46">RouteConfig</a>
+because it has annotation <code>yaml:",inline"</code> :(</p>
+<pre><code>	RouteConfig RouteConfig `yaml:",inline"`
+</code></pre>
+<p>So now, I understand all the pieces of how config yaml is read and mapped to
+the <code>Configuration</code> struct. What a pity that I spent about two hours jumping
+around!</p>
+<p>Another thing to note is how <code>mapstructure</code> maps a string value to a slice. See
+<a href="https://github.com/buzzfeed/sso/blob/a1b1b74c2e6448f9e05efdbcf3e2b6920fe0c6a5/internal/proxy/configuration.go#L446">here</a>.</p>
+<h2 id="internal-vs-external-provider-url"><a class="header" href="#internal-vs-external-provider-url">internal vs external provider url</a></h2>
+<p>Sample of sso-proxy provider configuration is as follows,</p>
+<pre><code>- name: PROVIDER_URL_EXTERNAL
+  value: https://sso-auth.tryevergreen.com
+- name: PROVIDER_URL_INTERNAL
+  value: http://sso-auth.sso.svc.cluster.local
+</code></pre>
+<p>The relevant code is
+<a href="https://github.com/buzzfeed/sso/blob/d473b35b00baac74a835ba081feec40bba93d4b0/internal/proxy/providers/sso.go#L71">here</a>.
+You see that the internal url wil be used for <code>redeem</code>, <code>refresh</code>, <code>validate</code>
+and <code>profile</code> endpoints. If not specified, internal url will reuse exernal url.</p>
+<h2 id="how-to-build--test"><a class="header" href="#how-to-build--test">How to build &amp; test</a></h2>
+<pre><code>docker buildx build --platform linux/amd64 --push -t dingxiong/sso:0.0.3 .
+</code></pre>
+
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../cpp/standards/template/ctad.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../security/tls/mtls.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../cpp/algorithms/sort.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../security/sasl/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -196,11 +343,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../cpp/standards/template/ctad.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../security/tls/mtls.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../cpp/algorithms/sort.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../security/sasl/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
