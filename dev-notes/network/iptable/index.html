@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Trie - Life as a Programmer</title>
+        <title>iptable - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -12,36 +12,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../../favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="../../../favicon-8114d1fc.png">
-        <link rel="stylesheet" href="../../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../../css/general-2459343d.css">
-        <link rel="stylesheet" href="../../../css/chrome-ae938929.css">
-        <link rel="stylesheet" href="../../../css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../../fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="../../../highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../../tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../../ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../../theme/code-details-6df1f091.css">
+        <link rel="stylesheet" href="../../theme/code-details-6df1f091.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../../../";
+            const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-eb0537eb.js";
+            window.path_to_searchindex_js = "../../searchindex-eb0537eb.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../../toc-d27f4a4b.js"></script>
+        <script src="../../toc-d27f4a4b.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -108,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -143,7 +143,7 @@
                     <h1 class="menu-title">Life as a Programmer</h1>
 
                     <div class="right-buttons">
-                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -177,66 +177,80 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="trie"><a class="header" href="#trie">Trie</a></h1>
-<p>Trie tree is easy to implement. See below sample code for lower case English
-corps.</p>
-<pre><code class="language-cpp">struct Node {
-  shared_ptr&lt;Node&gt; next[26];
-  int val = 0;
-  Node() {}
-};
-using NodeP = shared_ptr&lt;Node&gt;;
+                        <h1 id="iptables"><a class="header" href="#iptables">Iptables</a></h1>
+<p>You can find numerous iptables tutorials online.</p>
+<h2 id="inside-k8s"><a class="header" href="#inside-k8s">Inside k8s</a></h2>
+<p>NAT table Pod-to-Service packets get intercepted by the PREROUTING chain</p>
+<p>Here is the iptable from an AWS EKS ec2 instance.</p>
+<pre><code>[ec2-user@ip-172-31-61-34 ~]$ sudo iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+KUBE-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes service portals */
+KUBE-EXTERNAL-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes externally-visible service portals */
+KUBE-FIREWALL  all  --  anywhere             anywhere
 
-NodeP root = make_shared&lt;Node&gt;();
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+KUBE-FORWARD  all  --  anywhere             anywhere             /* kubernetes forwarding rules */
+KUBE-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes service portals */
 
-void insert(const string&amp; word) {
-  NodeP node = root;
-  for (char c: word) {
-    int idx = c - 'a';
-    if (not node-&gt;next[idx]) node-&gt;next[idx] = make_shared&lt;Node&gt;();
-    node = node-&gt;next[idx];
-  }
-  node-&gt;val = 1;
-}
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+KUBE-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes service portals */
+KUBE-FIREWALL  all  --  anywhere             anywhere
+
+Chain KUBE-EXTERNAL-SERVICES (1 references)
+target     prot opt source               destination
+REJECT     tcp  --  anywhere             anywhere             /* data/airflow: has no endpoints */ ADDRTYPE match dst-type LOCAL tcp dpt:32584 reject-with icmp-port-unreachable
+
+Chain KUBE-FIREWALL (2 references)
+target     prot opt source               destination
+DROP       all  --  anywhere             anywhere             /* kubernetes firewall for dropping marked packets */ mark match 0x8000/0x8000
+DROP       all  -- !ip-127-0-0-0.us-east-2.compute.internal/8  ip-127-0-0-0.us-east-2.compute.internal/8  /* block incoming localnet connections */ ! ctstate RELATED,ESTABLISHED,DNAT
+
+Chain KUBE-FORWARD (1 references)
+target     prot opt source               destination
+DROP       all  --  anywhere             anywhere             ctstate INVALID
+ACCEPT     all  --  anywhere             anywhere             /* kubernetes forwarding rules */ mark match 0x4000/0x4000
+ACCEPT     all  --  anywhere             anywhere             /* kubernetes forwarding conntrack pod source rule */ ctstate RELATED,ESTABLISHED
+ACCEPT     all  --  anywhere             anywhere             /* kubernetes forwarding conntrack pod destination rule */ ctstate RELATED,ESTABLISHED
+
+Chain KUBE-KUBELET-CANARY (0 references)
+target     prot opt source               destination
+
+Chain KUBE-PROXY-CANARY (0 references)
+target     prot opt source               destination
+
+Chain KUBE-SERVICES (3 references)
+target     prot opt source               destination
+REJECT     tcp  --  anywhere             ip-10-100-109-33.us-east-2.compute.internal  /* devops/jenkinszip:http has no endpoints */ tcp dpt:webcache reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-192-135.us-east-2.compute.internal  /* spinnaker/spin-deck: has no endpoints */ tcp dpt:cslistener reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-193-242.us-east-2.compute.internal  /* monitoring/prometheus-kube-prometheus-prometheus:web has no endpoints */ tcp dpt:websm reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-125-144.us-east-2.compute.internal  /* spinnaker/spin-rosco: has no endpoints */ tcp dpt:simplifymedia reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-3-44.us-east-2.compute.internal  /* spinnaker/spin-redis: has no endpoints */ tcp dpt:6379 reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-90-84.us-east-2.compute.internal  /* spinnaker/spin-igor: has no endpoints */ tcp dpt:radan-http reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-153-132.us-east-2.compute.internal  /* spinnaker/spin-clouddriver: has no endpoints */ tcp dpt:afs3-prserver reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-102-112.us-east-2.compute.internal  /* data/airflow: has no endpoints */ tcp dpt:vat reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-247-73.us-east-2.compute.internal  /* kube-system/aws-load-balancer-webhook-service: has no endpoints */ tcp dpt:https reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-131-198.us-east-2.compute.internal  /* spinnaker/spin-orca: has no endpoints */ tcp dpt:us-srv reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-179-223.us-east-2.compute.internal  /* devops/jenkinszip-agent:agent-listener has no endpoints */ tcp dpt:50000 reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-156-48.us-east-2.compute.internal  /* spinnaker/spin-gate: has no endpoints */ tcp dpt:8084 reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-90-212.us-east-2.compute.internal  /* spinnaker/spin-gate-public: has no endpoints */ tcp dpt:http reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-51-18.us-east-2.compute.internal  /* elastic-system/elastic-webhook-server:https has no endpoints */ tcp dpt:https reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-179-244.us-east-2.compute.internal  /* spinnaker/spin-front50: has no endpoints */ tcp dpt:webcache reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-119-202.us-east-2.compute.internal  /* spinnaker/spin-deck-public: has no endpoints */ tcp dpt:http reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-5-109.us-east-2.compute.internal  /* spinnaker/spin-echo: has no endpoints */ tcp dpt:8089 reject-with icmp-port-unreachable
 </code></pre>
-<h2 id="optimizations"><a class="header" href="#optimizations">Optimizations</a></h2>
-<p>The naive explicit tree structure using pointers is not cache friendly. One
-optimization is to use an array to represent the tree. The <code>next</code> vector should
-store the index of the next node in in the array. This was definitely not
-invented by me. Checkout
-<a href="https://cp-algorithms.com/string/aho_corasick.html">this reference</a>.</p>
-<pre><code class="language-cpp">struct Node {
-  int next[26], val = 0;
-  Node() { fill_n(next, 26, -1); } // very important to explicitly initialize it.
-};
-
-vector&lt;Node&gt; trie(1); // the first element is the root
-
-void insert(const string&amp; word) {
-  int node = 0; // root at index 0.
-  for (char c: word) {
-    int idx = c - 'a';
-    if (trie[node].next[idx] == -1) {
-      trie[node].next[idx] = trie.size();
-      trie.emplace_back(); // push the new node to the end of the array.
-    }
-    node = trie[node].next[idx];
-  }
-  trie[node].val = 1;
-}
-</code></pre>
-<p>I asked chatgpt for more optimizations, and it suggests me that use a 2d array
-<code>trie[n][next]</code> to go further with cache friendly. Too much for me!</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/graph/pbds.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../network/netcat/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/graph/union-find.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../db/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -246,11 +260,11 @@ void insert(const string&amp; word) {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/graph/pbds.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../network/netcat/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/graph/union-find.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../db/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -270,13 +284,13 @@ void insert(const string&amp; word) {
         </script>
 
 
-        <script src="../../../elasticlunr-ef4e11c1.min.js"></script>
-        <script src="../../../mark-09e88c2c.min.js"></script>
-        <script src="../../../searcher-c2a407aa.js"></script>
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
 
-        <script src="../../../clipboard-1626706a.min.js"></script>
-        <script src="../../../highlight-abc7f01d.js"></script>
-        <script src="../../../book-a0b12cfe.js"></script>
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 

@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e67ba8b2.js";
+            window.path_to_searchindex_js = "searchindex-eb0537eb.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-cb9dc5fa.js"></script>
+        <script src="toc-d27f4a4b.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -392,6 +392,111 @@ Below we just cover the most popular ones.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="cors-cross-origin-resource-sharing"><a class="header" href="#cors-cross-origin-resource-sharing">CORS (Cross-Origin Resource Sharing)</a></h1>
 <h2 id="preflight-request"><a class="header" href="#preflight-request">preflight request</a></h2>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="network"><a class="header" href="#network">Network</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="netcat"><a class="header" href="#netcat">Netcat</a></h1>
+<h2 id="pitfalls"><a class="header" href="#pitfalls">Pitfalls</a></h2>
+<h3 id="different-parameters"><a class="header" href="#different-parameters">Different parameters</a></h3>
+<p>There are two programs: <code>nc</code>, <code>ncat</code>. They are basically the same thing but
+with different implementation. So when searching document online, make sure you
+are reading the right one. The trap I once got into is that one online page
+tells me that <code>nc -l 8000</code> listens for TCP packets for port 8000. But actually,
+it did not work. I need to use <code>nc -l -p 8000</code>.</p>
+<h3 id="service-ip-vs-pod-ip"><a class="header" href="#service-ip-vs-pod-ip">Service ip vs pod ip</a></h3>
+<p>In kubernetes, you can use <code>nc</code> to test connectivity between two different pods
+to verify firewall rules. (This is super useful when you are dealing with AWS
+security groups!)</p>
+<p>In one pod, you run <code>nc -l -p 8010</code>. On another pod, you can run
+<code>nc 172.31.66.141 8010</code>. The ip address here is the pod’s ip. Everything works
+fine: whatever you typed here will show up in the first pod. However, then you
+think: OK. pod ip works, could I use the service ip?</p>
+<pre><code>k get svc sleep
+NAME    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+sleep   ClusterIP   10.100.180.201   &lt;none&gt;        80/TCP
+</code></pre>
+<p>You run <code>nc 10.100.180.201 8010</code> and type a few messages. Noting happens! This
+is because service ip only forward packet to certain port. In this case it
+is 80. We can directly test port 80:</p>
+<pre><code># nc 10.100.180.201 80
+dfa
+dfads
+HTTP/1.1 400 Bad Request
+content-length: 11
+content-type: text/plain
+date: Wed, 15 Feb 2023 17:05:05 GMT
+server: istio-envoy
+connection: close
+
+Bad Request
+</code></pre>
+<p>As you see after typing some nonsense messages <code>dfa</code>, <code>dfads</code>, the server yells
+back: “what is this bullshit. It is not http protocal!”.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="iptables"><a class="header" href="#iptables">Iptables</a></h1>
+<p>You can find numerous iptables tutorials online.</p>
+<h2 id="inside-k8s"><a class="header" href="#inside-k8s">Inside k8s</a></h2>
+<p>NAT table Pod-to-Service packets get intercepted by the PREROUTING chain</p>
+<p>Here is the iptable from an AWS EKS ec2 instance.</p>
+<pre><code>[ec2-user@ip-172-31-61-34 ~]$ sudo iptables -L
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+KUBE-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes service portals */
+KUBE-EXTERNAL-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes externally-visible service portals */
+KUBE-FIREWALL  all  --  anywhere             anywhere
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination
+KUBE-FORWARD  all  --  anywhere             anywhere             /* kubernetes forwarding rules */
+KUBE-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes service portals */
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+KUBE-SERVICES  all  --  anywhere             anywhere             ctstate NEW /* kubernetes service portals */
+KUBE-FIREWALL  all  --  anywhere             anywhere
+
+Chain KUBE-EXTERNAL-SERVICES (1 references)
+target     prot opt source               destination
+REJECT     tcp  --  anywhere             anywhere             /* data/airflow: has no endpoints */ ADDRTYPE match dst-type LOCAL tcp dpt:32584 reject-with icmp-port-unreachable
+
+Chain KUBE-FIREWALL (2 references)
+target     prot opt source               destination
+DROP       all  --  anywhere             anywhere             /* kubernetes firewall for dropping marked packets */ mark match 0x8000/0x8000
+DROP       all  -- !ip-127-0-0-0.us-east-2.compute.internal/8  ip-127-0-0-0.us-east-2.compute.internal/8  /* block incoming localnet connections */ ! ctstate RELATED,ESTABLISHED,DNAT
+
+Chain KUBE-FORWARD (1 references)
+target     prot opt source               destination
+DROP       all  --  anywhere             anywhere             ctstate INVALID
+ACCEPT     all  --  anywhere             anywhere             /* kubernetes forwarding rules */ mark match 0x4000/0x4000
+ACCEPT     all  --  anywhere             anywhere             /* kubernetes forwarding conntrack pod source rule */ ctstate RELATED,ESTABLISHED
+ACCEPT     all  --  anywhere             anywhere             /* kubernetes forwarding conntrack pod destination rule */ ctstate RELATED,ESTABLISHED
+
+Chain KUBE-KUBELET-CANARY (0 references)
+target     prot opt source               destination
+
+Chain KUBE-PROXY-CANARY (0 references)
+target     prot opt source               destination
+
+Chain KUBE-SERVICES (3 references)
+target     prot opt source               destination
+REJECT     tcp  --  anywhere             ip-10-100-109-33.us-east-2.compute.internal  /* devops/jenkinszip:http has no endpoints */ tcp dpt:webcache reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-192-135.us-east-2.compute.internal  /* spinnaker/spin-deck: has no endpoints */ tcp dpt:cslistener reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-193-242.us-east-2.compute.internal  /* monitoring/prometheus-kube-prometheus-prometheus:web has no endpoints */ tcp dpt:websm reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-125-144.us-east-2.compute.internal  /* spinnaker/spin-rosco: has no endpoints */ tcp dpt:simplifymedia reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-3-44.us-east-2.compute.internal  /* spinnaker/spin-redis: has no endpoints */ tcp dpt:6379 reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-90-84.us-east-2.compute.internal  /* spinnaker/spin-igor: has no endpoints */ tcp dpt:radan-http reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-153-132.us-east-2.compute.internal  /* spinnaker/spin-clouddriver: has no endpoints */ tcp dpt:afs3-prserver reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-102-112.us-east-2.compute.internal  /* data/airflow: has no endpoints */ tcp dpt:vat reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-247-73.us-east-2.compute.internal  /* kube-system/aws-load-balancer-webhook-service: has no endpoints */ tcp dpt:https reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-131-198.us-east-2.compute.internal  /* spinnaker/spin-orca: has no endpoints */ tcp dpt:us-srv reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-179-223.us-east-2.compute.internal  /* devops/jenkinszip-agent:agent-listener has no endpoints */ tcp dpt:50000 reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-156-48.us-east-2.compute.internal  /* spinnaker/spin-gate: has no endpoints */ tcp dpt:8084 reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-90-212.us-east-2.compute.internal  /* spinnaker/spin-gate-public: has no endpoints */ tcp dpt:http reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-51-18.us-east-2.compute.internal  /* elastic-system/elastic-webhook-server:https has no endpoints */ tcp dpt:https reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-179-244.us-east-2.compute.internal  /* spinnaker/spin-front50: has no endpoints */ tcp dpt:webcache reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-119-202.us-east-2.compute.internal  /* spinnaker/spin-deck-public: has no endpoints */ tcp dpt:http reject-with icmp-port-unreachable
+REJECT     tcp  --  anywhere             ip-10-100-5-109.us-east-2.compute.internal  /* spinnaker/spin-echo: has no endpoints */ tcp dpt:8089 reject-with icmp-port-unreachable
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="database"><a class="header" href="#database">Database</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
