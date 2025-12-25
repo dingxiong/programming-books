@@ -10,6 +10,8 @@
   - [Clickhouse](db/clickhouse/README.md)
     - [Build](db/clickhouse/build.md)
     - [Configuration](db/clickhouse/configuration.md)
+    - [Parser](db/clickhouse/parser.md)
+    - [Misc](db/clickhouse/msic.md)
 - [All I know about C++](cpp/README.md)
   - [C++ Standards](cpp/standards/README.md)
     - [Declarations](cpp/standards/declarations/README.md)
