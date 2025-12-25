@@ -1,5 +1,7 @@
 # Log & Metric & Tracing & Alerting
 
+## Real-time Logs
+
 We need to distinguish two different use cases. One is audit logs from
 customers. The other is server logs used internally by your company's
 engineers/supports.
@@ -26,6 +28,12 @@ and sinker as a buffer. I built an ELK pipeline from before.
   storage.
 - UI: Kibana.
 
-## Real-time Logs
+## Metrics
 
-## Top-k Metrics
+Metrics are similar to logs, but there is one big difference: aggregation. For
+logs, we have no choice, but just dump them all. For metrics, we can usually
+apply some aggregation on the collector side. It saves bandwidth.
+
+### Top-k Metrics
+
+## Distributed Tracing
