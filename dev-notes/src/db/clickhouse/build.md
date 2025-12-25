@@ -1,8 +1,6 @@
-# Clickhouse
+# Build
 
-## Build
-
-### MacOs
+## MacOs
 
 See https://clickhouse.com/docs/en/development/build-osx
 
