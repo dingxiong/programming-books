@@ -15,6 +15,8 @@
   - [iptable](network/iptable/README.md)
 
 - [Database](db/README.md)
+  - [Distributed Transactions](db/distributed_transaction.md)
+  - [Consensus](db/consensus.md)
   - [Clickhouse](db/clickhouse/README.md)
     - [Build](db/clickhouse/build.md)
     - [Configuration](db/clickhouse/configuration.md)
