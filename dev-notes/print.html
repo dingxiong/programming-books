@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2ee35166.js";
+            window.path_to_searchindex_js = "searchindex-48cdb007.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-879b6a05.js"></script>
+        <script src="toc-8e1b4a94.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -499,6 +499,90 @@ REJECT     tcp  --  anywhere             ip-10-100-5-109.us-east-2.compute.inter
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="database"><a class="header" href="#database">Database</a></h1>
+<p>On Jan 2nd 2023, the second day of the new year, I read a post on HN about the
+<a href="https://news.ycombinator.com/item?id=34220524">year-end blog from Prof. Andy Pavlo</a>.
+It is so enlightening! I should admit that I am very interested in database
+technologies for a long time, and I already started reading a book about
+internals of Mysql. I am so happy to read this post which provides so much
+useful information and I immediately add a 2023 goal to watch Prof. Andy’s CMU
+course recordings.</p>
+<p>On resource side, SOSP is the top conference on database. Checkout their
+recordings in Youtube!</p>
+<h2 id="acid"><a class="header" href="#acid">ACID</a></h2>
+<h3 id="atomicity"><a class="header" href="#atomicity">Atomicity</a></h3>
+<p>Either all changes or no change. No partial changes.</p>
+<h3 id="isolation"><a class="header" href="#isolation">Isolation</a></h3>
+<p>You might have heard isolation level many times when talking to infra guys.
+<a href="https://en.wikipedia.org/wiki/Isolation_(database_systems)">Isolation wiki</a>
+is the best material. Basically, there are 4 isolation levels from high to low:
+<code>serializable</code>, <code>repeatable read</code>, <code>read committed</code> and <code>read uncommitted</code>.
+Also, in this page, it has a link to <code>sanpshot isolation</code>. Basically, it is
+stronger than <code>repeatable read</code> because it avoids <code>phantom reads</code>, but weaker
+than <code>serializable</code>.</p>
+<p>Google spanner invented another terminology <code>external consistency</code>. It is
+similar to strict serializable, but with a slightly different meaning of
+<code>happen before</code>. See
+<a href="https://stackoverflow.com/questions/60365103/differences-between-strict-serializable-and-external-consistency">this post</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="distributed-transactions"><a class="header" href="#distributed-transactions">Distributed Transactions</a></h1>
+<p>I want to keep studying subject “distributed transactions”. This is a
+challenging topic.</p>
+<p>First, just put some references here</p>
+<h1 id="paperblog-posts"><a class="header" href="#paperblog-posts">Paper/blog posts</a></h1>
+<h3 id="newsql-database-systems-are-failing-to-guarantee-consistency-and-i-blame-spanner"><a class="header" href="#newsql-database-systems-are-failing-to-guarantee-consistency-and-i-blame-spanner"><a href="https://dbmsmusings.blogspot.com/2018/09/newsql-database-systems-are-failing-to.html">NewSQL database systems are failing to guarantee consistency, and I blame Spanner</a></a></h3>
+<p>Prof. Daniel has a great blog about CAP theorem and the distributed DB in the
+market. The comment section needs a read too!</p>
+<h3 id="back-to-the-future-with-relational-nosql"><a class="header" href="#back-to-the-future-with-relational-nosql"><a href="https://www.infoq.com/articles/relational-nosql-fauna/">Back to the Future with Relational NoSQL</a></a></h3>
+<h3 id="where-cockroachdb-and-spanner-diverge"><a class="header" href="#where-cockroachdb-and-spanner-diverge"><a href="https://www.cockroachlabs.com/blog/living-without-atomic-clocks/">Where CockroachDB and Spanner diverge</a></a></h3>
+<p>This blog post discusses how CockroachDB handles distributed transactions
+without TrueTime. Basically, Spanner’s write performance is impacted because it
+waits for uncertainty window to pass. CockroachDB on the other hand, retries
+reading if there is time uncertainty, so its read performance is impacted.</p>
+<h1 id="cap-theorem"><a class="header" href="#cap-theorem">CAP theorem</a></h1>
+<h1 id="serializability-vs-linearizability"><a class="header" href="#serializability-vs-linearizability">Serializability vs linearizability</a></h1>
+<p>These are two difference concepts. Serializability is the strictest isolation
+level defined by ANSI SQL, which means two transactions T1 and T2 can be
+serialized to a sequence [T1, T2] or [T2, T1].</p>
+<p>Linearizability, on the other hand, it stricter than serializability that it
+allows only one sequence order by timestamp. If T1 commits before T2 commits in
+clock time, the it must be serialized to <code>[T1, T2]</code>. Because it is defined as a
+point of view of an outside observer, this isolation level is called
+<code>external consistency</code>. It first showed up in Google Spanner paper.</p>
+<p>I think this post explains their differences very well
+http://www.bailis.org/blog/linearizability-versus-serializability/ .</p>
+<h1 id="spanner"><a class="header" href="#spanner">Spanner</a></h1>
+<h1 id="calvin"><a class="header" href="#calvin">Calvin</a></h1>
+<h1 id="tidb"><a class="header" href="#tidb">TiDB</a></h1>
+<p>Post
+<a href="https://www.pingcap.com/blog/time-in-distributed-systems/">Keeping Time and Order in Distributed Databases</a>
+describes the way how TiDB does distributed transactions.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="consensus"><a class="header" href="#consensus">Consensus</a></h1>
+<p>A cluster needs coordination sometimes. Agents or nodes inside this cluster
+need to reach consensus before manipulating some critical data, usually meta
+data about this system.</p>
+<blockquote>
+<p>TODO: write a better summary about distributed consensus.</p>
+</blockquote>
+<p>FLP result says that achieving distributed consensus is impossible in the most
+general case. Also, distributed consensus is equivalent to atomic broadcast.
+You can read more about this from
+<a href="https://en.wikipedia.org/wiki/Atomic_broadcast">wikipedia</a>.</p>
+<p>The most popular consensus protocol is Paxos protocol and its variants, among
+which Zookeeper and Etcd are the nominating choices in the current market. Some
+companies are building alternatives too, such as
+<a href="https://clickhouse.com/docs/en/operations/clickhouse-keeper/">ClickHouse Keeper</a>.
+Here is a good paper about this topic:
+<a href="https://cse.buffalo.edu/tech-reports/2016-02.orig.pdf">Consensus in the Cloud: Paxos Systems Demystified</a>.</p>
+<h2 id="zookeeper"><a class="header" href="#zookeeper">Zookeeper</a></h2>
+<p>Zookeeper’s consensus protocol <code>Zab</code> (Zookeeper atomic broadcast) is a variant
+of Paxos protocol. The best description of <code>Zab</code> is probably this paper:
+<a href="http://www.tcs.hut.fi/Studies/T-79.5001/reports/2012-deSouzaMedeiros.pdf">ZooKeeper’s atomic broadcast protocol: Theory and practice</a>
+by Andre Medeiros from 2012.</p>
+<h2 id="etcd"><a class="header" href="#etcd">Etcd</a></h2>
+<p>Etcd implements RAFT algorithm. RAFT is designed for understandability. See the
+original paper
+<a href="https://raft.github.io/raft.pdf">In Search of an Understandable Consensus Algorithm (Extended Version)</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="clickhouse"><a class="header" href="#clickhouse">Clickhouse</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
