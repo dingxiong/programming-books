@@ -20,6 +20,15 @@
     - [Configuration](db/clickhouse/configuration.md)
     - [Parser](db/clickhouse/parser.md)
     - [Misc](db/clickhouse/msic.md)
+  - [Pinot](db/pinot/README.md)
+
+- [Operating System](os/README.md)
+  - [Linux](os/linux/README.md)
+    - [Netfilter](os/linux/netfilter.md)
+  - [Mac](os/mac/README.md)
+
+- [Web](web/README.md)
+  - [grpc](web/grpc/README.md)
 
 - [All I know about C++](cpp/README.md)
   - [C++ Standards](cpp/standards/README.md)
