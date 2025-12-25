@@ -97,6 +97,6 @@ handled
 
 ## How does Groovy transformation work?
 
-https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-segment-local/src/main/java/org/apache/pinot/segment/local/function/GroovyFunctionEvaluator.java#L62-L62
+[Code](https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-segment-local/src/main/java/org/apache/pinot/segment/local/function/GroovyFunctionEvaluator.java#L62-L62).
 Here `genericRow` is just a map deserialized from Kafka message value (given we
 use a Json decoder).
