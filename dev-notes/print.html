@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-38b15c8a.js";
+            window.path_to_searchindex_js = "searchindex-8e42aaee.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-40f53dba.js"></script>
+        <script src="toc-b9359299.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -270,6 +270,41 @@ that you can use slash to generate parent-child relation. See the
 <p>From the result, you know
 <a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Storages/Kafka/StorageKafka.cpp#L593">#if USE_KRB5</a>
 evaluates to true.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="parser"><a class="header" href="#parser">parser</a></h1>
+<h2 id="parsercreatequery"><a class="header" href="#parsercreatequery">ParserCreateQuery</a></h2>
+<p><code>CREATE TABLE ...</code> queries supports <code>partition by</code>, <code>group by</code>, <code>ttl</code> and etc.
+How does this DDL string is parsed? The source code is
+<a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Parsers/ParserCreateQuery.cpp#L423">here</a>.
+The result is a
+<a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Parsers/ASTCreateQuery.h#L17">ASTStorage</a>.</p>
+<h2 id="kafka-engine-parameters"><a class="header" href="#kafka-engine-parameters">Kafka engine parameters</a></h2>
+<p>Source code is
+<a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Storages/Kafka/StorageKafka.cpp#L889">here</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="miscs"><a class="header" href="#miscs">Miscs</a></h1>
+<h2 id="system-tables"><a class="header" href="#system-tables">System tables</a></h2>
+<p>Clickhouse system table</p>
+<ul>
+<li><code>system.parts</code> stores parts of a table if this table has a <code>partition by</code>
+clause.</li>
+<li><code>system.zookeeper</code> stores paths inside zookeeper</li>
+<li><code>system.settings</code> stores configuration/settings.</li>
+</ul>
+<h2 id="jit"><a class="header" href="#jit">JIT</a></h2>
+<p>Search <code>USE_EMBEDDED_COMPILER</code>.</p>
+<h2 id="mergetree"><a class="header" href="#mergetree">MergeTree</a></h2>
+<p>A lot of different types of merge trees share the same implementation, just
+have different
+<a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Storages/MergeTree/MergeTreeData.h#L339">merge modes</a>.</p>
+<h3 id="replacing-merge-tree"><a class="header" href="#replacing-merge-tree">Replacing merge tree</a></h3>
+<p><code>ReplacingMergeTree</code> can be used for upsert and delete.</p>
+<p>TODO: figure out how <code>select force</code> performance bottleneck, and the progress.
+See
+https://kb.altinity.com/altinity-kb-queries-and-syntax/altinity-kb-final-clause-speed/</p>
+<p>TODO: figure out how kafka stream works.</p>
+<p>TODO: figure out how to bulk index data</p>
+<p>TODO: figure out how replicatedMergeTree works.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="all-i-know-about-c"><a class="header" href="#all-i-know-about-c">All I know about C++</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
