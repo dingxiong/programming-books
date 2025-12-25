@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f1d97083.js";
+            window.path_to_searchindex_js = "searchindex-38b15c8a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-adb45436.js"></script>
+        <script src="toc-40f53dba.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -209,6 +209,67 @@ delegate to Openssl. See
 <a href="https://github.com/curl/curl/blob/425a2aa1af0fec9ab41fcc1bcb316b623cebccc7/lib/vtls/openssl.c#L1546">code</a>.
 Openssl’s C interface just works this way. It takes private key and certificate
 file name, but passphrase as string value in its APIs.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="database"><a class="header" href="#database">Database</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="clickhouse"><a class="header" href="#clickhouse">Clickhouse</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="clickhouse-1"><a class="header" href="#clickhouse-1">Clickhouse</a></h1>
+<h2 id="build"><a class="header" href="#build">Build</a></h2>
+<h3 id="macos"><a class="header" href="#macos">MacOs</a></h3>
+<p>See https://clickhouse.com/docs/en/development/build-osx</p>
+<p>First install required dependencies, then</p>
+<pre><code>cd ClickHouse
+mkdir build
+export PATH=$(brew --prefix llvm)/bin:$PATH
+export CC=$(brew --prefix llvm)/bin/clang
+export CXX=$(brew --prefix llvm)/bin/clang++
+cmake -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -S . -B build
+cmake --build build
+
+</code></pre>
+<p>TODO: this part is not finished. Clickhouse uses git submodules, and there are
+so many things inside the <code>contrib</code> subfolder. I do not have enough disk for
+it.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="configuration"><a class="header" href="#configuration">Configuration</a></h1>
+<p>Clickhouse has a
+<a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Common/Config/ConfigReloader.cpp#L85">dedicated thread</a>
+watching configuration file updates. By default, it watch xml files inside
+folder <code>/etc/clickhouse-server/</code>. This thread also combines all these xml files
+into two xml files to</p>
+<ul>
+<li><code>/var/lib/clickhouse/preprocessed_configs/config.xml</code></li>
+<li><code>/var/lib/clickhouse/preprocessed_configs/users.xml</code></li>
+</ul>
+<p>On top of these generated files, you can see the source files used to assembly
+these generated files. See relevant code
+<a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Common/Config/ConfigProcessor.cpp#L735">here</a>.</p>
+<p>Specifically for
+<a href="https://github.com/Altinity/clickhouse-operator">Clickhouse operator</a>, we can
+add configuration at <code>spec.configuration.settings</code> section. The generated file
+is <code>/etc/clickhouse-server/config.d/chop-generated-settings.xml</code>. One trick is
+that you can use slash to generate parent-child relation. See the
+<a href="https://github.com/Altinity/clickhouse-operator/issues/352">example Kafka configuration</a>.</p>
+<h2 id="configxml"><a class="header" href="#configxml"><code>config.xml</code></a></h2>
+<ul>
+<li><path>: location for data storage.</path></li>
+</ul>
+<h2 id="build-configurations"><a class="header" href="#build-configurations">Build configurations</a></h2>
+<pre><code>SELECT * FROM system.build_options WHERE name LIKE 'USE%';
+
+┌─name────────────────────┬─value─┐
+│ USE_EMBEDDED_COMPILER   │ 1     │
+  ...
+│ USE_KRB5                │ 1     │
+  ...
+└─────────────────────────┴───────┘
+
+40 rows in set. Elapsed: 0.008 sec.
+</code></pre>
+<p>From the result, you know
+<a href="https://github.com/ClickHouse/ClickHouse/blob/70c3f319265ceb450aa4a33b4ef131c257c76b38/src/Storages/Kafka/StorageKafka.cpp#L593">#if USE_KRB5</a>
+evaluates to true.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="all-i-know-about-c"><a class="header" href="#all-i-know-about-c">All I know about C++</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
