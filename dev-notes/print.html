@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-eb0537eb.js";
+            window.path_to_searchindex_js = "searchindex-9be3c333.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-d27f4a4b.js"></script>
+        <script src="toc-879b6a05.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -592,6 +592,180 @@ https://kb.altinity.com/altinity-kb-queries-and-syntax/altinity-kb-final-clause-
 <p>TODO: figure out how kafka stream works.</p>
 <p>TODO: figure out how to bulk index data</p>
 <p>TODO: figure out how replicatedMergeTree works.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="pinot"><a class="header" href="#pinot">Pinot</a></h1>
+<p>Pinot has a few components: <code>broker</code>, <code>controller</code>, <code>server</code>, <code>zookeeper</code> and
+<code>minion</code>. See below pods after we installed pinot inside k8s.</p>
+<pre><code>$ k get pods
+NAME                                     READY   STATUS    RESTARTS   AGE
+pinot-broker-0                           1/1     Running   0          7d22h
+pinot-controller-0                       1/1     Running   0          4d4h
+pinot-minion-stateless-d5ff6f8f9-9vcts   1/1     Running   0          3d
+pinot-server-0                           1/1     Running   0          7d22h
+pinot-server-1                           1/1     Running   0          7d22h
+pinot-zookeeper-0                        1/1     Running   0          7d21h
+</code></pre>
+<h2 id="pinot-tools"><a class="header" href="#pinot-tools">pinot-tools</a></h2>
+<p>Pinot-tools is a subproject inside pinot repo, and it is the main entry to all
+services inside pinot, so it depends on all other subprojects.</p>
+<p>In the above pods, except zookeeper pod, all run the same image
+<code>apachepinot/pinot:latest</code>. The docker file is
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/docker/images/pinot/Dockerfile#L70-L70">here</a>.
+The entry point is <code>./bin/pinot-admin.sh</code>. Initially, I was confused because I
+could not find this script inside the repo. Then I read its
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-tools/pom.xml#L323-L333">pom file</a>.
+Ah! it uses <a href="https://github.com/mojohaus/appassembler">mojohaus/appassembler</a>
+to auto generate bash scripts. Quite a few script are generated, and
+<code>pinot-admin.sh</code> is one of them. The pom file also specifies the corresponding
+class for this script: <code>org.apache.pinot.tools.admin.PinotAdministrator</code>. This
+Java file defines a lot of subcommands such as <code>StartController</code>, <code>StartBroker</code>
+etc. OK. We learned that this is the entrance to all services and CLI tools
+inside pinot.</p>
+<p>We will talk about some important subcommands in the following sections.</p>
+<h3 id="addtablecommand"><a class="header" href="#addtablecommand">AddTableCommand</a></h3>
+<p>AddTableCommand is used to create a new table or update an existing table. To
+create a hybrid table, we specify both <code>_offlineTableConfigFile</code> and
+<code>_realtimeTableConfigFile</code>. See
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-tools/src/main/java/org/apache/pinot/tools/admin/command/AddTableCommand.java#L240-L240">code</a>.
+The corresponding rest server is running inside pinot controller. The code is
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-controller/src/main/java/org/apache/pinot/controller/api/resources/TableConfigsRestletResource.java#L166-L166">here</a>.
+From <code>validateConfig</code> function you can see that in order to create a hybrid
+table, the table name must be the same in both offline table config and
+real-time table config.</p>
+<h2 id="controller"><a class="header" href="#controller">Controller</a></h2>
+<p>What is running inside a controller.</p>
+<pre><code>$ ps -efww
+/usr/lib/jvm/java-11-amazon-corretto/bin/java ... org.apache.pinot.tools.admin.PinotAdministrator StartController -configFileName /var/pinot/controller/config/pinot-controller.conf
+</code></pre>
+<h3 id="what-runs-inside-a-controller"><a class="header" href="#what-runs-inside-a-controller">What runs inside a Controller</a></h3>
+<h2 id="broker"><a class="header" href="#broker">Broker</a></h2>
+<p>Pinot broker is the API gateway of pinot. User’s requests are received by
+broker and then then routed to server using grpc.</p>
+<pre><code>$ ps -efww
+/usr/lib/jvm/java-11-amazon-corretto/bin/java ... org.apache.pinot.tools.admin.PinotAdministrator StartBroker -clusterName pinot-zip -zkAddress pinot-zookeeper:2181 -configFileName /var/pinot/broker/config/pinot-broker.conf
+</code></pre>
+<h2 id="sql-query"><a class="header" href="#sql-query">SQL query</a></h2>
+<p>Pinot only supports queries on a single table. It does not support table joins.
+You can tell from the definition of
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-common/src/thrift/query.thrift#L21-L21">PinotQuery</a>
+class. Also, the explicit validation is
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-broker/src/main/java/org/apache/pinot/broker/requesthandler/BaseBrokerRequestHandler.java#L328-L328">here</a>.</p>
+<h3 id="how-query-works-for-a-hybrid-table"><a class="header" href="#how-query-works-for-a-hybrid-table">How query works for a hybrid table?</a></h3>
+<p>When a pinot broker receives a query request for a hybrid table, it will fork
+this query into two queries with a boundary time filter, and then send them to
+offline table and real-time table in parallel and then aggregate the two
+results. For example,</p>
+<pre><code>Original query: select * from t1 where a &gt; 100;
+=&gt;
+offline table query:   select * from t1 where a &gt; 100 and ts &lt;= boundary_time;
+real-time table query: select * from t1 where a &gt; 100 and ts &gt;  boundary_time;
+</code></pre>
+<p>There are some blogs online talking about how this boundary time is chosen by
+pinot, we omit the details here. The code about how a hybrid table query is
+handled
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-broker/src/main/java/org/apache/pinot/broker/requesthandler/BaseBrokerRequestHandler.java#L421-L421">here</a>.</p>
+<h2 id="how-does-groovy-transformation-work"><a class="header" href="#how-does-groovy-transformation-work">How does Groovy transformation work?</a></h2>
+<p>https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-segment-local/src/main/java/org/apache/pinot/segment/local/function/GroovyFunctionEvaluator.java#L62-L62
+Here <code>genericRow</code> is just a map deserialized from Kafka message value (given we
+use a Json decoder).</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="operating-system"><a class="header" href="#operating-system">Operating System</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="linux"><a class="header" href="#linux">Linux</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="netfilter"><a class="header" href="#netfilter">Netfilter</a></h1>
+<p>Netfilter is a module inside Linux networking stack for filtering and
+transforming network packets.</p>
+<h2 id="hooks"><a class="header" href="#hooks">Hooks</a></h2>
+<p>There are
+<a href="https://github.com/torvalds/linux/blob/420b2d431d18a2572c8e86579e78105cb5ed45b0/include/uapi/linux/netfilter.h#L41-L42">five different hooks</a>.</p>
+<pre><code>enum nf_inet_hooks {
+	NF_INET_PRE_ROUTING,
+	NF_INET_LOCAL_IN,
+	NF_INET_FORWARD,
+	NF_INET_LOCAL_OUT,
+	NF_INET_POST_ROUTING,
+	NF_INET_NUMHOOKS,
+	NF_INET_INGRESS = NF_INET_NUMHOOKS,
+};
+</code></pre>
+<p><a href="https://en.wikipedia.org/wiki/Netfilter">Wikipedia</a> has a complete diagram
+showing at which stages the hooks are called. Below is a simplified version.
+Diagram source is
+<a href="https://www.researchgate.net/figure/Netfilter-hooks-and-packet-flow-https-doiorg-101371-journalpone0182375g005_fig5_320174686">here</a>.
+<img src="os/linux/netfilter.png" alt="netfilter diagram"></p>
+<p>Note that each network namespace has its own netfilter hooks. See
+<a href="https://github.com/torvalds/linux/blob/420b2d431d18a2572c8e86579e78105cb5ed45b0/include/net/net_namespace.h#L143">code</a>.
+However, in Kubernetes, only the host has set up the iptable rules. The pod
+itself does not have any iptable rule. For example, below result is from one
+AWS EKS node.</p>
+<pre><code>[ec2-user@ip-172-31-95-245 ~]$ sudo ip netns exec cni-d0be060b-9f78-cbb5-d992-eb4a2bc066e9 iptables -t nat -L
+Chain PREROUTING (policy ACCEPT)
+target     prot opt source               destination
+
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+
+Chain POSTROUTING (policy ACCEPT)
+target     prot opt source               destination
+</code></pre>
+<h2 id="register-a-table"><a class="header" href="#register-a-table">Register a table</a></h2>
+<p>The source code is
+<a href="https://github.com/torvalds/linux/blob/420b2d431d18a2572c8e86579e78105cb5ed45b0/net/netfilter/x_tables.c#L1450-L1498">here</a>.</p>
+<p>First interesting function is <code>net_generic</code>, which extract module specific data
+from <code>struct net</code>. When you call <code>register_pernet_subsys</code>, it set the value
+that points by <code>pernet_operations.id</code>. That is why
+<a href="https://github.com/torvalds/linux/blob/420b2d431d18a2572c8e86579e78105cb5ed45b0/net/netfilter/x_tables.c#L77">xt_pernet_id </a>
+is not initialized inside netfilter module.</p>
+<h2 id="reference"><a class="header" href="#reference">Reference</a></h2>
+<ul>
+<li>https://switch-router.gitee.io/categories/</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="mac"><a class="header" href="#mac">Mac</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="web"><a class="header" href="#web">Web</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="grpc"><a class="header" href="#grpc">grpc</a></h1>
+<h2 id="plugin"><a class="header" href="#plugin">Plugin</a></h2>
+<p>Quote from
+<a href="https://github.com/protocolbuffers/protobuf/blob/main/src/google/protobuf/compiler/plugin.proto">plugin.proto</a>:</p>
+<pre><code>// protoc (aka the Protocol Compiler) can be extended via plugins.  A plugin is
+// just a program that reads a CodeGeneratorRequest from stdin and writes a
+// CodeGeneratorResponse to stdout.
+//
+// Plugins written using C++ can use google/protobuf/compiler/plugin.h instead
+// of dealing with the raw protocol defined here.
+//
+// A plugin executable needs only to be placed somewhere in the path.  The
+// plugin should be named "protoc-gen-$NAME", and will then be used when the
+// flag "--${NAME}_out" is passed to protoc.
+</code></pre>
+<h2 id="example-study-python-betterproto"><a class="header" href="#example-study-python-betterproto">Example study: python-betterproto</a></h2>
+<p><a href="https://github.com/danielgtaylor/python-betterproto">python-betterproto</a> is a
+proto plugin that generates better, typed python code. The main entry is
+<a href="https://github.com/danielgtaylor/python-betterproto/blob/098989e9e93c97e16e10257b1b3575f987180f8c/src/betterproto/plugin/main.py#L14">here</a>
+and it uses
+<a href="https://github.com/danielgtaylor/python-betterproto/blob/098989e9e93c97e16e10257b1b3575f987180f8c/src/betterproto/templates/template.py.j2#L76">a template</a>
+to generate the output python code. Checkout the
+<a href="https://github.com/danielgtaylor/python-betterproto/blob/098989e9e93c97e16e10257b1b3575f987180f8c/src/betterproto/plugin/models.py#L403">models</a>
+file to see how the types are generated and injected to the Jinja2 template.</p>
+<h2 id="binary-protocol"><a class="header" href="#binary-protocol">Binary protocol</a></h2>
+<p>The <a href="https://protobuf.dev/programming-guides/encoding/">official doc</a> describes
+the binary protocol in depth. The variable-width integer format is quite
+interesting. The <code>python-betterproto</code> repo has a
+<a href="https://github.com/danielgtaylor/python-betterproto/blob/098989e9e93c97e16e10257b1b3575f987180f8c/src/betterproto/__init__.py#L346">python implementation</a>
+of this protocol. Among the few binary encodings I have seen so far, protobuf
+has the concisest format, but it only supports a small subset of data
+structures. For example, it does not have built-in hashset type. According to
+<a href="https://github.com/protocolbuffers/protobuf/issues/3432">the protobuf official team</a>,
+supporting hashmap and hashset is “complicated” and hard to maintain :(. I do
+not understand this statement. I probably do not appreciate the difficulty of
+maintaining the backward and forward compatibility inside protobuf. On the
+other hand, Kafka’s binary protobuf is more verbose, but is more expressive.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="all-i-know-about-c"><a class="header" href="#all-i-know-about-c">All I know about C++</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>

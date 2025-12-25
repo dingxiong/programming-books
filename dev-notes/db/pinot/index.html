@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Clickhouse - Life as a Programmer</title>
+        <title>Pinot - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -177,17 +177,91 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="clickhouse"><a class="header" href="#clickhouse">Clickhouse</a></h1>
+                        <h1 id="pinot"><a class="header" href="#pinot">Pinot</a></h1>
+<p>Pinot has a few components: <code>broker</code>, <code>controller</code>, <code>server</code>, <code>zookeeper</code> and
+<code>minion</code>. See below pods after we installed pinot inside k8s.</p>
+<pre><code>$ k get pods
+NAME                                     READY   STATUS    RESTARTS   AGE
+pinot-broker-0                           1/1     Running   0          7d22h
+pinot-controller-0                       1/1     Running   0          4d4h
+pinot-minion-stateless-d5ff6f8f9-9vcts   1/1     Running   0          3d
+pinot-server-0                           1/1     Running   0          7d22h
+pinot-server-1                           1/1     Running   0          7d22h
+pinot-zookeeper-0                        1/1     Running   0          7d21h
+</code></pre>
+<h2 id="pinot-tools"><a class="header" href="#pinot-tools">pinot-tools</a></h2>
+<p>Pinot-tools is a subproject inside pinot repo, and it is the main entry to all
+services inside pinot, so it depends on all other subprojects.</p>
+<p>In the above pods, except zookeeper pod, all run the same image
+<code>apachepinot/pinot:latest</code>. The docker file is
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/docker/images/pinot/Dockerfile#L70-L70">here</a>.
+The entry point is <code>./bin/pinot-admin.sh</code>. Initially, I was confused because I
+could not find this script inside the repo. Then I read its
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-tools/pom.xml#L323-L333">pom file</a>.
+Ah! it uses <a href="https://github.com/mojohaus/appassembler">mojohaus/appassembler</a>
+to auto generate bash scripts. Quite a few script are generated, and
+<code>pinot-admin.sh</code> is one of them. The pom file also specifies the corresponding
+class for this script: <code>org.apache.pinot.tools.admin.PinotAdministrator</code>. This
+Java file defines a lot of subcommands such as <code>StartController</code>, <code>StartBroker</code>
+etc. OK. We learned that this is the entrance to all services and CLI tools
+inside pinot.</p>
+<p>We will talk about some important subcommands in the following sections.</p>
+<h3 id="addtablecommand"><a class="header" href="#addtablecommand">AddTableCommand</a></h3>
+<p>AddTableCommand is used to create a new table or update an existing table. To
+create a hybrid table, we specify both <code>_offlineTableConfigFile</code> and
+<code>_realtimeTableConfigFile</code>. See
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-tools/src/main/java/org/apache/pinot/tools/admin/command/AddTableCommand.java#L240-L240">code</a>.
+The corresponding rest server is running inside pinot controller. The code is
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-controller/src/main/java/org/apache/pinot/controller/api/resources/TableConfigsRestletResource.java#L166-L166">here</a>.
+From <code>validateConfig</code> function you can see that in order to create a hybrid
+table, the table name must be the same in both offline table config and
+real-time table config.</p>
+<h2 id="controller"><a class="header" href="#controller">Controller</a></h2>
+<p>What is running inside a controller.</p>
+<pre><code>$ ps -efww
+/usr/lib/jvm/java-11-amazon-corretto/bin/java ... org.apache.pinot.tools.admin.PinotAdministrator StartController -configFileName /var/pinot/controller/config/pinot-controller.conf
+</code></pre>
+<h3 id="what-runs-inside-a-controller"><a class="header" href="#what-runs-inside-a-controller">What runs inside a Controller</a></h3>
+<h2 id="broker"><a class="header" href="#broker">Broker</a></h2>
+<p>Pinot broker is the API gateway of pinot. User’s requests are received by
+broker and then then routed to server using grpc.</p>
+<pre><code>$ ps -efww
+/usr/lib/jvm/java-11-amazon-corretto/bin/java ... org.apache.pinot.tools.admin.PinotAdministrator StartBroker -clusterName pinot-zip -zkAddress pinot-zookeeper:2181 -configFileName /var/pinot/broker/config/pinot-broker.conf
+</code></pre>
+<h2 id="sql-query"><a class="header" href="#sql-query">SQL query</a></h2>
+<p>Pinot only supports queries on a single table. It does not support table joins.
+You can tell from the definition of
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-common/src/thrift/query.thrift#L21-L21">PinotQuery</a>
+class. Also, the explicit validation is
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-broker/src/main/java/org/apache/pinot/broker/requesthandler/BaseBrokerRequestHandler.java#L328-L328">here</a>.</p>
+<h3 id="how-query-works-for-a-hybrid-table"><a class="header" href="#how-query-works-for-a-hybrid-table">How query works for a hybrid table?</a></h3>
+<p>When a pinot broker receives a query request for a hybrid table, it will fork
+this query into two queries with a boundary time filter, and then send them to
+offline table and real-time table in parallel and then aggregate the two
+results. For example,</p>
+<pre><code>Original query: select * from t1 where a &gt; 100;
+=&gt;
+offline table query:   select * from t1 where a &gt; 100 and ts &lt;= boundary_time;
+real-time table query: select * from t1 where a &gt; 100 and ts &gt;  boundary_time;
+</code></pre>
+<p>There are some blogs online talking about how this boundary time is chosen by
+pinot, we omit the details here. The code about how a hybrid table query is
+handled
+<a href="https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-broker/src/main/java/org/apache/pinot/broker/requesthandler/BaseBrokerRequestHandler.java#L421-L421">here</a>.</p>
+<h2 id="how-does-groovy-transformation-work"><a class="header" href="#how-does-groovy-transformation-work">How does Groovy transformation work?</a></h2>
+<p>https://github.com/apache/pinot/blob/e4220ecea583ff439363fd505497a3ec3cb3e4b6/pinot-segment-local/src/main/java/org/apache/pinot/segment/local/function/GroovyFunctionEvaluator.java#L62-L62
+Here <code>genericRow</code> is just a map deserialized from Kafka message value (given we
+use a Json decoder).</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../db/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../db/clickhouse/msic.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../db/clickhouse/build.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../os/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -197,11 +271,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../db/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../db/clickhouse/msic.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../db/clickhouse/build.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../os/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
