@@ -5,6 +5,10 @@
 - [Security](security/README.md)
   - [TLS](security/tls/README.md)
     - [mTLS](security/tls/mtls.md)
+  - [SSO](security/sso/README.md)
+  - [sasl](security/sasl/README.md)
+  - [aes](security/aes/README.md)
+  - [cors](security/cors/README.md)
 
 - [Database](db/README.md)
   - [Clickhouse](db/clickhouse/README.md)
@@ -12,6 +16,7 @@
     - [Configuration](db/clickhouse/configuration.md)
     - [Parser](db/clickhouse/parser.md)
     - [Misc](db/clickhouse/msic.md)
+
 - [All I know about C++](cpp/README.md)
   - [C++ Standards](cpp/standards/README.md)
     - [Declarations](cpp/standards/declarations/README.md)
