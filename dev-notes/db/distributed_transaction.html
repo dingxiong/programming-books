@@ -38,7 +38,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-fe505378.js";
+            window.path_to_searchindex_js = "../searchindex-2bd0bdd9.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-8e1b4a94.js"></script>
@@ -178,10 +178,15 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="distributed-transactions"><a class="header" href="#distributed-transactions">Distributed Transactions</a></h1>
-<p>I want to keep studying subject “distributed transactions”. This is a
-challenging topic.</p>
-<p>First, just put some references here</p>
-<h1 id="paperblog-posts"><a class="header" href="#paperblog-posts">Paper/blog posts</a></h1>
+<p>Distributed transactions is a challenging topic. It means different things in
+different contexts. For distributed database, it means cross-machine
+transactions that meets ACID requirements. It requires strong consistency and
+is usually implemented using 2PC with Raft. Checkout <code>TiDB</code> and <code>CockroachDB</code>.
+On application side, distributed transactions usually means a way to achieve
+eventual consistency among a few micro-services. <code>saga</code> is popular term in this
+area. There are many ways to achieve it: 2PC, TCC, etc. <code>Apache Seata</code> is very
+popular application side library in this domain.</p>
+<h2 id="paperblog-posts"><a class="header" href="#paperblog-posts">Paper/blog posts</a></h2>
 <h3 id="newsql-database-systems-are-failing-to-guarantee-consistency-and-i-blame-spanner"><a class="header" href="#newsql-database-systems-are-failing-to-guarantee-consistency-and-i-blame-spanner"><a href="https://dbmsmusings.blogspot.com/2018/09/newsql-database-systems-are-failing-to.html">NewSQL database systems are failing to guarantee consistency, and I blame Spanner</a></a></h3>
 <p>Prof. Daniel has a great blog about CAP theorem and the distributed DB in the
 market. The comment section needs a read too!</p>
@@ -191,8 +196,8 @@ market. The comment section needs a read too!</p>
 without TrueTime. Basically, Spanner’s write performance is impacted because it
 waits for uncertainty window to pass. CockroachDB on the other hand, retries
 reading if there is time uncertainty, so its read performance is impacted.</p>
-<h1 id="cap-theorem"><a class="header" href="#cap-theorem">CAP theorem</a></h1>
-<h1 id="serializability-vs-linearizability"><a class="header" href="#serializability-vs-linearizability">Serializability vs linearizability</a></h1>
+<h2 id="cap-theorem"><a class="header" href="#cap-theorem">CAP theorem</a></h2>
+<h2 id="serializability-vs-linearizability"><a class="header" href="#serializability-vs-linearizability">Serializability vs linearizability</a></h2>
 <p>These are two difference concepts. Serializability is the strictest isolation
 level defined by ANSI SQL, which means two transactions T1 and T2 can be
 serialized to a sequence [T1, T2] or [T2, T1].</p>
@@ -203,9 +208,13 @@ point of view of an outside observer, this isolation level is called
 <code>external consistency</code>. It first showed up in Google Spanner paper.</p>
 <p>I think this post explains their differences very well
 http://www.bailis.org/blog/linearizability-versus-serializability/ .</p>
-<h1 id="spanner"><a class="header" href="#spanner">Spanner</a></h1>
-<h1 id="calvin"><a class="header" href="#calvin">Calvin</a></h1>
-<h1 id="tidb"><a class="header" href="#tidb">TiDB</a></h1>
+<h2 id="todo"><a class="header" href="#todo">TODO</a></h2>
+<p>Study</p>
+<ul>
+<li>Spanner</li>
+<li>Calvin</li>
+<li>TiDB</li>
+</ul>
 <p>Post
 <a href="https://www.pingcap.com/blog/time-in-distributed-systems/">Keeping Time and Order in Distributed Databases</a>
 describes the way how TiDB does distributed transactions.</p>
