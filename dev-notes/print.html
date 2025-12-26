@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-2bd0bdd9.js";
+            window.path_to_searchindex_js = "searchindex-94112c76.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-8e1b4a94.js"></script>
+        <script src="toc-6865b99e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2430,6 +2430,498 @@ accurate. To build <code>curl</code> locally, see below instructions.</p>
 ./configure --with-openssl
 bear -- make -j5
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="introduction-1"><a class="header" href="#introduction-1">Introduction</a></h1>
+<ul>
+<li>Reliability: fault-tolerant, resilient.</li>
+</ul>
+<p>Terms</p>
+<ul>
+<li>Polyglot Persistence: the practice of using multiple database technologies
+within a single application to handle different types of data and workloads
+more effectively</li>
+<li>Normalization: the process of organizing data to reduce redundancy and
+improve data integrity, often by splitting it into multiple related tables.
+Denormalization is the opposite process.</li>
+</ul>
+<h2 id="b-tree"><a class="header" href="#b-tree">B-Tree</a></h2>
+<p>B-Tree:</p>
+<ul>
+<li>Every node stores keys and values. Leaves are at the same depth, but values
+can appear in internal nodes too.</li>
+</ul>
+<p>B+ Tree:</p>
+<ul>
+<li>Internal nodes: only keys</li>
+<li>Leaves: keys + values/record pointers</li>
+<li>Leaves are linked as a sorted linked list → efficient range scans</li>
+<li>Because internal nodes store only keys, they pack more per page → higher
+fan-out → shorter height</li>
+</ul>
+<p>This is why almost all databases (PostgreSQL, MySQL/InnoDB, SQLite),
+filesystems, and storage engines use B+ Trees, not plain B-Trees.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="real-time-marketplace"><a class="header" href="#real-time-marketplace">Real-time Marketplace</a></h1>
+<p>Design Uber/Lyft/Doordash/Yelp.</p>
+<h2 id="background-knowledge"><a class="header" href="#background-knowledge">Background knowledge</a></h2>
+<h3 id="redis-geo"><a class="header" href="#redis-geo">Redis GEO</a></h3>
+<p>Redis provides a set of GEO commands: <code>geoadd</code>, <code>geosearch</code> etc. The core idea
+is <code>geohash</code>.</p>
+<p>Redis GEO encodes latitude and longitude into a geohash integer and stores it
+as the score of a sorted set. Radius queries are implemented as multiple
+sorted-set range scans over neighboring geohash cells, followed by exact
+distance filtering. This avoids complex spatial indexes and keeps writes
+extremely cheap, which is ideal for high-frequency location updates.</p>
+<p><a href="https://en.wikipedia.org/wiki/Geohash">Wikipedia</a> has vivid example of how
+this hash is constructed. <code>Redis</code>’s implementation is mainly inside the
+<a href="https://github.com/redis/redis/blob/238a62685954b1128c25d7f60c326fd20b2cd9ea/src/geo.c#L365">geo.c</a>
+file.</p>
+<h3 id="postgres"><a class="header" href="#postgres">Postgres</a></h3>
+<p>This is all about R-tree. The golden reference implementation is from Postgres.
+I would recommend everyone read PG’s
+<a href="https://www.postgresql.org/docs/current/indextypes.html">documentation</a>.
+Postgres’s GiST (Generic Search Tree) provides the backbone of R-tree
+implementation. The
+<a href="https://github.com/postgres/postgres/blob/3f9b9621766796983c37e192f73c5f8751872c18/src/backend/access/gist/gistproc.c#L7">reference implementation</a>
+is easy to read. It defines functions to check whether two boxes intersects,
+the distance between two boxes, and etc. But overall it is quite basic. In
+production, better turn to PostGIS (PostgreSQL’s spatial extension).</p>
+<h2 id="design-uber"><a class="header" href="#design-uber">Design Uber</a></h2>
+<h3 id="traffic-estimation"><a class="header" href="#traffic-estimation">Traffic estimation</a></h3>
+<p>First, estimate the traffic. AI is really good at this part. Here I just copy
+the response from chatgpt.</p>
+<p>For a large city with 10m citizens, suppose 30% of them are registered Uber
+users. Each registered user takes 1/3 ride per day on average. Then it is 1m
+rides per day. These rides are not evenly distributed over 24 hours. For
+example, there is almost no ride from 1am to 5am. Let’s assume 80% rides happen
+during peak hour (4h). That is <code>1m * 0.8/4 = 200k</code> rides/hour.</p>
+<p>How many concurrent drivers? Suppose each ride takes 20min, which means each
+driver can finish 3 rides per hour. So <code>200k/3 = 67k</code> concurrent drivers.</p>
+<p>How many concurrent riders? Let’s assume most riders only use Uber for
+searching, after ride is confirmed, they swipes away to other apps. There are
+definitely some riders leaving Uber open for the whole trip, such as me, but it
+is rare. With this assumption, we can assume each rider uses 5min for each
+ride. So <code>200k/60*5 = 16.7k</code> concurrent riders.</p>
+<p>So the heavy part is on the driver side. Now suppose driver reports GPS
+location every 3 seconds, then it means <code>67k/3=22k</code> writes/seconds.</p>
+<p>Read traffic is more complicated. Rider needs to poll trip status update, fetch
+nearly drivers, etc. Drivers need to poll route/trip updates etc. Let’s assume
+the poll frequency is 1 second, the we expect 3x-5x read traffic than write
+traffic.</p>
+<p>So in summary,</p>
+<ul>
+<li>write: 20k QPS</li>
+<li>read: 60k QPS</li>
+</ul>
+<h3 id="rider-driver-matching"><a class="header" href="#rider-driver-matching">Rider driver matching</a></h3>
+<p>Matching is a multi-stage pipeline: geo filtering using Redis GEO, hard
+constraint filtering, heuristic scoring based on ETA and fairness, atomic
+reservation to prevent double assignment, and sequential dispatch to drivers
+with timeouts. The system is optimized for low latency and high write
+throughput rather than perfect global optimality.</p>
+<ol>
+<li>
+<p>Rider sends a request to Uber
+<code>(rider_id, pickup_lat, pickup_lon, vehicle_type)</code>.</p>
+</li>
+<li>
+<p>Matching service looks up nearby drivers
+<code>GEORADIUS drivers pickup_lon pickup_lat 2 km</code>.</p>
+</li>
+<li>
+<p>Filter by hard constraint.</p>
+<ul>
+<li>driver.status == AVAILABLE</li>
+<li>no tentative lock on the driver.</li>
+<li>vehicle_type == requested</li>
+</ul>
+</li>
+<li>
+<p>Score drivers. <code>score = f(ETA, cancellation_risk, driver fairness, ...)</code></p>
+</li>
+<li>
+<p>Tentative reservation. Add a lock key with 10s TTL.</p>
+</li>
+<li>
+<p>Send the offer to driver.</p>
+</li>
+<li>
+<p>Driver accepts the offer =&gt; <code>driver.status = BOOKED</code>.</p>
+<p>Driver declines the offer =&gt; <code>driver.status = AVAILABLE</code> and delete the
+lock.</p>
+</li>
+<li>
+<p>Send the update to Driver. Processing payment staff, etc.</p>
+</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="file-blob-storage"><a class="header" href="#file-blob-storage">File Blob Storage</a></h1>
+<p>Design Dropbox/Gdrive.</p>
+<h2 id="background-knowledge-1"><a class="header" href="#background-knowledge-1">Background Knowledge</a></h2>
+<h3 id="hdfs"><a class="header" href="#hdfs">HDFS</a></h3>
+<p>HDFS is almost dead now. Newer applications/architectures almost all turn to
+S3/GCS/ADLS. However, its internal mechanics can help us design blob storage.
+The core components of HDFS are below:</p>
+<ul>
+<li>NameNode: contains metadata, such as the namespace tree and file-to-block
+mapping.</li>
+<li>DataNode: stores the actual data blocks. Multiple DataNodes store replicas of
+each block for fault tolerance.</li>
+<li>JournalNodes: used in high availability setups. When you have multiple
+NameNodes (active and standby), JournalNodes form a quorum-based storage
+system that keeps the edit logs synchronized between the NameNodes. Typically
+you run an odd number of them (like 3 or 5) for fault tolerance.</li>
+<li>ZKFC (ZooKeeper Failover Controller): for HA of NameNode. This is a small
+daemon that runs alongside each NameNode. It monitors the NameNode’s health
+and coordinates with ZooKeeper to manage automatic failover.</li>
+</ul>
+<p>You see HDFS achieve HA using a single leader architecture. Elasticsearch has
+the similar design. The standby nodes are a waste of resource. In my point of
+view, this design is outdated. No newer system chooses this architecture any
+more.</p>
+<h3 id="aws-s3"><a class="header" href="#aws-s3">AWS S3</a></h3>
+<p>S3 is not open sourced, so I have no idea about its internal implementation.
+But from the resources I collected, S3 probably had similar architecture as
+HDFS in the early stage, but later was influenced by AWS Dynamo architecture,
+and changed to a distributed architecture using consistent hashing. See
+<a href="https://geeklogbook.com/how-dynamo-reshaped-the-internal-architecture-of-amazon-s3/">post</a>.</p>
+<p>One key semantic difference between HDFS and S3 is in how they model storage:</p>
+<ul>
+<li>HDFS models a traditional filesystem, with directories, subdirectories, and
+file metadata.</li>
+<li>S3 models a flat key-value object store, where each object is uniquely
+identified by <code>(bucket, key)</code>. There is no true directory hierarchy;
+directories are effectively prefixes in keys. This makes S3 conceptually
+simpler and easier to scale.</li>
+</ul>
+<p>To achieve HA and massive scalability, S3 employs two main mechanisms:</p>
+<ol>
+<li>Consistent hashing:
+<ul>
+<li>Each object key is hashed to determine its placement in a distributed
+keyspace.</li>
+<li>Replication factor (e.g., 3) determines multiple hash placements across
+independent nodes, ensuring redundancy.</li>
+<li>Node joins or failures only affect a small portion of keys, minimizing
+data movement and avoiding a single metadata bottleneck.</li>
+</ul>
+</li>
+<li>Quorum-based replication and background repair.
+<ul>
+<li>Writes are replicated to multiple nodes and considered durable once a
+quorum acknowledges the write.</li>
+<li>Continuous background processes detect failed replicas and repair them
+automatically.</li>
+<li>This provides durability and availability without requiring global
+coordination for every object.</li>
+</ul>
+</li>
+</ol>
+<p>In short, S3 decouples metadata from a centralized authority, achieving HA and
+scalability through distributed hashing, replication, and self-healing, whereas
+HDFS relies on a central NameNode with explicit HA mechanisms.</p>
+<h3 id="more-architectures"><a class="header" href="#more-architectures">More Architectures</a></h3>
+<p>S3’s architecture sounds much better than HDFS. But is it the ultimate choice?.
+Many modern distributed systems use partitioned Raft clusters, such as
+CockroachDB/TiKV/etcd/Spanner. Each keyspace is divided into shards/ranges (16k
+for example). Each shard is replicated via Raft. Centralized meta-service
+tracks shard → node mapping.</p>
+<p>Why? Because these systems need to support scan/range queries. Hashing destroys
+locality. So consistent hashing is never a choice for distributed database. But
+S3 does not support range query. So key locality does not matter to it. Wait,
+you may ask “hm. I use S3 daily, I can download all files belonging to a share
+prefix. Then how is this possible?” This is because S3 just go to all
+partitions of this bucket and filter by prefix. It is not efficient. Then you
+may ask how <code>DynamoDB</code> range query works? DynamoDB is inspired by the Dynamo
+paper, but I do not know the exact implementation. In <code>DynamoDB</code>, two fields
+are required: <code>Partition Key</code> and <code>Sort Key</code>. You can only scan/range query
+inside the same <code>Partition</code> key. In order to scan across Partition Key, you
+need to explicit build a secondary index.</p>
+<h2 id="design-dropbox"><a class="header" href="#design-dropbox">Design Dropbox</a></h2>
+<p>The core idea is chunking and separation between metadata store and object
+store.</p>
+<h3 id="traffic-estimation-1"><a class="header" href="#traffic-estimation-1">Traffic estimation</a></h3>
+<p>Dropbox is client side heavy, meaning upload/download work is done on the
+client side by talking to the blob storage directly, so it it naturally
+distributed. If we use a scalable object store like S3, the we only need to
+worry about the scalability of the metadata service.</p>
+<p>Metadata service is only called for uploading a file and file sync. Suppose
+total 1B users, and on average each user need to upload/sync one file per day.
+That is <code>2e9 / 86400 = 23148</code> qps. With a peak 3x traffic. We need to handle
+700k qps. We can shard the db, or use a nosql db such as dynomodb.</p>
+<h3 id="how-does-upload-work"><a class="header" href="#how-does-upload-work">How does upload work?</a></h3>
+<ol>
+<li>Client first splits the file into chunks, and hash each chunk. No need to
+split physically, just need to scan the whole file and get the chunk hashes.</li>
+<li>Client talks to Metadata service saying it is about to upload this file
+together with this chunk hashes.</li>
+<li>Metadata service creates a record for this file and the associated chunk
+hashes. It also checks which chunk hashes already exit. Think that there are
+two tables. One <code>file</code> table. It records <code>file_name</code> to <code>check_hash</code>
+mapping. Another table <code>chunk</code> that stores <code>chunk_hash</code> to object store
+<code>uri</code> mapping. Metadata service only return missing chunks to the client.</li>
+<li>Client uploads missing chunks directly to data nodes, and send a request to
+metadata service to update <code>chunk</code> table. There could be two approach to
+generate the upload url. Either it is generated by client side in a
+deterministic algorithm, or received from the metadata service. Later is
+better because it is more convenient for upgrade.</li>
+</ol>
+<p>The main reason for this chunk based approach is dedup. The same file can be
+uploaded by different users with the same or different file name.</p>
+<p>What hashing algorithm we can use? Rolling hash is enough.</p>
+<h4 id="any-danger-if-two-users-upload-the-same-chunk"><a class="header" href="#any-danger-if-two-users-upload-the-same-chunk">Any danger if two users upload the same chunk?</a></h4>
+<p>No. When two users upload the same chunk. The storage layer will upload them to
+a temp location, and finally, atomically swap it the final destination file
+path. For example Linux <code>mv</code> command. There is no danger of file corruption.
+Also, uploading chunk is idempotent operation. As long as one user succeeds, it
+is fine.</p>
+<p>Because of this, user never sees partial data. The chunk file is either
+non-exist or complete.</p>
+<h3 id="how-does-download-work"><a class="header" href="#how-does-download-work">How does download work?</a></h3>
+<p>First, if auto sync is on and the file already exists in the local disk, then
+nothing to do. Downloading only needed if we go to dropbox.com to download the
+file manually.</p>
+<ol>
+<li>Client requests file</li>
+<li>Metadata service checks whether all chunks are uploaded already. If yes,
+returns the chunk list. If not, then return an error response.</li>
+<li>Client downloads chunks in parallel.</li>
+<li>Client assembles file.</li>
+</ol>
+<h3 id="how-does-syncing-work"><a class="header" href="#how-does-syncing-work">How does syncing work?</a></h3>
+<p>For local to remote sync, use a file watcher. For remote to local, use polling
+or websocket. We may need CDC and Kafka queue here.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="feed--timeline-system"><a class="header" href="#feed--timeline-system">Feed &amp; Timeline System</a></h1>
+<h2 id="design-news-feed-in-twitter"><a class="header" href="#design-news-feed-in-twitter">Design news feed in Twitter</a></h2>
+<ul>
+<li>create post</li>
+<li>follow/unfollow people</li>
+<li>view Feed Timeline</li>
+</ul>
+<h3 id="traffic-estimation-2"><a class="header" href="#traffic-estimation-2">Traffic estimation</a></h3>
+<p>This part is generated by chatgpt.</p>
+<p>Basic assumptions.</p>
+<ul>
+<li>Total users: 500 million</li>
+<li>Daily Active Users (DAU): 40% → 200 million</li>
+<li>Tweets per active user per day: 2</li>
+<li>Timeline reads per active user per day: 30</li>
+<li>Average followers per user: 200</li>
+</ul>
+<p>Daily tweets are <code>400M</code> tweets/day, that is <code>4,600</code> tweets/sec. If we assume
+the peak is 5x, then we should support <code>23k</code> tweets/sec.</p>
+<p>For read, <code>200M × 30 = 6B</code> reads/day. Peak read is <code>6B/86400 * 5 = 350k</code>
+reads/sec. So read is 10x of write. Twitter is definitely a read heavy
+platform.</p>
+<h3 id="how-does-feed-timeline-work"><a class="header" href="#how-does-feed-timeline-work">How does feed timeline work?</a></h3>
+<p>We have <code>user</code>, <code>follower</code> and <code>post</code> tables. We can simply join these three
+table to obtain the timeline view a single user. This is called pull mode. The
+problem with this approach is that if a user follows too many other people,
+then this query will be very slow.</p>
+<p>On the other hand, we can cache or materialize this query, and asynchronously
+update it whenever there is a new post or post update. This is called push
+mode. There are two problem with this approach.</p>
+<ol>
+<li>The flow is asynchronous. It only guarantee eventual consistency. Think
+about a scenario that two friends sit together who follow the same celerity.
+One can see the latest post. One cannot.</li>
+<li>The problem with this approach is that if one user has way many followers
+then the write fans out too many.</li>
+</ol>
+<p>A better idea is to combine both approaches, i.e., a hybrid approach. The
+<code>user</code> table could have a field <code>celerity</code> or <code>is_hot</code>. We use pull mode to
+fetch posts from hot followees and use push mode to fetch posts from non-hot
+followees, then combine the two sets.</p>
+<p>What storage should we choose for the timeline view cache. Redis is good enough
+because Redis cluster supports key partition. It can scale.</p>
+<p>Do we need to store post content directly in DB or S3? Most likely DB is
+enough. For example, Postgres has Toast optimization. If we really care about
+the database size, we can use S3 then.</p>
+<p>How to paginate feed page? Use <code>(timestamp, post_id)</code> as pagination cursor.
+Timestamp pagination is easiest even we need combine two sources of posts. We
+can roughly think timestamp is globally incremental primary key. The <code>post_id</code>
+is used to break ties, so there is no blur boarder.</p>
+<h3 id="multimedia-support"><a class="header" href="#multimedia-support">Multimedia support</a></h3>
+<p>Media is uploaded directly to S3 using pre-signed URLs. We need a <code>attachment</code>
+table because <code>post</code> and <code>attachment</code> is a one-2-many relation.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="log--metric--tracing--alerting"><a class="header" href="#log--metric--tracing--alerting">Log &amp; Metric &amp; Tracing &amp; Alerting</a></h1>
+<h2 id="real-time-logs"><a class="header" href="#real-time-logs">Real-time Logs</a></h2>
+<p>We need to distinguish two different use cases. One is audit logs from
+customers. The other is server logs used internally by your company’s
+engineers/supports.</p>
+<p>The first case is also call “user journey logs”. They are as important as
+business itself. For example, if your business deals with payment, then legal
+or security requires all user’s actions such as editing an invoice, money
+transfer are all logged for future audit purpose. Not only for audit
+requirement, it is beneficial for customers’ own benefits sometimes. For the
+case, we need treat these audit logs as important as business data. So it is
+best store them in durable storage and even wrap them in the same transaction
+as business flow.</p>
+<p>The second case is internal logs. They are used for debugging purpose mostly.
+In this case, ELK is the standard. We also need Kafka queue between collector
+and sinker as a buffer. I built an ELK pipeline from before.</p>
+<ul>
+<li>Log collector: vector.dev or filebeat. It tails the log files, sand send them
+to the next stage.</li>
+<li>Kafka: log message broker</li>
+<li>Logstash: Some transformations done here. This step actually could be removed
+because Kafka can directly dump to ES.</li>
+<li>Sink: ES. I set up 8 ES pods each with 8T PVC, and it uses 70% of the
+storage.</li>
+<li>UI: Kibana.</li>
+</ul>
+<h3 id="how-does-it-scale"><a class="header" href="#how-does-it-scale">How does it scale?</a></h3>
+<p>Elasticsearch support datastream. It automatically generates a new index when
+the current index size reaches a threshold value. All these indices are
+suffixed by timestamp, and blong to the same datastream. The scalability comes
+from the number of concurrent indices used for indexing. For example, suppose
+you have 4 ES data nodes, then you can create 4 datastreams <code>ds-1</code> to <code>ds-4</code>,
+and on the Kafka/Logstash side, you can alternately write to all 4 datastreams.
+Therefore, all ES nodes are kept busy and we can scale.</p>
+<h2 id="metrics"><a class="header" href="#metrics">Metrics</a></h2>
+<p>Metric data seems similar to logs, but they are quite different.</p>
+<h3 id="pull-vs-push"><a class="header" href="#pull-vs-push">Pull vs Push</a></h3>
+<p>For logs, we never need to discuss pull vs push because it is just a local
+agent tailing a log file. Metrics collectors, however, can choose between pull
+or push mode. Usually both modes are used. Pull mode works well for system
+metrics such as CPU, memory usage. Datadog customized metrics work this way,
+you register a new metric and the agent will pull the metric every 10 seconds.
+On the other hand, push mode requires client side’s instrumentation. For
+example, you can use <code>dd-trace</code> python package to manually send metrics.</p>
+<p>For performance purpose, push mode does not directly pushes the metrics to
+remote server. There is usually a local agent accepts these metrics and does
+some aggregation before sending to the remote backend. This is how Datadog
+agent metric component works.</p>
+<h3 id="storage-choices"><a class="header" href="#storage-choices">Storage Choices</a></h3>
+<p>Logs have only one use case: full-text search, so ES is perfect and enough.
+Metric use cases are quite different. It needs support queries. For example,
+“find the moment that average CPU usage goes over 75%.” The query and threshold
+can be arbitrary. Moreover, metric/alerts can be added ad-hoc after metric data
+is collected, so you cannot pre-compute all possible metrics. We need to store
+the raw metric time-series data.</p>
+<p>The best choice for metric data is time-series database. I have no experience
+with <code>influxDB</code>. But from my limited experience with OLAP database
+<code>Clickhouse</code>, I think <code>Clickhouse</code> would be good enough. It use column-wise
+storage, and it is super fast.</p>
+<h2 id="alerting"><a class="header" href="#alerting">Alerting</a></h2>
+<p>Alert agent is almost always pull-based. It queries stored metrics periodically
+and evaluate alert rules. One alert fires, it trigger upstream systems, such as
+email, slack, Pagerduty, and webhooks.</p>
+<h2 id="distributed-tracing"><a class="header" href="#distributed-tracing">Distributed Tracing</a></h2>
+<p>First, distributed tracing refers to the tracking of traffic/requests across
+all the different services and components, giving you a clear picture of what’s
+happening in a large picture.</p>
+<p>Second, tracing involves two sides: client side and server side. Client side’s
+responsibility is instrumentation.</p>
+<h3 id="storage-choices-1"><a class="header" href="#storage-choices-1">Storage Choices</a></h3>
+<p>The common thing among logs, metrics and tracing is that all of them are
+write-heavy. We’d better choose a time-series db or NoSql db for tracing data.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="payment-system"><a class="header" href="#payment-system">Payment system</a></h1>
+<p>Design e-commerce platform.</p>
+<h2 id="background-knowledge-2"><a class="header" href="#background-knowledge-2">Background Knowledge</a></h2>
+<p>See <a href="https://seata.apache.org/blog/seata-at-tcc-saga/">Apache Seata</a>.</p>
+<h3 id="payin-and-payout"><a class="header" href="#payin-and-payout">Payin and Payout</a></h3>
+<p>When we call a third-party payment service provider to deduct money from the
+buyer’s credit card, the money is not directly transferred to the seller.
+Instead, the money is transferred to the e-commerce website’s bank account.
+This process is called pay-in. Most common payin service providers include
+PayPal, Square and Stripe.</p>
+<p>When the payout condition is satisfied, such as when the products are
+delivered, the seller initiates a pay-out. Only then is the money transferred
+from the e-commerce website’s bank account to the seller’s bank account.
+Tipalti is a popular payout service provider.</p>
+<h3 id="ledger"><a class="header" href="#ledger">Ledger</a></h3>
+<h2 id="design-amazon"><a class="header" href="#design-amazon">Design Amazon</a></h2>
+<h3 id="payment-schemas"><a class="header" href="#payment-schemas">Payment Schemas</a></h3>
+<ul>
+<li>checkout: <code>buyer_id</code>, <code>checkout_id</code>, <code>payment_info</code>.</li>
+<li>order: <code>order_id</code>, <code>checkout_id</code>, <code>seller_id</code>, <code>amount</code>, <code>currency</code>. Here
+<code>checkout_id</code> is a foreign key.</li>
+<li>wallet: <code>seller_id</code>, <code>amount</code>, <code>current</code>.</li>
+</ul>
+<p>We need the <code>checkout</code> concept because a single checkout can contain multiple
+merchandises.</p>
+<h2 id="idempotent-payout"><a class="header" href="#idempotent-payout">Idempotent payout</a></h2>
+<p>“Alex Xu Vol II” talks about this in more details. Below is my rough idea. The
+key is to separate the payment process in multiple stages, or put it in another
+way: separate intention and execution.</p>
+<ol>
+<li>
+<p>When the user enters a payment page, we creates a <code>payout</code> object. The
+<code>payout</code> table has columns <code>pkid</code>, <code>semantic_key</code>, <code>status</code> and etc.
+<code>semantic_key</code> is a unique column, and it is the idempotent key.</p>
+<p><code>status</code> can be <code>initialized</code>, <code>in_process</code>, <code>failed</code>, and <code>succeeded</code>.
+Right now, set it to <code>initialized</code>.</p>
+</li>
+<li>
+<p>When the user hits the <code>confirm payment</code> button, change the status to
+<code>in_process</code>, and send the request to the 3rd party payment system using the
+idempotent key. Here I am assuming the 3rd party payment system support
+passing in a semantic key.</p>
+<p>If not, then we can assume the 3rd party payment system can support
+multi-stage payment. First, one http call to get a payment id, and then a
+second http call to pay using this payment id. If this is the case, we need
+a column <code>extern_payment_id</code> in our <code>payout</code> table. Most payment platforms
+such as stripe support this 2-stage payment method.</p>
+<p>If anything bad happens, we can use this <code>extern_payment_id</code> to check if the
+payment went through or not.</p>
+</li>
+<li>
+<p>Mark the <code>payout</code> record <code>succeeded</code> or <code>failed</code>.</p>
+</li>
+</ol>
+<p>After I paste above content to chatgpt. It gives me a few suggestions.</p>
+<ol>
+<li>
+<p>The transition to <code>in_process</code> must be atomic. We can do it by
+<code>select ... for update</code> or use below <code>test-and-set</code> style.</p>
+<pre><code class="language-sql">update payout set stats = 'in_process' where status = `initialized`
+</code></pre>
+</li>
+</ol>
+<h2 id="design-digit-wallet"><a class="header" href="#design-digit-wallet">Design Digit Wallet</a></h2>
+<p>Use cases:</p>
+<ul>
+<li>Balance transfer between two wallets.</li>
+<li></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="k-v-store"><a class="header" href="#k-v-store">K-V Store</a></h1>
+<h2 id="background-knowledge-3"><a class="header" href="#background-knowledge-3">Background Knowledge</a></h2>
+<p>When talking about K-V stores, a lot of people especially those system design
+blogs put an emphasis on consistent hashing. But in reality, I do not see any
+big project uses it. Stop wasting time on it.</p>
+<h3 id="redis"><a class="header" href="#redis">Redis</a></h3>
+<p>Redis has 16k fixed slots, and the consensus of slots to physical nodes mapping
+is achieved by a gossip protocol.</p>
+<h3 id="tikv"><a class="header" href="#tikv">TiKV</a></h3>
+<p>TiKV uses RocksDB as the underlying storage engine, and partition the key space
+into many regions. Each region is a Raft group. Replication and consensus is
+maintained in each region.</p>
+<p>Meanwhile, PD (Placement Driver) maintains all metadata, such as region to node
+mapping. When we split a region, PD initialize a Raft conversation with all
+region leads to achieve consensus. So you can see, the region leads form a Raft
+group as well.</p>
+<h3 id="dynamodb"><a class="header" href="#dynamodb">DynamoDB</a></h3>
+<p>The early version of DynamoDB might use consistent hashing, but DynamoDB
+nowadays definitely does not use it.</p>
+<h2 id="read-heavy-vs-write-heavy"><a class="header" href="#read-heavy-vs-write-heavy">Read-heavy vs Write-heavy</a></h2>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="caching"><a class="header" href="#caching">Caching</a></h1>
+<p>Typical numbers</p>
+<ul>
+<li>Redis latency: 1 microsecond.</li>
+<li></li>
+</ul>
+<h2 id="consistent-caching"><a class="header" href="#consistent-caching">Consistent Caching.</a></h2>
+<h2 id="crdt-conflict-free-replicated-data-type"><a class="header" href="#crdt-conflict-free-replicated-data-type">CRDT (Conflict-free replicated data type)</a></h2>
+<p>Redis enterprise and AWS MemoryDB supports it.</p>
+<h2 id="caching-cluster"><a class="header" href="#caching-cluster">Caching cluster</a></h2>
+<p>Redis does not use Raft, but a gossip protocol to promote master node when
+master node is down. It requires we set up replica nodes.</p>
 
                     </main>
 

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Tree, Graph - Life as a Programmer</title>
+        <title>Real-time Marketplace - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -12,36 +12,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../../favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="../../../favicon-8114d1fc.png">
-        <link rel="stylesheet" href="../../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../../css/general-2459343d.css">
-        <link rel="stylesheet" href="../../../css/chrome-ae938929.css">
-        <link rel="stylesheet" href="../../../css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../../fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="../../../highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../../tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../../ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../../theme/code-details-6df1f091.css">
+        <link rel="stylesheet" href="../theme/code-details-6df1f091.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../../../";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-94112c76.js";
+            window.path_to_searchindex_js = "../searchindex-94112c76.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../../toc-6865b99e.js"></script>
+        <script src="../toc-6865b99e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -108,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -143,7 +143,7 @@
                     <h1 class="menu-title">Life as a Programmer</h1>
 
                     <div class="right-buttons">
-                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -177,26 +177,109 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="tree-graph"><a class="header" href="#tree-graph">Tree, Graph</a></h1>
-<p>A tree is an undirected, connected, and acyclic graph. It has <code>n</code> nodes, <code>n-1</code>
-edges and is fully connected. This setup often shows up in competitive
-programming.</p>
-<p>Realizing it is a tree is helpful for DFS because often times the graph
-definition contains not only the child nodes but also the parent node. A simple
-trick to skip going back is</p>
-<pre><code class="language-cpp">for (next : graph[node]):
-    if (next == parent_node) continue
-</code></pre>
+                        <h1 id="real-time-marketplace"><a class="header" href="#real-time-marketplace">Real-time Marketplace</a></h1>
+<p>Design Uber/Lyft/Doordash/Yelp.</p>
+<h2 id="background-knowledge"><a class="header" href="#background-knowledge">Background knowledge</a></h2>
+<h3 id="redis-geo"><a class="header" href="#redis-geo">Redis GEO</a></h3>
+<p>Redis provides a set of GEO commands: <code>geoadd</code>, <code>geosearch</code> etc. The core idea
+is <code>geohash</code>.</p>
+<p>Redis GEO encodes latitude and longitude into a geohash integer and stores it
+as the score of a sorted set. Radius queries are implemented as multiple
+sorted-set range scans over neighboring geohash cells, followed by exact
+distance filtering. This avoids complex spatial indexes and keeps writes
+extremely cheap, which is ideal for high-frequency location updates.</p>
+<p><a href="https://en.wikipedia.org/wiki/Geohash">Wikipedia</a> has vivid example of how
+this hash is constructed. <code>Redis</code>’s implementation is mainly inside the
+<a href="https://github.com/redis/redis/blob/238a62685954b1128c25d7f60c326fd20b2cd9ea/src/geo.c#L365">geo.c</a>
+file.</p>
+<h3 id="postgres"><a class="header" href="#postgres">Postgres</a></h3>
+<p>This is all about R-tree. The golden reference implementation is from Postgres.
+I would recommend everyone read PG’s
+<a href="https://www.postgresql.org/docs/current/indextypes.html">documentation</a>.
+Postgres’s GiST (Generic Search Tree) provides the backbone of R-tree
+implementation. The
+<a href="https://github.com/postgres/postgres/blob/3f9b9621766796983c37e192f73c5f8751872c18/src/backend/access/gist/gistproc.c#L7">reference implementation</a>
+is easy to read. It defines functions to check whether two boxes intersects,
+the distance between two boxes, and etc. But overall it is quite basic. In
+production, better turn to PostGIS (PostgreSQL’s spatial extension).</p>
+<h2 id="design-uber"><a class="header" href="#design-uber">Design Uber</a></h2>
+<h3 id="traffic-estimation"><a class="header" href="#traffic-estimation">Traffic estimation</a></h3>
+<p>First, estimate the traffic. AI is really good at this part. Here I just copy
+the response from chatgpt.</p>
+<p>For a large city with 10m citizens, suppose 30% of them are registered Uber
+users. Each registered user takes 1/3 ride per day on average. Then it is 1m
+rides per day. These rides are not evenly distributed over 24 hours. For
+example, there is almost no ride from 1am to 5am. Let’s assume 80% rides happen
+during peak hour (4h). That is <code>1m * 0.8/4 = 200k</code> rides/hour.</p>
+<p>How many concurrent drivers? Suppose each ride takes 20min, which means each
+driver can finish 3 rides per hour. So <code>200k/3 = 67k</code> concurrent drivers.</p>
+<p>How many concurrent riders? Let’s assume most riders only use Uber for
+searching, after ride is confirmed, they swipes away to other apps. There are
+definitely some riders leaving Uber open for the whole trip, such as me, but it
+is rare. With this assumption, we can assume each rider uses 5min for each
+ride. So <code>200k/60*5 = 16.7k</code> concurrent riders.</p>
+<p>So the heavy part is on the driver side. Now suppose driver reports GPS
+location every 3 seconds, then it means <code>67k/3=22k</code> writes/seconds.</p>
+<p>Read traffic is more complicated. Rider needs to poll trip status update, fetch
+nearly drivers, etc. Drivers need to poll route/trip updates etc. Let’s assume
+the poll frequency is 1 second, the we expect 3x-5x read traffic than write
+traffic.</p>
+<p>So in summary,</p>
+<ul>
+<li>write: 20k QPS</li>
+<li>read: 60k QPS</li>
+</ul>
+<h3 id="rider-driver-matching"><a class="header" href="#rider-driver-matching">Rider driver matching</a></h3>
+<p>Matching is a multi-stage pipeline: geo filtering using Redis GEO, hard
+constraint filtering, heuristic scoring based on ETA and fairness, atomic
+reservation to prevent double assignment, and sequential dispatch to drivers
+with timeouts. The system is optimized for low latency and high write
+throughput rather than perfect global optimality.</p>
+<ol>
+<li>
+<p>Rider sends a request to Uber
+<code>(rider_id, pickup_lat, pickup_lon, vehicle_type)</code>.</p>
+</li>
+<li>
+<p>Matching service looks up nearby drivers
+<code>GEORADIUS drivers pickup_lon pickup_lat 2 km</code>.</p>
+</li>
+<li>
+<p>Filter by hard constraint.</p>
+<ul>
+<li>driver.status == AVAILABLE</li>
+<li>no tentative lock on the driver.</li>
+<li>vehicle_type == requested</li>
+</ul>
+</li>
+<li>
+<p>Score drivers. <code>score = f(ETA, cancellation_risk, driver fairness, ...)</code></p>
+</li>
+<li>
+<p>Tentative reservation. Add a lock key with 10s TTL.</p>
+</li>
+<li>
+<p>Send the offer to driver.</p>
+</li>
+<li>
+<p>Driver accepts the offer =&gt; <code>driver.status = BOOKED</code>.</p>
+<p>Driver declines the offer =&gt; <code>driver.status = AVAILABLE</code> and delete the
+lock.</p>
+</li>
+<li>
+<p>Send the update to Driver. Processing payment staff, etc.</p>
+</li>
+</ol>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/queue.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../system-design/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../system-design/file-blob-storage.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -206,11 +289,11 @@ trick to skip going back is</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/queue.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../system-design/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../system-design/file-blob-storage.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -230,13 +313,13 @@ trick to skip going back is</p>
         </script>
 
 
-        <script src="../../../elasticlunr-ef4e11c1.min.js"></script>
-        <script src="../../../mark-09e88c2c.min.js"></script>
-        <script src="../../../searcher-c2a407aa.js"></script>
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
 
-        <script src="../../../clipboard-1626706a.min.js"></script>
-        <script src="../../../highlight-abc7f01d.js"></script>
-        <script src="../../../book-a0b12cfe.js"></script>
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 

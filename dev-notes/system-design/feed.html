@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Tree, Graph - Life as a Programmer</title>
+        <title>Feed &amp; Timeline System - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -12,36 +12,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../../favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="../../../favicon-8114d1fc.png">
-        <link rel="stylesheet" href="../../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../../css/general-2459343d.css">
-        <link rel="stylesheet" href="../../../css/chrome-ae938929.css">
-        <link rel="stylesheet" href="../../../css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../../fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="../../../highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../../tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../../ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../../theme/code-details-6df1f091.css">
+        <link rel="stylesheet" href="../theme/code-details-6df1f091.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../../../";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-94112c76.js";
+            window.path_to_searchindex_js = "../searchindex-94112c76.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../../toc-6865b99e.js"></script>
+        <script src="../toc-6865b99e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -108,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -143,7 +143,7 @@
                     <h1 class="menu-title">Life as a Programmer</h1>
 
                     <div class="right-buttons">
-                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -177,26 +177,69 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="tree-graph"><a class="header" href="#tree-graph">Tree, Graph</a></h1>
-<p>A tree is an undirected, connected, and acyclic graph. It has <code>n</code> nodes, <code>n-1</code>
-edges and is fully connected. This setup often shows up in competitive
-programming.</p>
-<p>Realizing it is a tree is helpful for DFS because often times the graph
-definition contains not only the child nodes but also the parent node. A simple
-trick to skip going back is</p>
-<pre><code class="language-cpp">for (next : graph[node]):
-    if (next == parent_node) continue
-</code></pre>
+                        <h1 id="feed--timeline-system"><a class="header" href="#feed--timeline-system">Feed &amp; Timeline System</a></h1>
+<h2 id="design-news-feed-in-twitter"><a class="header" href="#design-news-feed-in-twitter">Design news feed in Twitter</a></h2>
+<ul>
+<li>create post</li>
+<li>follow/unfollow people</li>
+<li>view Feed Timeline</li>
+</ul>
+<h3 id="traffic-estimation"><a class="header" href="#traffic-estimation">Traffic estimation</a></h3>
+<p>This part is generated by chatgpt.</p>
+<p>Basic assumptions.</p>
+<ul>
+<li>Total users: 500 million</li>
+<li>Daily Active Users (DAU): 40% → 200 million</li>
+<li>Tweets per active user per day: 2</li>
+<li>Timeline reads per active user per day: 30</li>
+<li>Average followers per user: 200</li>
+</ul>
+<p>Daily tweets are <code>400M</code> tweets/day, that is <code>4,600</code> tweets/sec. If we assume
+the peak is 5x, then we should support <code>23k</code> tweets/sec.</p>
+<p>For read, <code>200M × 30 = 6B</code> reads/day. Peak read is <code>6B/86400 * 5 = 350k</code>
+reads/sec. So read is 10x of write. Twitter is definitely a read heavy
+platform.</p>
+<h3 id="how-does-feed-timeline-work"><a class="header" href="#how-does-feed-timeline-work">How does feed timeline work?</a></h3>
+<p>We have <code>user</code>, <code>follower</code> and <code>post</code> tables. We can simply join these three
+table to obtain the timeline view a single user. This is called pull mode. The
+problem with this approach is that if a user follows too many other people,
+then this query will be very slow.</p>
+<p>On the other hand, we can cache or materialize this query, and asynchronously
+update it whenever there is a new post or post update. This is called push
+mode. There are two problem with this approach.</p>
+<ol>
+<li>The flow is asynchronous. It only guarantee eventual consistency. Think
+about a scenario that two friends sit together who follow the same celerity.
+One can see the latest post. One cannot.</li>
+<li>The problem with this approach is that if one user has way many followers
+then the write fans out too many.</li>
+</ol>
+<p>A better idea is to combine both approaches, i.e., a hybrid approach. The
+<code>user</code> table could have a field <code>celerity</code> or <code>is_hot</code>. We use pull mode to
+fetch posts from hot followees and use push mode to fetch posts from non-hot
+followees, then combine the two sets.</p>
+<p>What storage should we choose for the timeline view cache. Redis is good enough
+because Redis cluster supports key partition. It can scale.</p>
+<p>Do we need to store post content directly in DB or S3? Most likely DB is
+enough. For example, Postgres has Toast optimization. If we really care about
+the database size, we can use S3 then.</p>
+<p>How to paginate feed page? Use <code>(timestamp, post_id)</code> as pagination cursor.
+Timestamp pagination is easiest even we need combine two sources of posts. We
+can roughly think timestamp is globally incremental primary key. The <code>post_id</code>
+is used to break ties, so there is no blur boarder.</p>
+<h3 id="multimedia-support"><a class="header" href="#multimedia-support">Multimedia support</a></h3>
+<p>Media is uploaded directly to S3 using pre-signed URLs. We need a <code>attachment</code>
+table because <code>post</code> and <code>attachment</code> is a one-2-many relation.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/queue.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../system-design/file-blob-storage.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../system-design/logs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -206,11 +249,11 @@ trick to skip going back is</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/queue.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../system-design/file-blob-storage.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../system-design/logs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -230,13 +273,13 @@ trick to skip going back is</p>
         </script>
 
 
-        <script src="../../../elasticlunr-ef4e11c1.min.js"></script>
-        <script src="../../../mark-09e88c2c.min.js"></script>
-        <script src="../../../searcher-c2a407aa.js"></script>
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
 
-        <script src="../../../clipboard-1626706a.min.js"></script>
-        <script src="../../../highlight-abc7f01d.js"></script>
-        <script src="../../../book-a0b12cfe.js"></script>
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Tree, Graph - Life as a Programmer</title>
+        <title>Log &amp; Metric &amp; Tracing &amp; Alerting - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -12,36 +12,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../../favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="../../../favicon-8114d1fc.png">
-        <link rel="stylesheet" href="../../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../../css/general-2459343d.css">
-        <link rel="stylesheet" href="../../../css/chrome-ae938929.css">
-        <link rel="stylesheet" href="../../../css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../../fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="../../../highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../../tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../../ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../../theme/code-details-6df1f091.css">
+        <link rel="stylesheet" href="../theme/code-details-6df1f091.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../../../";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-94112c76.js";
+            window.path_to_searchindex_js = "../searchindex-94112c76.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../../toc-6865b99e.js"></script>
+        <script src="../toc-6865b99e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -108,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -143,7 +143,7 @@
                     <h1 class="menu-title">Life as a Programmer</h1>
 
                     <div class="right-buttons">
-                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -177,26 +177,88 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="tree-graph"><a class="header" href="#tree-graph">Tree, Graph</a></h1>
-<p>A tree is an undirected, connected, and acyclic graph. It has <code>n</code> nodes, <code>n-1</code>
-edges and is fully connected. This setup often shows up in competitive
-programming.</p>
-<p>Realizing it is a tree is helpful for DFS because often times the graph
-definition contains not only the child nodes but also the parent node. A simple
-trick to skip going back is</p>
-<pre><code class="language-cpp">for (next : graph[node]):
-    if (next == parent_node) continue
-</code></pre>
+                        <h1 id="log--metric--tracing--alerting"><a class="header" href="#log--metric--tracing--alerting">Log &amp; Metric &amp; Tracing &amp; Alerting</a></h1>
+<h2 id="real-time-logs"><a class="header" href="#real-time-logs">Real-time Logs</a></h2>
+<p>We need to distinguish two different use cases. One is audit logs from
+customers. The other is server logs used internally by your company’s
+engineers/supports.</p>
+<p>The first case is also call “user journey logs”. They are as important as
+business itself. For example, if your business deals with payment, then legal
+or security requires all user’s actions such as editing an invoice, money
+transfer are all logged for future audit purpose. Not only for audit
+requirement, it is beneficial for customers’ own benefits sometimes. For the
+case, we need treat these audit logs as important as business data. So it is
+best store them in durable storage and even wrap them in the same transaction
+as business flow.</p>
+<p>The second case is internal logs. They are used for debugging purpose mostly.
+In this case, ELK is the standard. We also need Kafka queue between collector
+and sinker as a buffer. I built an ELK pipeline from before.</p>
+<ul>
+<li>Log collector: vector.dev or filebeat. It tails the log files, sand send them
+to the next stage.</li>
+<li>Kafka: log message broker</li>
+<li>Logstash: Some transformations done here. This step actually could be removed
+because Kafka can directly dump to ES.</li>
+<li>Sink: ES. I set up 8 ES pods each with 8T PVC, and it uses 70% of the
+storage.</li>
+<li>UI: Kibana.</li>
+</ul>
+<h3 id="how-does-it-scale"><a class="header" href="#how-does-it-scale">How does it scale?</a></h3>
+<p>Elasticsearch support datastream. It automatically generates a new index when
+the current index size reaches a threshold value. All these indices are
+suffixed by timestamp, and blong to the same datastream. The scalability comes
+from the number of concurrent indices used for indexing. For example, suppose
+you have 4 ES data nodes, then you can create 4 datastreams <code>ds-1</code> to <code>ds-4</code>,
+and on the Kafka/Logstash side, you can alternately write to all 4 datastreams.
+Therefore, all ES nodes are kept busy and we can scale.</p>
+<h2 id="metrics"><a class="header" href="#metrics">Metrics</a></h2>
+<p>Metric data seems similar to logs, but they are quite different.</p>
+<h3 id="pull-vs-push"><a class="header" href="#pull-vs-push">Pull vs Push</a></h3>
+<p>For logs, we never need to discuss pull vs push because it is just a local
+agent tailing a log file. Metrics collectors, however, can choose between pull
+or push mode. Usually both modes are used. Pull mode works well for system
+metrics such as CPU, memory usage. Datadog customized metrics work this way,
+you register a new metric and the agent will pull the metric every 10 seconds.
+On the other hand, push mode requires client side’s instrumentation. For
+example, you can use <code>dd-trace</code> python package to manually send metrics.</p>
+<p>For performance purpose, push mode does not directly pushes the metrics to
+remote server. There is usually a local agent accepts these metrics and does
+some aggregation before sending to the remote backend. This is how Datadog
+agent metric component works.</p>
+<h3 id="storage-choices"><a class="header" href="#storage-choices">Storage Choices</a></h3>
+<p>Logs have only one use case: full-text search, so ES is perfect and enough.
+Metric use cases are quite different. It needs support queries. For example,
+“find the moment that average CPU usage goes over 75%.” The query and threshold
+can be arbitrary. Moreover, metric/alerts can be added ad-hoc after metric data
+is collected, so you cannot pre-compute all possible metrics. We need to store
+the raw metric time-series data.</p>
+<p>The best choice for metric data is time-series database. I have no experience
+with <code>influxDB</code>. But from my limited experience with OLAP database
+<code>Clickhouse</code>, I think <code>Clickhouse</code> would be good enough. It use column-wise
+storage, and it is super fast.</p>
+<h2 id="alerting"><a class="header" href="#alerting">Alerting</a></h2>
+<p>Alert agent is almost always pull-based. It queries stored metrics periodically
+and evaluate alert rules. One alert fires, it trigger upstream systems, such as
+email, slack, Pagerduty, and webhooks.</p>
+<h2 id="distributed-tracing"><a class="header" href="#distributed-tracing">Distributed Tracing</a></h2>
+<p>First, distributed tracing refers to the tracking of traffic/requests across
+all the different services and components, giving you a clear picture of what’s
+happening in a large picture.</p>
+<p>Second, tracing involves two sides: client side and server side. Client side’s
+responsibility is instrumentation.</p>
+<h3 id="storage-choices-1"><a class="header" href="#storage-choices-1">Storage Choices</a></h3>
+<p>The common thing among logs, metrics and tracing is that all of them are
+write-heavy. We’d better choose a time-series db or NoSql db for tracing data.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/queue.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../system-design/feed.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../system-design/payment.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -206,11 +268,11 @@ trick to skip going back is</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/queue.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../system-design/feed.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../system-design/payment.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -230,13 +292,13 @@ trick to skip going back is</p>
         </script>
 
 
-        <script src="../../../elasticlunr-ef4e11c1.min.js"></script>
-        <script src="../../../mark-09e88c2c.min.js"></script>
-        <script src="../../../searcher-c2a407aa.js"></script>
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
 
-        <script src="../../../clipboard-1626706a.min.js"></script>
-        <script src="../../../highlight-abc7f01d.js"></script>
-        <script src="../../../book-a0b12cfe.js"></script>
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 

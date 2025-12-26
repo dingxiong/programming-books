@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Tree, Graph - Life as a Programmer</title>
+        <title>Payment system - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -12,36 +12,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="../../../favicon-de23e50b.svg">
-        <link rel="shortcut icon" href="../../../favicon-8114d1fc.png">
-        <link rel="stylesheet" href="../../../css/variables-8adf115d.css">
-        <link rel="stylesheet" href="../../../css/general-2459343d.css">
-        <link rel="stylesheet" href="../../../css/chrome-ae938929.css">
-        <link rel="stylesheet" href="../../../css/print-9e4910d8.css" media="print">
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="../../../fonts/fonts-9644e21d.css">
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="mdbook-highlight-css" href="../../../highlight-493f70e1.css">
-        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../../tomorrow-night-4c0ae647.css">
-        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../../ayu-highlight-3fdfc3ac.css">
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
 
         <!-- Custom theme stylesheets -->
-        <link rel="stylesheet" href="../../../theme/code-details-6df1f091.css">
+        <link rel="stylesheet" href="../theme/code-details-6df1f091.css">
 
         <!-- MathJax -->
         <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "../../../";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-94112c76.js";
+            window.path_to_searchindex_js = "../searchindex-94112c76.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="../../../toc-6865b99e.js"></script>
+        <script src="../toc-6865b99e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -108,7 +108,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -143,7 +143,7 @@
                     <h1 class="menu-title">Life as a Programmer</h1>
 
                     <div class="right-buttons">
-                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
                         </a>
 
@@ -177,26 +177,85 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="tree-graph"><a class="header" href="#tree-graph">Tree, Graph</a></h1>
-<p>A tree is an undirected, connected, and acyclic graph. It has <code>n</code> nodes, <code>n-1</code>
-edges and is fully connected. This setup often shows up in competitive
-programming.</p>
-<p>Realizing it is a tree is helpful for DFS because often times the graph
-definition contains not only the child nodes but also the parent node. A simple
-trick to skip going back is</p>
-<pre><code class="language-cpp">for (next : graph[node]):
-    if (next == parent_node) continue
+                        <h1 id="payment-system"><a class="header" href="#payment-system">Payment system</a></h1>
+<p>Design e-commerce platform.</p>
+<h2 id="background-knowledge"><a class="header" href="#background-knowledge">Background Knowledge</a></h2>
+<p>See <a href="https://seata.apache.org/blog/seata-at-tcc-saga/">Apache Seata</a>.</p>
+<h3 id="payin-and-payout"><a class="header" href="#payin-and-payout">Payin and Payout</a></h3>
+<p>When we call a third-party payment service provider to deduct money from the
+buyer’s credit card, the money is not directly transferred to the seller.
+Instead, the money is transferred to the e-commerce website’s bank account.
+This process is called pay-in. Most common payin service providers include
+PayPal, Square and Stripe.</p>
+<p>When the payout condition is satisfied, such as when the products are
+delivered, the seller initiates a pay-out. Only then is the money transferred
+from the e-commerce website’s bank account to the seller’s bank account.
+Tipalti is a popular payout service provider.</p>
+<h3 id="ledger"><a class="header" href="#ledger">Ledger</a></h3>
+<h2 id="design-amazon"><a class="header" href="#design-amazon">Design Amazon</a></h2>
+<h3 id="payment-schemas"><a class="header" href="#payment-schemas">Payment Schemas</a></h3>
+<ul>
+<li>checkout: <code>buyer_id</code>, <code>checkout_id</code>, <code>payment_info</code>.</li>
+<li>order: <code>order_id</code>, <code>checkout_id</code>, <code>seller_id</code>, <code>amount</code>, <code>currency</code>. Here
+<code>checkout_id</code> is a foreign key.</li>
+<li>wallet: <code>seller_id</code>, <code>amount</code>, <code>current</code>.</li>
+</ul>
+<p>We need the <code>checkout</code> concept because a single checkout can contain multiple
+merchandises.</p>
+<h2 id="idempotent-payout"><a class="header" href="#idempotent-payout">Idempotent payout</a></h2>
+<p>“Alex Xu Vol II” talks about this in more details. Below is my rough idea. The
+key is to separate the payment process in multiple stages, or put it in another
+way: separate intention and execution.</p>
+<ol>
+<li>
+<p>When the user enters a payment page, we creates a <code>payout</code> object. The
+<code>payout</code> table has columns <code>pkid</code>, <code>semantic_key</code>, <code>status</code> and etc.
+<code>semantic_key</code> is a unique column, and it is the idempotent key.</p>
+<p><code>status</code> can be <code>initialized</code>, <code>in_process</code>, <code>failed</code>, and <code>succeeded</code>.
+Right now, set it to <code>initialized</code>.</p>
+</li>
+<li>
+<p>When the user hits the <code>confirm payment</code> button, change the status to
+<code>in_process</code>, and send the request to the 3rd party payment system using the
+idempotent key. Here I am assuming the 3rd party payment system support
+passing in a semantic key.</p>
+<p>If not, then we can assume the 3rd party payment system can support
+multi-stage payment. First, one http call to get a payment id, and then a
+second http call to pay using this payment id. If this is the case, we need
+a column <code>extern_payment_id</code> in our <code>payout</code> table. Most payment platforms
+such as stripe support this 2-stage payment method.</p>
+<p>If anything bad happens, we can use this <code>extern_payment_id</code> to check if the
+payment went through or not.</p>
+</li>
+<li>
+<p>Mark the <code>payout</code> record <code>succeeded</code> or <code>failed</code>.</p>
+</li>
+</ol>
+<p>After I paste above content to chatgpt. It gives me a few suggestions.</p>
+<ol>
+<li>
+<p>The transition to <code>in_process</code> must be atomic. We can do it by
+<code>select ... for update</code> or use below <code>test-and-set</code> style.</p>
+<pre><code class="language-sql">update payout set stats = 'in_process' where status = `initialized`
 </code></pre>
+</li>
+</ol>
+<h2 id="design-digit-wallet"><a class="header" href="#design-digit-wallet">Design Digit Wallet</a></h2>
+<p>Use cases:</p>
+<ul>
+<li>Balance transfer between two wallets.</li>
+<li></li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/queue.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../system-design/logs.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../system-design/kv.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -206,11 +265,11 @@ trick to skip going back is</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/queue.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../system-design/logs.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/graph/dijkstra.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../system-design/kv.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
@@ -230,13 +289,13 @@ trick to skip going back is</p>
         </script>
 
 
-        <script src="../../../elasticlunr-ef4e11c1.min.js"></script>
-        <script src="../../../mark-09e88c2c.min.js"></script>
-        <script src="../../../searcher-c2a407aa.js"></script>
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
 
-        <script src="../../../clipboard-1626706a.min.js"></script>
-        <script src="../../../highlight-abc7f01d.js"></script>
-        <script src="../../../book-a0b12cfe.js"></script>
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
 
         <!-- Custom JS scripts -->
 
