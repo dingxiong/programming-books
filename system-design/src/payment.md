@@ -68,3 +68,10 @@ After I paste above content to chatgpt. It gives me a few suggestions.
    ```sql
    update payout set stats = 'in_process' where status = `initialized`
    ```
+
+## Design Digit Wallet
+
+Use cases:
+
+- Balance transfer between two wallets.
+-

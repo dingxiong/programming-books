@@ -1,11 +1,15 @@
 # Distributed Transactions
 
-I want to keep studying subject "distributed transactions". This is a
-challenging topic.
+Distributed transactions is a challenging topic. It means different things in
+different contexts. For distributed database, it means cross-machine
+transactions that meets ACID requirements. It requires strong consistency and
+is usually implemented using 2PC with Raft. Checkout `TiDB` and `CockroachDB`.
+On application side, distributed transactions usually means a way to achieve
+eventual consistency among a few micro-services. `saga` is popular term in this
+area. There are many ways to achieve it: 2PC, TCC, etc. `Apache Seata` is very
+popular application side library in this domain.
 
-First, just put some references here
-
-# Paper/blog posts
+## Paper/blog posts
 
 ### [NewSQL database systems are failing to guarantee consistency, and I blame Spanner](https://dbmsmusings.blogspot.com/2018/09/newsql-database-systems-are-failing-to.html)
 
@@ -21,9 +25,9 @@ without TrueTime. Basically, Spanner's write performance is impacted because it
 waits for uncertainty window to pass. CockroachDB on the other hand, retries
 reading if there is time uncertainty, so its read performance is impacted.
 
-# CAP theorem
+## CAP theorem
 
-# Serializability vs linearizability
+## Serializability vs linearizability
 
 These are two difference concepts. Serializability is the strictest isolation
 level defined by ANSI SQL, which means two transactions T1 and T2 can be
@@ -38,11 +42,13 @@ point of view of an outside observer, this isolation level is called
 I think this post explains their differences very well
 http://www.bailis.org/blog/linearizability-versus-serializability/ .
 
-# Spanner
+## TODO
 
-# Calvin
+Study
 
-# TiDB
+- Spanner
+- Calvin
+- TiDB
 
 Post
 [Keeping Time and Order in Distributed Databases](https://www.pingcap.com/blog/time-in-distributed-systems/)
