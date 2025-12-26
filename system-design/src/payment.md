@@ -1,9 +1,41 @@
 # Payment system
 
+Design e-commerce platform.
+
+## Background Knowledge
+
+### Payin and Payout
+
+When we call a third-party payment service provider to deduct money from the
+buyer's credit card, the money is not directly transferred to the seller.
+Instead, the money is transferred to the e-commerce website's bank account.
+This process is called pay-in. Most common payin service providers include
+PayPal, Square and Stripe.
+
+When the payout condition is satisfied, such as when the products are
+delivered, the seller initiates a pay-out. Only then is the money transferred
+from the e-commerce website's bank account to the seller's bank account.
+Tipalti is a popular payout service provider.
+
+### Ledger
+
+## Design Amazon
+
+### Payment Schemas
+
+- checkout: `buyer_id`, `checkout_id`, `payment_info`.
+- order: `order_id`, `checkout_id`, `seller_id`, `amount`, `currency`. Here
+  `checkout_id` is a foreign key.
+- wallet: `seller_id`, `amount`, `current`.
+
+We need the `checkout` concept because a single checkout can contain multiple
+merchandises.
+
 ## Idempotent payout
 
-Below is my rough idea. The key is to separate the payment process in multiple
-stages, or put it in another way: separate intention and execution.
+"Alex Xu Vol II" talks about this in more details. Below is my rough idea. The
+key is to separate the payment process in multiple stages, or put it in another
+way: separate intention and execution.
 
 1. When the user enters a payment page, we creates a `payout` object. The
    `payout` table has columns `pkid`, `semantic_key`, `status` and etc.
