@@ -84,4 +84,9 @@ all the different services and components, giving you a clear picture of what's
 happening in a large picture.
 
 Second, tracing involves two sides: client side and server side. Client side's
-responsibility is in
+responsibility is instrumentation.
+
+### Storage Choices
+
+The common thing among logs, metrics and tracing is that all of them are
+write-heavy. We'd better choose a time-series db or NoSql db for tracing data.
