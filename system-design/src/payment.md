@@ -4,6 +4,8 @@ Design e-commerce platform.
 
 ## Background Knowledge
 
+See [Apache Seata](https://seata.apache.org/blog/seata-at-tcc-saga/).
+
 ### Payin and Payout
 
 When we call a third-party payment service provider to deduct money from the
