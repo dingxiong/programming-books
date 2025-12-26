@@ -57,14 +57,25 @@ remote server. There is usually a local agent accepts these metrics and does
 some aggregation before sending to the remote backend. This is how Datadog
 agent metric component works.
 
-Metrics are similar to logs, but there is one big difference: aggregation. For
-logs, we have no choice, but just dump them all. For metrics, we can usually
-apply some aggregation on the collector side. It saves bandwidth.
+### Storage Choices
 
-### Top-k Metrics
+Logs have only one use case: full-text search, so ES is perfect and enough.
+Metric use cases are quite different. It needs support queries. For example,
+"find the moment that average CPU usage goes over 75%." The query and threshold
+can be arbitrary. Moreover, metric/alerts can be added ad-hoc after metric data
+is collected, so you cannot pre-compute all possible metrics. We need to store
+the raw metric time-series data.
 
-Add a consumer for the metrics stream. It updates a Redis cache to maintain the
-top-k stats. Redis with AOF is good enough for durability.
+The best choice for metric data is time-series database. I have no experience
+with `influxDB`. But from my limited experience with OLAP database
+`Clickhouse`, I think `Clickhouse` would be good enough. It use column-wise
+storage, and it is super fast.
+
+## Alerting
+
+Alert agent is almost always pull-based. It queries stored metrics periodically
+and evaluate alert rules. One alert fires, it trigger upstream systems, such as
+email, slack, Pagerduty, and webhooks.
 
 ## Distributed Tracing
 
