@@ -79,7 +79,7 @@ email, slack, Pagerduty, and webhooks.
 
 ## Distributed Tracing
 
-First, distributed tracking refers to the tracking of traffic/requests across
+First, distributed tracing refers to the tracking of traffic/requests across
 all the different services and components, giving you a clear picture of what's
 happening in a large picture.
 
