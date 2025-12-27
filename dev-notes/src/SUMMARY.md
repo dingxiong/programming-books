@@ -39,6 +39,7 @@
       - [Abbreviated function template](cpp/standards/declarations/abbr-func-template.md)
     - [Template](cpp/standards/template/README.md)
       - [CTAD](cpp/standards/template/ctad.md)
+    - [Name Mangling](cpp/standards/name-mangling/README.md)
   - [Competitive Programming](cpp/algorithms/README.md)
     - [Sort](cpp/algorithms/sort.md)
     - [Queue](cpp/algorithms/queue.md)
