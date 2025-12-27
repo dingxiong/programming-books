@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Segment Tree - Life as a Programmer</title>
+        <title>Name Mangling - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -177,176 +177,20 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="segment-tree"><a class="header" href="#segment-tree">Segment Tree</a></h1>
-<p>A segment tree is a binary tree data structure used to efficiently answer range
-queries and perform range updates on an array — such as:</p>
-<ul>
-<li>Range sum</li>
-<li>Range minimum/maximum</li>
-<li>Range gcd, etc.</li>
-</ul>
-<p>It’s designed to balance query speed and update speed, both in O(log N) time.</p>
-<h2 id="implementation"><a class="header" href="#implementation">Implementation</a></h2>
-<p>A few conventions to reduce chances of mistakes.</p>
-<ol>
-<li>left branch is <code>[l, m]</code>, right branch is <code>[m+1, r]</code>. This avoids the index
-of out of range error for the middle point <code>(l+r)/2</code>.</li>
-</ol>
-<p>Below is the naive implementation using explicit tree node.</p>
-<details class="code-details">
-<summary> struct Node; </summary>
-<pre><code class="language-cpp">struct Node {
-    int l, r;
-    shared_ptr&lt;Node&gt; left, right;
-    int s; // each node stores the sum of the range [l,r].
-    Node(int l, int r): l(l), r(r), s(0) {}
-};
-using NodeP = shared_ptr&lt;Node&gt;;
-
-NodeP root;
-
-void create_children(NodeP node) {
-     if (node-&gt;l != node-&gt;r) {
-        int m = (node-&gt;l + node-&gt;r) / 2;
-        if (not node-&gt;left) node-&gt;left = make_shared&lt;Node&gt;(node-&gt;l, m);
-        if (not node-&gt;right) node-&gt;right = make_shared&lt;Node&gt;(m+1, node-&gt;r);
-    }
-}
-
-int query(NodeP node, int l, int r) {
-    int m = (node-&gt;l + node-&gt;r) / 2;
-    create_children(node);
-    if (node-&gt;l == l and node-&gt;r == r) {
-        return node-&gt;s;
-    }
-
-    if (r &lt;= m) return query(node-&gt;left, l, r);
-    else if (l &gt; m) return query(node-&gt;right, l, r);
-    else return query(node-&gt;left, l, m) + query(node-&gt;right, m+1, r);
-}
-
-// Add val to the existing value at node i.
-void update(NodeP node, int i, int val) {
-  create_children();
-  node-&gt;s += val;
-  if (node-&gt;l == i and node-&gt;r == i) return;
-  int m = (node-&gt;l + node-&gt;r) / 2;
-  if (i &lt;= m) update(node-&gt;left, i, val);
-  else update(node-&gt;right, i, val);
-}
-</code></pre>
-</details>
-<p>Most segment tree code you see online uses an array to represent the tree. See
-<a href="https://www.hackerearth.com/practice/notes/segment-tree-and-lazy-propagation/">example</a>.
-An array <code>int tree[2n+1]</code> represent a tree with <code>n</code> nodes. <code>tree[k]</code> has
-children <code>tree[2k]</code> and <code>tree[2k+1]</code>. Root node is <code>tree[1]</code>. However, I do not
-like this implementation because it makes the interface more verbose. In my
-implementation, <code>struct Node</code> contains the boundary information <code>l</code> and <code>r</code>.
-With the array approach, the interface becomes
-<code>int query(int node, int start, int end, int l, int r)</code>. The first 3 parameters
-are the node index, left and right boundary.</p>
-<h2 id="lazy-propagation"><a class="header" href="#lazy-propagation">Lazy Propagation</a></h2>
-<p>The basic search and update operation has <code>O(logN)</code> complexity. It is not
-efficient for range update. To make it <code>O(logN)</code> as well, we need lazy
-propagation. A new helper <code>push</code> introduced. It realized the laziness at the
-current node, and push the laziness down to its children. There are four places
-we need <code>push</code>. First, at the beginning of a query, which is obvious. Then 3
-places in <code>update</code>:</p>
-<ol>
-<li>At the beginning of <code>update</code>.</li>
-<li>At the base condition, i.e., query range equals node’s boundary. This is
-where the performance improvement comes from. It avoids going deep to leaf
-nodes, and simply put a marker in the current node saying: all nodes under
-this subtree have an un-realized update amount <code>inc_amount</code>.</li>
-<li>Before we finally update current node’s value. This is pre-order traversal.
-We need to make sure the left and right children do not have any lazy value
-before we add them up. Otherwise, it would be wrong. This is most popular
-mistake I made!</li>
-</ol>
-<details class="code-details">
-<summary> Lazy Propagation </summary>
-<pre><code class="language-cpp">struct Node {
-    int l, r;
-    shared_ptr&lt;Node&gt; left, right;
-    int lazy = 0; // lazy update amount
-    int s;
-    Node(int l, int r): l(l), r(r), s(0) {}
-};
-using NodeP = shared_ptr&lt;Node&gt;;
-
-NodeP root;
-
-void create_children(NodeP node) {
-     if (node-&gt;l != node-&gt;r) {
-        int m = (node-&gt;l + node-&gt;r) / 2;
-        if (not node-&gt;left) node-&gt;left = make_shared&lt;Node&gt;(node-&gt;l, m);
-        if (not node-&gt;right) node-&gt;right = make_shared&lt;Node&gt;(m+1, node-&gt;r);
-    }
-}
-
-// realize laziness at current node and push it down the tree.
-void push(NodeP node) {
-    if (node-&gt;lazy) {
-        node-&gt;s += node-&gt;lazy * (node-&gt;r - node-&gt;l + 1);
-        // only push down when it is not a leaf node.
-        if (node-&gt;l != node-&gt;r) {
-            create_children(node);
-            node-&gt;left-&gt;lazy += node-&gt;lazy;
-            node-&gt;right-&gt;lazy += node-&gt;lazy;
-        }
-        // remember to reset laziness.
-        node-&gt;lazy = 0;
-    }
-}
-
-int query(NodeP node, int l, int r) {
-    int m = (node-&gt;l + node-&gt;r) / 2;
-    create_children(node);
-    // realize laziness before query.
-    push(node);
-    if (node-&gt;l == l and node-&gt;r == r) {
-        return node-&gt;s;
-    }
-
-    if (r &lt;= m) return query(node-&gt;left, l, r);
-    else if (l &gt; m) return query(node-&gt;right, l, r);
-    else return query(node-&gt;left, l, m) + query(node-&gt;right, m+1, r);
-}
-
-void update(NodeP node, int l, int r, int inc_amount) {
-    int m = (node-&gt;l + node-&gt;r) / 2;
-    create_children(node);
-    push(node);
-
-    if (node-&gt;l == l and node-&gt;r == r) {
-        node-&gt;lazy += inc_amount;
-        push(node);
-        return;
-    }
-    if (r &lt;= m) {
-        update(node-&gt;left, l, r);
-    } else if (l &gt; m) {
-        update(node-&gt;right, l, r);
-    } else {
-        update(node-&gt;left, l, m);
-        update(node-&gt;right, m+1, r);
-    }
-    // make sure left and right do not have un-realized updates.
-    push(node-&gt;left); push(node-&gt;right);
-    node-&gt;s = node-&gt;left-&gt;s + node-&gt;right-&gt;s;
-}
-</code></pre>
-</details>
+                        <h1 id="name-mangling"><a class="header" href="#name-mangling">Name Mangling</a></h1>
+<p>Today, I learnt something about C++ name mangling from book “Linkers and
+Loaders” by John R. Levine.</p>
+<p><img src="name_mangling_1.png" alt="name_mangling_1"> <img src="name_mangling_2.png" alt="name_mangling_2"></p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/graph/dijkstra.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../../cpp/standards/template/ctad.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/graph/fenwick_tree.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../../cpp/algorithms/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -356,11 +200,11 @@ void update(NodeP node, int l, int r, int inc_amount) {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/graph/dijkstra.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../../cpp/standards/template/ctad.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/graph/fenwick_tree.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../../cpp/algorithms/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
