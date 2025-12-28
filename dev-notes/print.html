@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-e4ea3958.js";
+            window.path_to_searchindex_js = "searchindex-a71cef76.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-85ed47d4.js"></script>
+        <script src="toc-8f7acdf7.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2928,10 +2928,10 @@ nowadays definitely does not use it.</p>
 <p>Redis does not use Raft, but a gossip protocol to promote master node when
 master node is down. It requires we set up replica nodes.</p>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="search"><a class="header" href="#search">Search</a></h1>
-<h2 id="design-type-ahead"><a class="header" href="#design-type-ahead">Design type-ahead</a></h2>
+<h1 id="autocompletion-1"><a href="#autocompletion-1" class="header">Autocompletion</a></h1>
+<h2 id="autocompletion"><a class="header" href="#autocompletion">Autocompletion</a></h2>
 <p>When a user typed a prefix, the system should show the top K most searched
-terms. There are two main problem:</p>
+terms. There are a few problems:</p>
 <ol>
 <li>Speed: autocompletion should be fast. Remember, we are making suggestions
 while the user is typing. Suggestions should show up within a few
@@ -2939,6 +2939,12 @@ milliseconds.</li>
 <li>Efficient storage layout to make search fast and not too bloated.</li>
 <li>A ranking system for search result.</li>
 </ol>
+<h2 id="architectures"><a class="header" href="#architectures">Architectures</a></h2>
+<p>This “You complete me” splits into two fundamentally different problems.</p>
+<ul>
+<li>Lexical completion: FST dominates here.</li>
+<li>Semantic completion: Requires ML / LLMs.</li>
+</ul>
 <h3 id="option-1-plain-mapping"><a class="header" href="#option-1-plain-mapping">Option 1: plain mapping</a></h3>
 <p>Use a k-v store that maps search term to its search frequency. For example, if
 user searches <code>amazon</code>, we can increment the frequency <code>amazon</code>. For
@@ -2991,9 +2997,19 @@ highest bucket contains 100 terms starting with this prefix, then top-5 query
 can return randomly 5 of these 100 terms. Check the
 <a href="https://github.com/apache/lucene/blob/2ad2530ecd9178265149ba5555145f71080a2a92/lucene/suggest/src/java/org/apache/lucene/search/suggest/fst/FSTCompletionLookup.java#L66-L66">Lucene’s source code</a>
 for more details.</p>
-<h3 id="filter-inappropriate-suggestions"><a class="header" href="#filter-inappropriate-suggestions">Filter inappropriate suggestions</a></h3>
-<h3 id="how-to-get-user-specific-history"><a class="header" href="#how-to-get-user-specific-history">how to get user specific history</a></h3>
+<h3 id="option-5-llm"><a class="header" href="#option-5-llm">Option 5: LLM</a></h3>
 <h3 id="how-to-use-trending-keyword"><a class="header" href="#how-to-use-trending-keyword">how to use trending keyword</a></h3>
+<h2 id="real-system-studies"><a class="header" href="#real-system-studies">Real System studies</a></h2>
+<h3 id="gmail"><a class="header" href="#gmail">Gmail</a></h3>
+<p>Language model</p>
+<h3 id="macos-spotlight"><a class="header" href="#macos-spotlight">MacOS Spotlight</a></h3>
+<h3 id="ide-autocompletion"><a class="header" href="#ide-autocompletion">IDE autocompletion</a></h3>
+<h3 id="shell-autocompletion"><a class="header" href="#shell-autocompletion">Shell autocompletion</a></h3>
+<p>Include bash, psql, redis-cli etc.</p>
+<h3 id="mobile-keyboards-gboard-ios"><a class="header" href="#mobile-keyboards-gboard-ios">Mobile Keyboards (Gboard, iOS)</a></h3>
+<h3 id="chrome--chromium-omnibox"><a class="header" href="#chrome--chromium-omnibox">Chrome / Chromium Omnibox</a></h3>
+<h3 id="search-boxes-amazon-youtube-netflix"><a class="header" href="#search-boxes-amazon-youtube-netflix">Search Boxes (Amazon, YouTube, Netflix)</a></h3>
+<h2 id="design-youtube-top-k"><a class="header" href="#design-youtube-top-k">Design Youtube top-k</a></h2>
 
                     </main>
 
