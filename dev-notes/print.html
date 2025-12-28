@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f75ee722.js";
+            window.path_to_searchindex_js = "searchindex-a32b7656.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-8fbb716a.js"></script>
+        <script src="toc-85ed47d4.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2927,6 +2927,28 @@ nowadays definitely does not use it.</p>
 <h2 id="caching-cluster"><a class="header" href="#caching-cluster">Caching cluster</a></h2>
 <p>Redis does not use Raft, but a gossip protocol to promote master node when
 master node is down. It requires we set up replica nodes.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="search"><a class="header" href="#search">Search</a></h1>
+<h2 id="design-type-ahead"><a class="header" href="#design-type-ahead">Design type-ahead</a></h2>
+<p>When a user typed a prefix, the system should show the top K most searched
+terms. There are two main problem:</p>
+<ol>
+<li>Efficient storage layout to make search fast and not too bloated.</li>
+<li>A ranking system for search result.</li>
+</ol>
+<h3 id="architecture"><a class="header" href="#architecture">Architecture</a></h3>
+<ul>
+<li>Trie tree
+<ul>
+<li>preprocessing word tries. Assign 2 or 3 top words for each prefix =&gt; prefix
+hash tree</li>
+<li>preprocessing sentence. The children are the next words shown in a
+sentence.</li>
+<li>distributed Trie : sharded by prefix</li>
+</ul>
+</li>
+<li>how to get user specific history + how to use trending keyword</li>
+</ul>
 
                     </main>
 
