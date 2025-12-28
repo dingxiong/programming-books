@@ -38,7 +38,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-a32b7656.js";
+            window.path_to_searchindex_js = "../searchindex-ce96bc07.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-85ed47d4.js"></script>
@@ -182,22 +182,67 @@
 <p>When a user typed a prefix, the system should show the top K most searched
 terms. There are two main problem:</p>
 <ol>
+<li>Speed: autocompletion should be fast. Remember, we are making suggestions
+while the user is typing. Suggestions should show up within a few
+milliseconds.</li>
 <li>Efficient storage layout to make search fast and not too bloated.</li>
 <li>A ranking system for search result.</li>
 </ol>
-<h3 id="architecture"><a class="header" href="#architecture">Architecture</a></h3>
-<ul>
-<li>Trie tree
+<h3 id="option-1-plain-mapping"><a class="header" href="#option-1-plain-mapping">Option 1: plain mapping</a></h3>
+<p>Use a k-v store that maps search term to its search frequency. For example, if
+user searches <code>amazon</code>, we can increment the frequency <code>amazon</code>. For
+suggestion, we write a query</p>
+<pre><code>select term, count(*) where term like '&lt;prefix&gt;% group by term limit 5;'
+</code></pre>
+<p>Nobody uses it. When I type <code>s</code>, it is almost to be a full table scan because
+<code>s</code> is so popular.</p>
+<h3 id="option-2-plain-prefix-mapping"><a class="header" href="#option-2-plain-prefix-mapping">Option 2: plain prefix mapping</a></h3>
+<p>Very similar to option 1, but we store all prefixes instead. For any user
+query, we can store all its prefix to the a store. For example, if user
+searches <code>amazon</code>, then we add <code>a</code>, <code>am</code>, <code>ama</code>, <code>amaz</code>, <code>amazo</code> and <code>amazon</code>.
+For each term, we associated a top-k list. When doing suggestion, we can
+directly search for the prefix.</p>
+<p>This is not stupid. Checkout <code>chrome://predictors/</code>. It stores all prefixes
+records in a sqlite db. This only works if you have a small dataset. In
+chrome’s case, it sets a upper bound for the history records.</p>
+<h3 id="option-3-trie"><a class="header" href="#option-3-trie">Option 3: Trie</a></h3>
+<p>This is most often cited one. But I do not like it because of the
+memory/storage consumption. I do not see any serious project uses it.</p>
 <ul>
 <li>preprocessing word tries. Assign 2 or 3 top words for each prefix =&gt; prefix
 hash tree</li>
-<li>preprocessing sentence. The children are the next words shown in a
-sentence.</li>
+<li>preprocessing sentence. The children are the next words shown in a sentence.</li>
 <li>distributed Trie : sharded by prefix</li>
 </ul>
-</li>
-<li>how to get user specific history + how to use trending keyword</li>
-</ul>
+<h3 id="option-4-fst-finite-state-acceptor"><a class="header" href="#option-4-fst-finite-state-acceptor">Option 4: FST (Finite State Acceptor)</a></h3>
+<p>What is the problem with Trie? It uses huge of memory/storage. Each node can
+has 26 children (assuming lower-case English letters.) The number of nodes
+grows exponentially. Also, if we attach top-k results with each intermediate
+ndoes, then it quickly become prohibitive.</p>
+<p><a href="https://burntsushi.net/transducers/#finite-state-machines-as-data-structures">Andrew Gallant’s blog</a>
+is a must read for this topic. Btw, he is also the author of <code>ripgrep</code>.</p>
+<p>How FST solves the memory/storage issue? Cited from the blog.</p>
+<blockquote>
+<p>The only difference between a trie and the FSAs shown in this article is that
+a trie permits the sharing of prefixes between keys while an FSA permits the
+sharing of both prefixes and suffixes.</p>
+</blockquote>
+<p>But FST comes with inconvenience during prefix searching. You cannot attach
+top-k terms with intermediate nodes similar to Trie. We must traverse the
+subtree to get the top-k terms. A priority queue can make it a little bit
+better, but still it is too much. So what production systems do with it?</p>
+<p><a href="https://www.elastic.co/blog/you-complete-me">ES/Lucene</a> supports type-ahead.
+Internally, Lucene does not traverse the whole subtree. Instead, it sort the
+arcs into buckets. When searching, it starts from the highest bucket to search
+for the prefix. If found k terms in it, it is done. If not, then go to the
+second highest bucket and continue. It is a coarse sorting. For example, if the
+highest bucket contains 100 terms starting with this prefix, then top-5 query
+can return randomly 5 of these 100 terms. Check the
+<a href="https://github.com/apache/lucene/blob/2ad2530ecd9178265149ba5555145f71080a2a92/lucene/suggest/src/java/org/apache/lucene/search/suggest/fst/FSTCompletionLookup.java#L66-L66">Lucene’s source code</a>
+for more details.</p>
+<h3 id="filter-inappropriate-suggestions"><a class="header" href="#filter-inappropriate-suggestions">Filter inappropriate suggestions</a></h3>
+<h3 id="how-to-get-user-specific-history"><a class="header" href="#how-to-get-user-specific-history">how to get user specific history</a></h3>
+<h3 id="how-to-use-trending-keyword"><a class="header" href="#how-to-use-trending-keyword">how to use trending keyword</a></h3>
 
                     </main>
 
