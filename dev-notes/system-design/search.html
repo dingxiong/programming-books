@@ -38,7 +38,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-ce96bc07.js";
+            window.path_to_searchindex_js = "../searchindex-e4ea3958.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-85ed47d4.js"></script>
@@ -216,9 +216,9 @@ hash tree</li>
 </ul>
 <h3 id="option-4-fst-finite-state-acceptor"><a class="header" href="#option-4-fst-finite-state-acceptor">Option 4: FST (Finite State Acceptor)</a></h3>
 <p>What is the problem with Trie? It uses huge of memory/storage. Each node can
-has 26 children (assuming lower-case English letters.) The number of nodes
+have 26 children (assuming lower-case English letters.) The number of nodes
 grows exponentially. Also, if we attach top-k results with each intermediate
-ndoes, then it quickly become prohibitive.</p>
+nodes, then the resource usage quickly becomes prohibitive.</p>
 <p><a href="https://burntsushi.net/transducers/#finite-state-machines-as-data-structures">Andrew Gallant’s blog</a>
 is a must read for this topic. Btw, he is also the author of <code>ripgrep</code>.</p>
 <p>How FST solves the memory/storage issue? Cited from the blog.</p>
