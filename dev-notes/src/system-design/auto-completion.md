@@ -1,15 +1,20 @@
-# Search
-
-## Design type-ahead
+## Autocompletion
 
 When a user typed a prefix, the system should show the top K most searched
-terms. There are two main problem:
+terms. There are a few problems:
 
 1. Speed: autocompletion should be fast. Remember, we are making suggestions
    while the user is typing. Suggestions should show up within a few
    milliseconds.
 2. Efficient storage layout to make search fast and not too bloated.
 3. A ranking system for search result.
+
+## Architectures
+
+This “You complete me” splits into two fundamentally different problems.
+
+- Lexical completion: FST dominates here.
+- Semantic completion: Requires ML / LLMs.
 
 ### Option 1: plain mapping
 
@@ -77,8 +82,28 @@ can return randomly 5 of these 100 terms. Check the
 [Lucene's source code](https://github.com/apache/lucene/blob/2ad2530ecd9178265149ba5555145f71080a2a92/lucene/suggest/src/java/org/apache/lucene/search/suggest/fst/FSTCompletionLookup.java#L66-L66)
 for more details.
 
-### Filter inappropriate suggestions
-
-### how to get user specific history
+### Option 5: LLM
 
 ### how to use trending keyword
+
+## Real System studies
+
+### Gmail
+
+Language model
+
+### MacOS Spotlight
+
+### IDE autocompletion
+
+### Shell autocompletion
+
+Include bash, psql, redis-cli etc.
+
+### Mobile Keyboards (Gboard, iOS)
+
+### Chrome / Chromium Omnibox
+
+### Search Boxes (Amazon, YouTube, Netflix)
+
+## Design Youtube top-k

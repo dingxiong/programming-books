@@ -77,4 +77,4 @@
   - [Payment system](system-design/payment.md)
   - [K-V Store](system-design/kv.md)
   - [Caching](system-design/cache.md)
-  - [Search](system-design/search.md)
+  - [Autocompletion](system-design/auto-completion.md)
