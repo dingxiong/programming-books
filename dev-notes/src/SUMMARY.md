@@ -78,3 +78,4 @@
   - [K-V Store](system-design/kv.md)
   - [Caching](system-design/cache.md)
   - [Autocompletion](system-design/auto-completion.md)
+  - [Search Engine](system-design/search-engine.md)
