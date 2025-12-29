@@ -6,4 +6,4 @@
 4. How Google index document
 
 [The anatomy of a large-scale hypertextual Web search engine](https://snap.stanford.edu/class/cs224w-readings/Brin98Anatomy.pdf)
-is a must read. It describe the initial system of Google search engine.
+is a must read. It describe the architecture of Google search engine.
