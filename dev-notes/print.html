@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-d9af40cd.js";
+            window.path_to_searchindex_js = "searchindex-321b085c.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-80cd1ffb.js"></script>
+        <script src="toc-1841717e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1037,6 +1037,28 @@ write <code>vector v(5, vector&lt;int&gt;(6));</code> Thanks to
 <p>Today, I learnt something about C++ name mangling from book “Linkers and
 Loaders” by John R. Levine.</p>
 <p><img src="cpp/standards/name-mangling/name_mangling_1.png" alt="name_mangling_1"> <img src="cpp/standards/name-mangling/name_mangling_2.png" alt="name_mangling_2"></p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="exception"><a class="header" href="#exception">Exception</a></h1>
+<p>Standard exceptions are declared
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/stdexcept#L79">here</a>
+and defined
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/support/runtime/stdexcept_default.ipp#L21">here</a>.
+The implementation uses a class <code>__libcpp_refstring</code>, which is a ref-counting
+based string class. The definition is
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/include/refstring.h#L86">here</a>.
+You can see the copy and copy-assign operation only increases the ref count. It
+does not make a new copy.</p>
+<p>Why? Below is the response from Gemini.</p>
+<blockquote>
+<p>The main reason for its existence is exception safety, particularly to handle
+the “catch-22” scenario presented by <code>std::bad_alloc</code>. When new fails, it
+throws std::bad_alloc to signal that the system is out of memory. If the
+std::bad_alloc exception object itself tried to use std::string to store its
+what() message (e.g., “memory allocation failure”), the std::string would
+also need to allocate memory. This allocation would immediately fail, causing
+the program to call std::terminate and crash before the exception could even
+be handled.</p>
+</blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="competitive-programming"><a href="#competitive-programming" class="header">Competitive Programming</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
