@@ -38,7 +38,7 @@
             const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../searchindex-240ffd4c.js";
+            window.path_to_searchindex_js = "../searchindex-0a467272.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../toc-5220209f.js"></script>
@@ -211,6 +211,40 @@ the message on your phone. This design scales because one socket per device.</p>
 <li><code>messages</code> (msg_id, group_id, content, media_url, send_at)</li>
 <li><code>devices</code> (device_id, user_id, is_online)</li>
 </ul>
+<p>There are three players in the flow: <code>sender</code>, <code>slack server</code> and <code>receiver</code>.
+The sender part is easier. Most complicated things happen on receiver side.</p>
+<h3 id="how-does-receiver-read-the-message"><a class="header" href="#how-does-receiver-read-the-message">How does receiver read the message?</a></h3>
+<p>The are two cases.</p>
+<p>Case 1: when the user is actively using the app. The receiver already has
+websocket established with the slack server. So it can receive new messages.
+Whenever the user reads a message, the <code>last_read_msg_id</code> in the
+<code>group_users_association</code> table is updated, so slack knows where to start to
+stream next time.</p>
+<p>Case 2: when the user is offline or not actively using slack. Slack server
+pushes the message to APN or FCM. When user goes online, he/she clicks the
+notification and jumps to the app. At this time, a websocket is connected, and
+the slack server streams all messages from <code>last_read_msg_id</code> to the latest
+message id in the current group. You notice a detail that the notification sent
+to APN/FCM could be different from the message itself. Its purpose is only to
+draw attention from the user. All messages are streamed once the user is inside
+the app.</p>
+<p>So the follow-up question is how slack server knows when the user is online or
+offline. The answer is</p>
+<pre><code>WebSocket = proof of life
+</code></pre>
+<p>For a given user, when there is already a websocket connection, then it means
+the user is online. Slack is definitely not a single server. The websocket may
+be established in Server A, but server working on this particular group chat
+may reside in server B. This is totally possible because a user can have
+multiple chats going on. There are many ways to know if a websocket is already
+established. We can use a distributed cache like <code>Redis</code>, or simply add a new
+column <code>socket_machine_address</code> in the <code>devices</code> table. Now, the question comes
+to the design question</p>
+<ul>
+<li>A group chat is handled by Sever B, but user’s websocket is established in
+Server A. How does this work.</li>
+</ul>
+<p>The simplest approach is to use a message broker.</p>
 
                     </main>
 
