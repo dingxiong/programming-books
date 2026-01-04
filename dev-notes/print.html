@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-c5b14f01.js";
+            window.path_to_searchindex_js = "searchindex-240ffd4c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-5220209f.js"></script>
@@ -3052,11 +3052,31 @@ when the user is actively using the app, but what happens when the user is
 offline or the app is running in the background? The answer is Apple APN (Apple
 Push Notifications) service and Android FCM (Firebase Cloud Messaging).</p>
 <p>Apple and Google built a large distributed push notification service with edge
-network support. Every Apple/Android device maintains persistent connection to
-APN or FCM. When there is no notification, this socket connection is idle and
-uses little resource. When there is notification, this socket is waked up and
-shows the message on your phone. This design scales because one socket per
-device.</p>
+network support. Every Apple/Android device maintains a persistent connection
+to APN or FCM. When there is no notification, this socket is idle and uses
+little resource. When there is notification, this socket is waked up and shows
+the message on your phone. This design scales because one socket per device.</p>
+<h2 id="design-slack"><a class="header" href="#design-slack">Design Slack</a></h2>
+<p>Feature need to support</p>
+<ol>
+<li>One to one messaging.</li>
+<li>Group messaging.</li>
+<li>Push notification when user is offline.</li>
+<li>Show people online/offline status.</li>
+</ol>
+<p>Schemas:</p>
+<ul>
+<li><code>users</code> (id, email, …)</li>
+<li><code>group</code> (group_id)</li>
+<li><code>group_users_association</code>
+<ul>
+<li>One-to-many relationship.</li>
+<li>(group_id, user_id, last_read_msg_id)</li>
+</ul>
+</li>
+<li><code>messages</code> (msg_id, group_id, content, media_url, send_at)</li>
+<li><code>devices</code> (device_id, user_id, is_online)</li>
+</ul>
 
                     </main>
 
