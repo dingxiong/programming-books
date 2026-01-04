@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-321b085c.js";
+            window.path_to_searchindex_js = "searchindex-c5b14f01.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-1841717e.js"></script>
+        <script src="toc-5220209f.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -3042,6 +3042,21 @@ for more details.</p>
 </ol>
 <p><a href="https://snap.stanford.edu/class/cs224w-readings/Brin98Anatomy.pdf">The anatomy of a large-scale hypertextual Web search engine</a>
 is a must read. It describe the initial architecture of Google search engine.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="messaging--chat"><a class="header" href="#messaging--chat">Messaging &amp; Chat</a></h1>
+<h2 id="background-knowledge-4"><a class="header" href="#background-knowledge-4">Background Knowledge</a></h2>
+<h3 id="apple-apn-and-google-fcm"><a class="header" href="#apple-apn-and-google-fcm">Apple APN and Google FCM</a></h3>
+<p>You may wonder for real-time messaging systems such as iMessage and slack, how
+do them push notifications to the mobile user? You can maintain a websocket
+when the user is actively using the app, but what happens when the user is
+offline or the app is running in the background? The answer is Apple APN (Apple
+Push Notifications) service and Android FCM (Firebase Cloud Messaging).</p>
+<p>Apple and Google built a large distributed push notification service with edge
+network support. Every Apple/Android device maintains persistent connection to
+APN or FCM. When there is no notification, this socket connection is idle and
+uses little resource. When there is notification, this socket is waked up and
+shows the message on your phone. This design scales because one socket per
+device.</p>
 
                     </main>
 
