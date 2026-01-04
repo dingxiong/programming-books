@@ -80,3 +80,4 @@
   - [Caching](system-design/cache.md)
   - [Autocompletion](system-design/auto-completion.md)
   - [Search Engine](system-design/search-engine.md)
+  - [Messaging & Chat](system-design/messaging.md)
