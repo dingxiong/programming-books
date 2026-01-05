@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-0a467272.js";
+            window.path_to_searchindex_js = "searchindex-db4359ad.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-5220209f.js"></script>
@@ -3111,6 +3111,10 @@ to the design question</p>
 Server A. How does this work.</li>
 </ul>
 <p>The simplest approach is to use a message broker.</p>
+<h3 id="storage-layer"><a class="header" href="#storage-layer">Storage layer.</a></h3>
+<p>All data except <code>messages</code> could be put inside a relational database. Because
+of the volume of <code>messages</code>, it is better to put them in another storage.
+<code>Dynamodb</code> and <code>TiDB</code> are all google choices.</p>
 
                     </main>
 
