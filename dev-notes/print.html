@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-db4359ad.js";
+            window.path_to_searchindex_js = "searchindex-4d32278a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-5220209f.js"></script>
+        <script src="toc-97a7c1b1.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1059,6 +1059,109 @@ also need to allocate memory. This allocation would immediately fail, causing
 the program to call std::terminate and crash before the exception could even
 be handled.</p>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="stdunordered_map"><a class="header" href="#stdunordered_map">std::unordered_map</a></h1>
+<p>Both <code>unordered_set</code> and <code>unordered_map</code> use an internal
+<a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__hash_table#L751">__hash_table</a>
+object, so it suffices to only talk about how hash table works in C++.</p>
+<p>The basic structure looks like diagram below. It contains two parts: a
+single-linked list of nodes and an array of bucket head.</p>
+<pre><code>node1 --&gt; node2 --&gt; node3 --&gt; ... --&gt; node_n --&gt; nullptr
+  |                  |
+  |                  |
+[bucket1,           bucket2, ....           ]
+</code></pre>
+<p>The
+<a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__hash_table#L807">__bucket_list</a>
+is simply an raw array. Each array element points to a node in the listed list.
+So the nodes between <code>bucket_i</code> and <code>bucket_{i+1}</code> belong to <code>bucket_i</code>.</p>
+<p>Each node in the linked list contains a value. For <code>unordered_set</code>, its type is
+<code>class Key</code>. For <code>unordered_map</code>, it is <code>pair&lt;class Key, class Value&gt;</code>. It is
+unlike Java which uses <code>HashMap</code> to simulate <code>HashSet</code>, which needs an
+unnecessary value field. C++ is more space efficient.</p>
+<p>There are two hash concepts in <code>__hash_table</code>. One is node hash. The node value
+type should define a function <code>__hash()</code> which is used to get the node hash.
+Another is bucket hash <code>std::__constrain_hash(node_hash, bucket_count)</code>. It
+takes node’s hash and total number of buckets as input and return the bucket id
+this node belows to. In the simplest case, it is <code>node_hash % bucket_count</code>.</p>
+<h3 id="how-does-erase-work"><a class="header" href="#how-does-erase-work">How does <code>::erase</code> work?</a></h3>
+<p>Function <code>erase</code> calls
+<a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__hash_table#L2321">remove</a>.
+Basically,</p>
+<ol>
+<li>find the previous node of the node to be erased in the linked list.</li>
+<li>Deal with special cases: prev node is in the previous bucket, or the next
+node is in the next bucket. In these edge cases, after deleting the current
+node, the bucket becomes empty, so we need to delete the bucket as well.</li>
+<li>Delete the node: <code>prev-&gt;next = curr-&gt;next; curr-&gt;next = null</code>.</li>
+</ol>
+<p>Note, the function returns a <code>__node_holder</code>.</p>
+<pre><code>    return __node_holder(__cn-&gt;__upcast(), _Dp(__node_alloc(), true));
+</code></pre>
+<p>So, the deleted node will not be destructed immediately. It is up to the
+calling site how to deal with this node. Usually, the calling site does
+nothing, and <code>_Dp(__node_alloc())</code> destructs this node immediately once it goes
+out of scope.</p>
+<p>What does <code>erase</code> return then? It returns the next iterator. See
+<a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__hash_table#L2269">code</a>.
+We often want to erase some keys when iterating au <code>unordered_map</code>. In C++20,
+we can do <code>std::remove_if()</code>. In lower version, we can do</p>
+<pre><code class="language-cpp">for (auto first = c.begin(), last = c.end(); first != last;) {
+    if (pred(*first))
+        first = c.erase(first);
+    else
+        ++first;
+}
+</code></pre>
+<h2 id="stdunordered_map-1"><a class="header" href="#stdunordered_map-1"><code>std::unordered_map</code></a></h2>
+<h3 id="operator"><a class="header" href="#operator"><code>operator[]</code></a></h3>
+<p>The
+<a href="https://en.cppreference.com/w/cpp/container/unordered_map/operator_at">specification</a>
+says the value_type must be <code>DefaultConstructible</code>. Let’s say what happens if
+it is not. For a simple program as below</p>
+<pre><code class="language-cpp">struct A {
+  int a;
+  A(int a_): a(a_) {}
+};
+
+int main() {
+  unordered_map&lt;int, A&gt; u;
+  auto x = u[0];
+  cout &lt;&lt; "value:" &lt;&lt; x.a &lt;&lt; std::endl;
+}
+</code></pre>
+<p>The compilation errors is</p>
+<pre><code>error: no matching constructor for initialization of 'A'
+      second(_VSTD::forward&lt;_Args2&gt;(_VSTD::get&lt;_I2&gt;(__second_args))...)
+</code></pre>
+<p>Let’s take a deeper look. The definition for <code>operator[]</code> is
+<a href="https://github.com/llvm-mirror/libcxx/blob/78d6a7767ed57b50122a161b91f59f19c9bd0d19/include/unordered_map#L1662-L1663">here</a>.
+If the key is not found in the table, then it calls <code>__construct_node_with_key</code>
+to construct a k-v pair to insert to <code>__table</code>. The construction process uses
+<code>allocator_traits::construct</code> without constructor arguments. Namely, it calls
+the default constructor of the value type.</p>
+<h3 id="iterator"><a class="header" href="#iterator"><code>iterator</code></a></h3>
+<p>Sometimes, I mixed different iterators. Some iterators can do <code>it+2</code>, some can
+only do <code>it++</code>. So how does the iterator of <code>unordered_map</code> work?</p>
+<p>According to
+<a href="https://en.cppreference.com/w/cpp/container/unordered_map">cppreference</a>, the
+iterator of <code>unordered_map</code> is a <code>LegacyForwardIterator</code>. It has only two
+operations: <code>operator++</code> and <code>operator++(int)</code>. See
+<a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/unordered_map#L993">source code</a>.</p>
+<p>However, the <code>&lt;iterator&gt;</code> header defines a function
+<code>std::advance(InputIt&amp; it, Distance n)</code>. How does this work? The source code is
+<a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__iterator/advance.h#L44">here</a>.
+Basically, depending on the iterator type, it can choose to directly add <code>n</code> to
+the base iterator, or use a loop to advance the iterator.</p>
+<p>Btw, what type of iterator do other containers have?</p>
+<ul>
+<li>LegacyForwardIterator: unordered_set, unordered_map,</li>
+<li>LegacyBidirectionalIterator: set, map</li>
+<li>LegacyRandomAccessIterator: vector</li>
+</ul>
+<p>For <code>set</code>, <code>map</code>. It uses a tree underneath, the iterator definition is
+<a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__tree#L877">here</a>.
+It defines both <code>++</code> and <code>--</code> operators.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="competitive-programming"><a href="#competitive-programming" class="header">Competitive Programming</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
