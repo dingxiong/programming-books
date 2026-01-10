@@ -103,6 +103,25 @@ to construct a k-v pair to insert to `__table`. The construction process uses
 `allocator_traits::construct` without constructor arguments. Namely, it calls
 the default constructor of the value type.
 
+You may think below code should work because it checks whether the key exists
+or not first.
+
+```cpp
+if (m.contains(key)) {
+    m[key]...
+}
+```
+
+It won't work if the value class does not have a default constructor. When
+compiler sees `m[key]` it much compile both branches. A better way is using
+`find`.
+
+```cpp
+if (auto iter = m.find(key); iter != m.end()) {
+  iter->second ...
+}
+```
+
 ### `iterator`
 
 Sometimes, I mixed different iterators. Some iterators can do `it+2`, some can
