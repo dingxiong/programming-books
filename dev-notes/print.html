@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-f59e6cf9.js";
+            window.path_to_searchindex_js = "searchindex-6deb6494.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-eb2cda6e.js"></script>
@@ -1140,6 +1140,19 @@ If the key is not found in the table, then it calls <code>__construct_node_with_
 to construct a k-v pair to insert to <code>__table</code>. The construction process uses
 <code>allocator_traits::construct</code> without constructor arguments. Namely, it calls
 the default constructor of the value type.</p>
+<p>You may think below code should work because it checks whether the key exists
+or not first.</p>
+<pre><code class="language-cpp">if (m.contains(key)) {
+    m[key]...
+}
+</code></pre>
+<p>It won’t work if the value class does not have a default constructor. When
+compiler sees <code>m[key]</code> it much compile both branches. A better way is using
+<code>find</code>.</p>
+<pre><code class="language-cpp">if (auto iter = m.find(key); iter != m.end()) {
+  iter-&gt;second ...
+}
+</code></pre>
 <h3 id="iterator"><a class="header" href="#iterator"><code>iterator</code></a></h3>
 <p>Sometimes, I mixed different iterators. Some iterators can do <code>it+2</code>, some can
 only do <code>it++</code>. So how does the iterator of <code>unordered_map</code> work?</p>
