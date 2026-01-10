@@ -38,7 +38,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-cc430b87.js";
+            window.path_to_searchindex_js = "../../searchindex-f59e6cf9.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-eb2cda6e.js"></script>
@@ -214,6 +214,24 @@ non-zero. By default, streams do not throw.</p>
 <a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/istream#L1213">here</a>.
 The detail is more nasty. I only want to call out this line <code>__str.clear();</code>.
 It nukes the existing content of the destination string.</p>
+<h3 id="stream-state"><a class="header" href="#stream-state">Stream state</a></h3>
+<p><code>ios_base</code> defines
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/ios#L279">4 stream states</a>
+and a few
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/ios#L511">state query functions</a>.</p>
+<pre><code>static const iostate badbit  = 0x1;
+static const iostate eofbit  = 0x2;
+static const iostate failbit = 0x4;
+static const iostate goodbit = 0x0;
+</code></pre>
+<p>You can see <code>fail</code> means <code>badbit</code> or <code>failbit</code>, and <code>eofbit</code> is not considered
+<code>fail</code>. Also, the <code>operator bool</code> function is simply
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/ios#L580">!fail()</a>.
+How come is this true? I see a lot of code written this way:
+<code>while (cin &gt;&gt; s) {...}</code>. If <code>eofbit</code> not considered as fail, then this loop
+will continue even it reaches eof? This is because when encountering eof,
+<code>istream</code> wills set both <code>failbit</code> and <code>eofbit</code>. This setup is quite wired.
+These bits seem not orthogonal.</p>
 <h3 id="faqs"><a class="header" href="#faqs">FAQs</a></h3>
 <ol>
 <li>
