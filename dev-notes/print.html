@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-a6630695.js";
+            window.path_to_searchindex_js = "searchindex-cc430b87.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-5e870b39.js"></script>
+        <script src="toc-eb2cda6e.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1162,6 +1162,55 @@ the base iterator, or use a loop to advance the iterator.</p>
 <p>For <code>set</code>, <code>map</code>. It uses a tree underneath, the iterator definition is
 <a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__tree#L877">here</a>.
 It defines both <code>++</code> and <code>--</code> operators.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="iostream"><a class="header" href="#iostream">iostream</a></h1>
+<p>Core class hierarchy (type system).</p>
+<pre><code>                        ios_base
+                            │
+                           ios
+                            │
+                ┌───────────┴───────────┐
+                │                       │
+            istream                  ostream
+                │                       │
+                └───────────┬───────────┘
+                            │
+                        iostream
+                            │
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+      istringstream     ifstream           stringstream
+      ostringstream     ofstream           fstream
+</code></pre>
+<p>Examples | Object | Type | | —————–– | ––––– | | <code>std::cin</code> |
+<code>istream</code> | | <code>std::cout</code> | <code>ostream</code> | | <code>std::cerr</code> | <code>ostream</code> | |
+<code>std::stringstream</code> | <code>iostream</code> | | <code>std::ifstream</code> | <code>istream</code> |</p>
+<h2 id="how-does--work"><a class="header" href="#how-does--work">How does <code>&gt;&gt;</code> work?</a></h2>
+<p><code>std::istream</code> operator <code>&gt;&gt;</code> is very powerful. It can parse out strings and
+numerical values.</p>
+<p>The numerical case is handled
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/istream#L359">here</a>.
+It first initializes a <code>sentry __s(__is)</code> object. This prepares the stream for
+extraction and checks if it’s already in a bad state. If the stream is already
+fail or bad, <code>__s</code> evaluates to false and nothing happens. Also, <code>num_get</code> may
+throw an exception if the stream could be parsed to a numerical value. Such
+exception is only thrown out if <code>__is.exceptions() &amp; ios_base::badbit</code> is
+non-zero. By default, streams do not throw.</p>
+<p>The string case is handled
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/istream#L1213">here</a>.
+The detail is more nasty. I only want to call out this line <code>__str.clear();</code>.
+It nukes the existing content of the destination string.</p>
+<h3 id="faqs"><a class="header" href="#faqs">FAQs</a></h3>
+<ol>
+<li>
+<p>What happens if <code>cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;</code> fails at <code>&gt;&gt; b</code>?</p>
+<p>First, the whole exception does not throw because <code>cin.exceptions() ==0</code>.
+See definition
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/iostream.cpp#L59">std::cin definition</a>.
+Second, <code>a</code> has valid value, <code>b</code> and <code>c</code> is untouched. Finally, <code>cin.fail()</code>
+returns true in the end;</p>
+</li>
+</ol>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="competitive-programming"><a href="#competitive-programming" class="header">Competitive Programming</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
