@@ -21,10 +21,6 @@ Core class hierarchy (type system).
       ostringstream     ofstream           fstream
 ```
 
-Examples | Object | Type | | ------------------- | ---------- | | `std::cin` |
-`istream` | | `std::cout` | `ostream` | | `std::cerr` | `ostream` | |
-`std::stringstream` | `iostream` | | `std::ifstream` | `istream` |
-
 ## How does `>>` work?
 
 `std::istream` operator `>>` is very powerful. It can parse out strings and
