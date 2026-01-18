@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-fd02f881.js";
+            window.path_to_searchindex_js = "searchindex-14c3a470.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-eb2cda6e.js"></script>
+        <script src="toc-55ea8e6c.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1032,6 +1032,30 @@ for the motivation and why choosing this approach.</p>
 <code>vector&lt;vector&lt;int&gt;&gt; v(5, vector&lt;int&gt;(6));</code> any more. In C++17, we can simply
 write <code>vector v(5, vector&lt;int&gt;(6));</code> Thanks to
 <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r3.html">P0091R3: Template argument deduction for class templates</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="class"><a class="header" href="#class">Class</a></h1>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="classmfct"><a class="header" href="#classmfct">class.mfct</a></h1>
+<p><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3797.pdf">9.3 class.mfct</a>
+has a sentence catches my eye.</p>
+<blockquote>
+<p>A member function may be defined (8.4) in its class definition, in which case
+it is an inline member function (7.1.2), or it may be defined outside of its
+class definition if it has already been declared but not defined in its class
+definition.</p>
+</blockquote>
+<p>The second half of the above sentence means that we must explicitly declare the
+function even if the function could be derived from the base class. The below
+example code does not compile. We must explicitly declare <code>foo</code> in B as well.</p>
+<pre><code class="language-cpp">struct A { void foo() {}};
+struct B: A {};
+B::foo() {}
+</code></pre>
+<p>This seems very redundant, but it is rooted to C++ inheritance memory layout,
+and it is especially true for virtual functions. For a derived virtual class,
+the first entry in the memory layout is a pointer to its vtable, then a pointer
+to its base’s vtable. If we do not explicitly declare these functions in the
+derived class, then it won’t show up in vtable!</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="name-mangling"><a class="header" href="#name-mangling">Name Mangling</a></h1>
 <p>Today, I learnt something about C++ name mangling from book “Linkers and
