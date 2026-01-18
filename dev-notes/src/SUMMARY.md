@@ -39,6 +39,8 @@
       - [Abbreviated function template](cpp/standards/declarations/abbr-func-template.md)
     - [Template](cpp/standards/template/README.md)
       - [CTAD](cpp/standards/template/ctad.md)
+    - [Class](cpp/standards/class/README.md)
+      - [class.mfct](cpp/standards/class/mfct.md)
     - [Name Mangling](cpp/standards/name-mangling/README.md)
     - [Exception](cpp/standards/exception/README.md)
     - [unordered_map](cpp/standards/unordred-map.md)
