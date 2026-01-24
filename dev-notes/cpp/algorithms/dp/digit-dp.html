@@ -38,7 +38,7 @@
             const path_to_root = "../../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-14c3a470.js";
+            window.path_to_searchindex_js = "../../../searchindex-460e119c.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../../toc-55ea8e6c.js"></script>
@@ -229,6 +229,8 @@ have base conditions.</p>
 # The base tight case is equivalent to say num is counted or not.
 dp[n][valid k][1] = inclusive ? 1 : 0;
 </code></pre>
+<h2 id="return-value"><a class="header" href="#return-value">Return value</a></h2>
+<p>We return <code>dp[0][true]</code>. Why because it is tight in this case!</p>
 <h2 id="variations"><a class="header" href="#variations">Variations</a></h2>
 <p>So far, we have assumed that the integer constraint has no relation with the
 leading zero digits. For example, if the constraint is the total number of odd
