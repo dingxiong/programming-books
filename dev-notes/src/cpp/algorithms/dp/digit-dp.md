@@ -69,6 +69,10 @@ dp[n][valid k][0] = 1;
 dp[n][valid k][1] = inclusive ? 1 : 0;
 ```
 
+## Return value
+
+We return `dp[0][true]`. Why because it is tight in this case!
+
 ## Variations
 
 So far, we have assumed that the integer constraint has no relation with the
