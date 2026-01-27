@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Abbreviated function template - Life as a Programmer</title>
+        <title>Quick Select - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -177,23 +177,50 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="abbreviated-function-template"><a class="header" href="#abbreviated-function-template">Abbreviated function template</a></h1>
-<p>C++20 introduced a new syntax
-<a href="https://en.cppreference.com/w/cpp/language/function_template.html">Abbreviated function template</a>.
-The proposal is <code>P1141R2</code>. <a href="https://eel.is/c%2B%2Bdraft/dcl.fct#21">dcl.fct#21</a>
-provides some good examples. Basically, when you write a function parameter as
-auto, the compiler automatically generates a template.</p>
-<p>TODO: write more details about LLVM implementation.</p>
+                        <h1 id="quick-select"><a class="header" href="#quick-select">Quick Select</a></h1>
+<pre><code>/*
+ * Average complexity O(N), worse complexity O(N^2).
+ * C++ has std::nth_element()
+ *
+ */
+void select(vector&lt;int&gt; &amp;nums, int start, int end, int k) {
+  if (start == end)
+    return;
+  int p = partition(nums, start, end, start);
+  if (p == k) return;
+  else if (p &gt; k)
+    select(nums, start, p - 1, k);
+  else if (p &lt; k)
+    select(nums, p + 1, end, k); // note. it is still `k`, not something like k-p.
+}
+
+/**
+ * group a list into two parts: those less than a certain element, and those
+ * greater than or equal to the element.
+ *
+ * Return: the index of the first element that is equal to the pivot element.
+ */
+int partition(vector&lt;int&gt; &amp;nums, int start, int end, int pivot) {
+  int pV = nums[pivot];
+  int smallIndex = start;
+  swap(nums[end], nums[pivot]);
+  for (int i = start; i &lt; end; i++) {
+    if (nums[i] &lt; pV) swap(nums[i], nums[smallIndex++]);
+  }
+  swap(nums[end], nums[smallIndex]);
+  return smallIndex;
+}
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/standards/declarations/initializers.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../../cpp/algorithms/sort/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/standards/template/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../../cpp/algorithms/queue.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -203,11 +230,11 @@ auto, the compiler automatically generates a template.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/standards/declarations/initializers.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../../cpp/algorithms/sort/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/standards/template/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../../cpp/algorithms/queue.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
