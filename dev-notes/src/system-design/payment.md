@@ -19,6 +19,32 @@ delivered, the seller initiates a pay-out. Only then is the money transferred
 from the e-commerce website's bank account to the seller's bank account.
 Tipalti is a popular payout service provider.
 
+### PCI DSS
+
+PCI DSS stands for "Payment Card Industry Data Security Standard". Basically,
+it means that if your business needs to deal with customer payment information
+such as account number, CVV/CVC code, magnetic stripe data, etc, then your
+system must be compliant with PCI DSS.
+
+PCI DSS requires you store and transmit these information security, also
+satisfy audit requirements. This is a big effort including network infra
+security, data protection & encryption, access/permission control,
+monitoring&alerting, and etc. Most merchants won't pay this cost, and they turn
+to 3rd party provider such as Stripe. This is called payment gateway. Instead
+of asking customer to enter card info and store the data in merchants'
+database, the merchant website loads payment gateway's embedded JS sdk, or
+jumps to payment gateway's website to collect payment info. The information is
+directly submitted to payment gateway, and it returns a token to the merchant
+server. Then merchant server uses this token to submit payment.
+
+```
+Client → Payment Gateway (Stripe / Adyen / Braintree)
+                   ↓
+               Token (tok_abc123)
+                   ↓
+            Your Backend (out of PCI scope)
+```
+
 ### Ledger
 
 ## Design Amazon
