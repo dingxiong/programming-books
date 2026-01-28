@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-4c0a9ec1.js";
+            window.path_to_searchindex_js = "searchindex-cc0da3d6.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-b9e514f9.js"></script>
@@ -3101,6 +3101,27 @@ PayPal, Square and Stripe.</p>
 delivered, the seller initiates a pay-out. Only then is the money transferred
 from the e-commerce website’s bank account to the seller’s bank account.
 Tipalti is a popular payout service provider.</p>
+<h3 id="pci-dss"><a class="header" href="#pci-dss">PCI DSS</a></h3>
+<p>PCI DSS stands for “Payment Card Industry Data Security Standard”. Basically,
+it means that if your business needs to deal with customer payment information
+such as account number, CVV/CVC code, magnetic stripe data, etc, then your
+system must be compliant with PCI DSS.</p>
+<p>PCI DSS requires you store and transmit these information security, also
+satisfy audit requirements. This is a big effort including network infra
+security, data protection &amp; encryption, access/permission control,
+monitoring&amp;alerting, and etc. Most merchants won’t pay this cost, and they turn
+to 3rd party provider such as Stripe. This is called payment gateway. Instead
+of asking customer to enter card info and store the data in merchants’
+database, the merchant website loads payment gateway’s embedded JS sdk, or
+jumps to payment gateway’s website to collect payment info. The information is
+directly submitted to payment gateway, and it returns a token to the merchant
+server. Then merchant server uses this token to submit payment.</p>
+<pre><code>Client → Payment Gateway (Stripe / Adyen / Braintree)
+                   ↓
+               Token (tok_abc123)
+                   ↓
+            Your Backend (out of PCI scope)
+</code></pre>
 <h3 id="ledger"><a class="header" href="#ledger">Ledger</a></h3>
 <h2 id="design-amazon"><a class="header" href="#design-amazon">Design Amazon</a></h2>
 <h3 id="payment-schemas"><a class="header" href="#payment-schemas">Payment Schemas</a></h3>
