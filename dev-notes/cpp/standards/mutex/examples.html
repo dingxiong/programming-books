@@ -38,7 +38,7 @@
             const path_to_root = "../../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../../searchindex-8c67a44a.js";
+            window.path_to_searchindex_js = "../../../searchindex-26611088.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../../toc-3ee45aa7.js"></script>
@@ -210,6 +210,61 @@ private:
 };
 
 </code></pre>
+<p>Note that we notify before unlock. This is fine with a little bit performance
+penalty. What happened is</p>
+<pre><code>Time | Producer              | Consumer (waiting)
+-----|----------------------|-------------------------
+T1   | lock()               |
+T2   | data_ready = true    |
+T3   | notify_one()         | (still holding lock)
+T4   |                      | wakes up
+T5   |                      | tries lock() → BLOCKS (producer has it)
+T6   | unlock()             |
+T7   |                      | lock() succeeds
+T8   |                      | processes data
+</code></pre>
+<p>Disadvantages:</p>
+<ul>
+<li>⚠️ <strong>Less efficient</strong> - notified thread wakes but immediately blocks on the
+mutex</li>
+<li>⚠️ <strong>Wasted context switch</strong> - thread wakes just to sleep again on the mutex</li>
+</ul>
+<p>Usually we prefer unlock before notify.</p>
+<pre><code>Time | Producer              | Consumer (waiting)
+-----|----------------------|-------------------------
+T1   | lock()               |
+T2   | data_ready = true    |
+T3   | unlock()             | (sleeping)
+T4   | notify_one()         |
+T5   |                      | wakes up
+T6   |                      | tries lock() → SUCCESS immediately
+T7   |                      | processes data
+</code></pre>
+<h2 id="concurrent-cache"><a class="header" href="#concurrent-cache">Concurrent Cache</a></h2>
+<pre><code>class Cache {
+public:
+    bool get(int key, int&amp; value) {
+        std::shared_lock&lt;std::shared_mutex&gt; lock(mtx);
+        auto it = map.find(key);
+        if (it == map.end()) return false;
+        value = it-&gt;second;
+        return true;
+    }
+
+    void put(int key, int value) {
+        std::lock_guard&lt;std::shared_mutex&gt; lock(mtx);
+        map[key] = value;
+    }
+
+private:
+    std::unordered_map&lt;int, int&gt; map;
+    std::shared_mutex mtx;
+};
+</code></pre>
+<ul>
+<li>Use <code>shared_mutex</code> instead of <code>mutex</code>.</li>
+<li>We can do better, each hash bucket should has its own lock.</li>
+</ul>
 
                     </main>
 
