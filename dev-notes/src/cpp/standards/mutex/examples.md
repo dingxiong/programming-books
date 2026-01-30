@@ -70,3 +70,30 @@ T5   |                      | wakes up
 T6   |                      | tries lock() → SUCCESS immediately
 T7   |                      | processes data
 ```
+
+## Concurrent Cache
+
+```
+class Cache {
+public:
+    bool get(int key, int& value) {
+        std::shared_lock<std::shared_mutex> lock(mtx);
+        auto it = map.find(key);
+        if (it == map.end()) return false;
+        value = it->second;
+        return true;
+    }
+
+    void put(int key, int value) {
+        std::lock_guard<std::shared_mutex> lock(mtx);
+        map[key] = value;
+    }
+
+private:
+    std::unordered_map<int, int> map;
+    std::shared_mutex mtx;
+};
+```
+
+- Use `shared_mutex` instead of `mutex`.
+- We can do better, each hash bucket should has its own lock.
