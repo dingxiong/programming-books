@@ -45,6 +45,8 @@
     - [Exception](cpp/standards/exception/README.md)
     - [unordered_map](cpp/standards/unordred-map.md)
     - [iostream](cpp/standards/iostream.md)
+    - [Mutex](cpp/standards/mutex/README.md)
+      - [Examples](cpp/standards/mutex/examples.md)
   - [Competitive Programming](cpp/algorithms/README.md)
     - [Sort](cpp/algorithms/sort/README.md)
       - [Quick Select](cpp/algorithms/sort/quick-select.md)
