@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cc0da3d6.js";
+            window.path_to_searchindex_js = "searchindex-cd91d8d7.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-b9e514f9.js"></script>
+        <script src="toc-3ee45aa7.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1263,6 +1263,119 @@ Second, <code>a</code> has valid value, <code>b</code> and <code>c</code> is unt
 returns true in the end;</p>
 </li>
 </ol>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="mutex"><a class="header" href="#mutex">Mutex</a></h1>
+<p>Why name it <code>unique_lock</code>? Because we have <code>shared_lock</code> as well. This
+corresponds to <code>unique_ptr</code> and <code>shared_ptr</code>. Note, <code>condition_variable</code> only
+accept <code>unique_lock</code>.</p>
+<h2 id="why-we-need-stdcondition_variable"><a class="header" href="#why-we-need-stdcondition_variable">Why we need <code>std::condition_variable</code></a></h2>
+<p><code>std::mutex.lock()</code> is blocking and returns when some other thread unlocks this
+mutex, so it can effectively signal that some resource is ready. Then why we
+need <code>std::condition_variable</code>?</p>
+<p>Suppose we are implementing a concurrent queue, and for the <code>get</code> method, you
+have a naive implementation pseudocode below.</p>
+<pre><code class="language-cpp">std::mutex mtx;
+vector&lt;T&gt; q;
+
+void put(T item) {
+  mtx.lock(); q.push_back(item); mtx.unlock();
+}
+
+T get() {
+  mtx.lock(); auto item = q[0]; mtx.unlock();
+  return item;
+}
+</code></pre>
+<p>The won’t work because the <code>get</code> thread cannot guarantee the queue is non-empty
+when it successfully gets the lock. This is the nature of mutex. There is no
+guarantee of which thread can get the lock first and in which order. To fix it,
+you have a second version below.</p>
+<pre><code class="language-cpp">T get() {
+  mtx.lock();
+  while (q.empty() {
+    mtx.unlock();
+    sleep(100ms);
+    mtx.lock();
+  }
+  auto item = q[0];
+  mtx.unlock();
+  return item;
+}
+</code></pre>
+<p>It pulls the status of the queue periodically. Why we need the sleep step in
+the loop? Without it, it is possible that this consumer thread immediately
+locks the mutex again after unlock, so the producer thread may never get the
+lock. This is inefficient. We need a semantics that put the current thread in a
+waiting list and only wakes up if the other thread tells it to wake up,
+something like below.</p>
+<pre><code class="language-cpp">  while (q.empty() {
+    mtx.unlock();
+    sleep_until_notified();
+    mtx.lock();
+  }
+</code></pre>
+<p>But this code is not thread-safe. Between <code>mutx.unlock()</code> and
+<code>sleep_until_notified()</code>, the other thread might have add the new item to the
+queue and sent out the notification, so this thread will never receives the
+notification and will sleep forever. What we need is
+<code>atomically_unlock_and_sleep()</code>.</p>
+<pre><code class="language-cpp">  while (q.empty() {
+    atomically_unlock_and_sleep();
+    mtx.lock();
+  }
+</code></pre>
+<p>This is exact what <code>condition_variable::wait</code> does.</p>
+<pre><code class="language-cpp">T get() {
+  unique_lock&lt;std::mutex&gt; lock(mtx);
+  cv.wait(lock, [&amp;q](){ return not q.empty(); });
+  auto item = q[0];
+  lock.unlock();
+  return item;
+}
+</code></pre>
+<h2 id="wrappers-on-top-of-pthread"><a class="header" href="#wrappers-on-top-of-pthread">Wrappers on top of pthread.</a></h2>
+<p>C++ mutex and condition_variable apis are just wrappers on top of pthread api:</p>
+<ul>
+<li><code>pthread_mutex_lock</code>, <code>pthread_mutex_unlock</code>.</li>
+<li><code>pthread_cond_wait</code>, <code>pthread_cond_signal</code>, <code>pthread_cond_broadcast</code>. For
+example, see
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/condition_variable.cpp#L27">source code</a>.</li>
+</ul>
+<p>In Linux, they are all implemented using <code>futex</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="examples"><a class="header" href="#examples">Examples</a></h1>
+<h2 id="concurrent-queue"><a class="header" href="#concurrent-queue">Concurrent Queue</a></h2>
+<pre><code class="language-cpp">template&lt;typename T&gt;
+class ThreadSafeQueue {
+public:
+    explicit ThreadSafeQueue(size_t cap) : capacity(cap) {}
+
+    void push(T item) {
+        std::unique_lock&lt;std::mutex&gt; lock(mtx);
+        not_full.wait(lock, [&amp;]{ return q.size() &lt; capacity; });
+
+        q.push(std::move(item));
+        not_empty.notify_one();
+    }
+
+    T pop() {
+        std::unique_lock&lt;std::mutex&gt; lock(mtx);
+        not_empty.wait(lock, [&amp;]{ return !q.empty(); });
+
+        T item = std::move(q.front());
+        q.pop();
+        not_full.notify_one();
+        return item;
+    }
+
+private:
+    std::queue&lt;T&gt; q;
+    size_t capacity;
+    std::mutex mtx;
+    std::condition_variable not_empty, not_full;
+};
+
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="competitive-programming"><a href="#competitive-programming" class="header">Competitive Programming</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
