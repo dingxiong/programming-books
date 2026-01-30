@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cd91d8d7.js";
+            window.path_to_searchindex_js = "searchindex-8c67a44a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3ee45aa7.js"></script>
@@ -1337,11 +1337,11 @@ notification and will sleep forever. What we need is
 <p>C++ mutex and condition_variable apis are just wrappers on top of pthread api:</p>
 <ul>
 <li><code>pthread_mutex_lock</code>, <code>pthread_mutex_unlock</code>.</li>
-<li><code>pthread_cond_wait</code>, <code>pthread_cond_signal</code>, <code>pthread_cond_broadcast</code>. For
-example, see
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/condition_variable.cpp#L27">source code</a>.</li>
+<li><code>pthread_cond_wait</code>, <code>pthread_cond_signal</code>, <code>pthread_cond_broadcast</code>.</li>
 </ul>
-<p>In Linux, they are all implemented using <code>futex</code>.</p>
+<p>For example, see
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/condition_variable.cpp#L27">source code</a>.
+In Linux, they are all implemented using <code>futex</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="examples"><a class="header" href="#examples">Examples</a></h1>
 <h2 id="concurrent-queue"><a class="header" href="#concurrent-queue">Concurrent Queue</a></h2>
