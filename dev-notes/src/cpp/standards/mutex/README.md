@@ -96,3 +96,20 @@ C++ mutex and condition_variable apis are just wrappers on top of pthread api:
 For example, see
 [source code](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/condition_variable.cpp#L27).
 In Linux, they are all implemented using `futex`.
+
+## shared_mutex and shared_lock
+
+The declaration of `shared_mutex` is
+[here](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/shared_mutex#L156)
+and implementation is
+[here](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/shared_mutex.cpp#L22).
+The mechanism is straightforward. It has a single `__status_` field that encode
+both whether write entered or the number of concurrent reads. This is very
+smart. The two condition variables `__gate1_` and `__gate2_` correspond to two
+different notification cases. You can figure it out by reading the
+implementation.
+
+`shared_lock` is just a RAII wrapper of `shared_mutex`.
+
+- `shared_lock` calls `lock_shared` of the wrapped mutex in constructor.
+- `unique_lock` calls `lock` of the wrapped mutex in constructor.
