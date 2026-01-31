@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ef72c58b.js";
+            window.path_to_searchindex_js = "searchindex-aaa2a85a.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-3ee45aa7.js"></script>
+        <script src="toc-ebbe86be.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2871,6 +2871,53 @@ for (int mask = 1; mask &lt; (1&lt;&lt;n); mask++) {
     }
 }
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="boyer-moore-voting-algorithm"><a class="header" href="#boyer-moore-voting-algorithm">Boyer-Moore Voting Algorithm</a></h1>
+<p>Suppose you have an array and it has a majority element, i.e., an item that
+shows up more than n/2 times in the array. Here <code>n</code> is the size of the array.
+How could you find this majority element using linear time and constant space?</p>
+<p>Boyer-Moore algorithm is a smart way to solve this problem. The core insight is
+if you pair up each occurrence of the majority element with a different element
+and cancel them out, the majority element will still have unpaired occurrences
+left over because it appears more than half the time. See the pseudocode below.</p>
+<pre><code>candidate = null
+count = 0
+
+for each element in array:
+    if count == 0:
+        candidate = element
+        count = 1
+    else if element == candidate:
+        count++
+    else:
+        count--
+</code></pre>
+<p>See below example. The vertical bar is the place <code>count</code> becomes zero, and we
+need select a new candidate.</p>
+<pre><code>[7, 7, 5, 7, 5, 1 | 5, 7 | 5, 5, 7, 7 | 7, 7, 7, 7]
+</code></pre>
+<p>It is easy to prove it mathematically. Suppose <code>n</code> is the array size, and the
+majority element has count <code>c &gt; n/2</code>. The first <code>2m</code> elements cancel out. There
+are two cases.</p>
+<ul>
+<li>
+<p>The current candidate is the majority element, so <code>m</code> majority elements are
+cancelled. In the rest array of length <code>n-2m</code> we have <code>c-m</code> majority element.
+But still <code>c-m &gt; (n-2m)/2</code>. It is still the majority element in the remaining
+array.</p>
+</li>
+<li>
+<p>The current candidate is not the majority element. Then out of the cancelled
+<code>2m</code> items, less or equal <code>m</code> elements are the true majority element. This is
+more favorable compared to case 1.</p>
+</li>
+</ul>
+<p>This match formula may go against intuition. You may think that there may be a
+“close-to-majority” item in the array. For example, if majority item count is
+6, and this “close-to-majority” has count 4 whatever. Then in the cancelled
+<code>2m</code> items, <code>m</code> items are the majority item, but the rest <code>m</code> items are not the
+“close-to-majority” items. Then after cancelling, shouldn’t the
+“close-to-majority” item become majority in the rest of the array?</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="build-from-source"><a class="header" href="#build-from-source">Build from source</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>

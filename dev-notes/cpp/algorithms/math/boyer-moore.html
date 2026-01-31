@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Mutex - Life as a Programmer</title>
+        <title>Boyer-Moore Voting Algorithm - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -177,109 +177,62 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="mutex"><a class="header" href="#mutex">Mutex</a></h1>
-<p>Why name it <code>unique_lock</code>? Because we have <code>shared_lock</code> as well. This
-corresponds to <code>unique_ptr</code> and <code>shared_ptr</code>. Note, <code>condition_variable</code> only
-accept <code>unique_lock</code>.</p>
-<h2 id="why-we-need-stdcondition_variable"><a class="header" href="#why-we-need-stdcondition_variable">Why we need <code>std::condition_variable</code></a></h2>
-<p><code>std::mutex.lock()</code> is blocking and returns when some other thread unlocks this
-mutex, so it can effectively signal that some resource is ready. Then why we
-need <code>std::condition_variable</code>?</p>
-<p>Suppose we are implementing a concurrent queue, and for the <code>get</code> method, you
-have a naive implementation pseudocode below.</p>
-<pre><code class="language-cpp">std::mutex mtx;
-vector&lt;T&gt; q;
+                        <h1 id="boyer-moore-voting-algorithm"><a class="header" href="#boyer-moore-voting-algorithm">Boyer-Moore Voting Algorithm</a></h1>
+<p>Suppose you have an array and it has a majority element, i.e., an item that
+shows up more than n/2 times in the array. Here <code>n</code> is the size of the array.
+How could you find this majority element using linear time and constant space?</p>
+<p>Boyer-Moore algorithm is a smart way to solve this problem. The core insight is
+if you pair up each occurrence of the majority element with a different element
+and cancel them out, the majority element will still have unpaired occurrences
+left over because it appears more than half the time. See the pseudocode below.</p>
+<pre><code>candidate = null
+count = 0
 
-void put(T item) {
-  mtx.lock(); q.push_back(item); mtx.unlock();
-}
-
-T get() {
-  mtx.lock(); auto item = q[0]; mtx.unlock();
-  return item;
-}
+for each element in array:
+    if count == 0:
+        candidate = element
+        count = 1
+    else if element == candidate:
+        count++
+    else:
+        count--
 </code></pre>
-<p>The won’t work because the <code>get</code> thread cannot guarantee the queue is non-empty
-when it successfully gets the lock. This is the nature of mutex. There is no
-guarantee of which thread can get the lock first and in which order. To fix it,
-you have a second version below.</p>
-<pre><code class="language-cpp">T get() {
-  mtx.lock();
-  while (q.empty() {
-    mtx.unlock();
-    sleep(100ms);
-    mtx.lock();
-  }
-  auto item = q[0];
-  mtx.unlock();
-  return item;
-}
+<p>See below example. The vertical bar is the place <code>count</code> becomes zero, and we
+need select a new candidate.</p>
+<pre><code>[7, 7, 5, 7, 5, 1 | 5, 7 | 5, 5, 7, 7 | 7, 7, 7, 7]
 </code></pre>
-<p>It pulls the status of the queue periodically. Why we need the sleep step in
-the loop? Without it, it is possible that this consumer thread immediately
-locks the mutex again after unlock, so the producer thread may never get the
-lock. This is inefficient. We need a semantics that put the current thread in a
-waiting list and only wakes up if the other thread tells it to wake up,
-something like below.</p>
-<pre><code class="language-cpp">  while (q.empty() {
-    mtx.unlock();
-    sleep_until_notified();
-    mtx.lock();
-  }
-</code></pre>
-<p>But this code is not thread-safe. Between <code>mutx.unlock()</code> and
-<code>sleep_until_notified()</code>, the other thread might have add the new item to the
-queue and sent out the notification, so this thread will never receives the
-notification and will sleep forever. What we need is
-<code>atomically_unlock_and_sleep()</code>.</p>
-<pre><code class="language-cpp">  while (q.empty() {
-    atomically_unlock_and_sleep();
-    mtx.lock();
-  }
-</code></pre>
-<p>This is exact what <code>condition_variable::wait</code> does.</p>
-<pre><code class="language-cpp">T get() {
-  unique_lock&lt;std::mutex&gt; lock(mtx);
-  cv.wait(lock, [&amp;q](){ return not q.empty(); });
-  auto item = q[0];
-  lock.unlock();
-  return item;
-}
-</code></pre>
-<h2 id="wrappers-on-top-of-pthread"><a class="header" href="#wrappers-on-top-of-pthread">Wrappers on top of pthread.</a></h2>
-<p>C++ mutex and condition_variable apis are just wrappers on top of pthread api:</p>
+<p>It is easy to prove it mathematically. Suppose <code>n</code> is the array size, and the
+majority element has count <code>c &gt; n/2</code>. The first <code>2m</code> elements cancel out. There
+are two cases.</p>
 <ul>
-<li><code>pthread_mutex_lock</code>, <code>pthread_mutex_unlock</code>.</li>
-<li><code>pthread_cond_wait</code>, <code>pthread_cond_signal</code>, <code>pthread_cond_broadcast</code>.</li>
+<li>
+<p>The current candidate is the majority element, so <code>m</code> majority elements are
+cancelled. In the rest array of length <code>n-2m</code> we have <code>c-m</code> majority element.
+But still <code>c-m &gt; (n-2m)/2</code>. It is still the majority element in the remaining
+array.</p>
+</li>
+<li>
+<p>The current candidate is not the majority element. Then out of the cancelled
+<code>2m</code> items, less or equal <code>m</code> elements are the true majority element. This is
+more favorable compared to case 1.</p>
+</li>
 </ul>
-<p>For example, see
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/condition_variable.cpp#L27">source code</a>.
-In Linux, they are all implemented using <code>futex</code>.</p>
-<h2 id="shared_mutex-and-shared_lock"><a class="header" href="#shared_mutex-and-shared_lock">shared_mutex and shared_lock</a></h2>
-<p>The declaration of <code>shared_mutex</code> is
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/shared_mutex#L156">here</a>
-and implementation is
-<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/src/shared_mutex.cpp#L22">here</a>.
-The mechanism is straightforward. It has a single <code>__status_</code> field that encode
-both whether write entered or the number of concurrent reads. This is very
-smart. The two condition variables <code>__gate1_</code> and <code>__gate2_</code> correspond to two
-different notification cases. You can figure it out by reading the
-implementation.</p>
-<p><code>shared_lock</code> is just a RAII wrapper of <code>shared_mutex</code>.</p>
-<ul>
-<li><code>shared_lock</code> calls <code>lock_shared</code> of the wrapped mutex in constructor.</li>
-<li><code>unique_lock</code> calls <code>lock</code> of the wrapped mutex in constructor.</li>
-</ul>
+<p>This match formula may go against intuition. You may think that there may be a
+“close-to-majority” item in the array. For example, if majority item count is
+6, and this “close-to-majority” has count 4 whatever. Then in the cancelled
+<code>2m</code> items, <code>m</code> items are the majority item, but the rest <code>m</code> items are not the
+“close-to-majority” items. Then after cancelling, shouldn’t the
+“close-to-majority” item become majority in the rest of the array?</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/standards/iostream.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../../cpp/algorithms/math/incl-excl.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/standards/mutex/examples.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../../codesource/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -289,11 +242,11 @@ implementation.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/standards/iostream.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../../cpp/algorithms/math/incl-excl.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/standards/mutex/examples.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../../codesource/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>
