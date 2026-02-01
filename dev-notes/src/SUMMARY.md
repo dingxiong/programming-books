@@ -74,6 +74,7 @@
       - [Bit Operation](cpp/algorithms/math/bits.md)
       - [Inclusion-Exclusion Principle](cpp/algorithms/math/incl-excl.md)
       - [Boyer-Moore Voting Algorithm](cpp/algorithms/math/boyer-moore.md)
+      - [Fisher–Yates Shuffle](cpp/algorithms/math/fisher-yates.md)
 
 - [Source code](codesource/README.md)
   - [curl](codesource/curl.md)
