@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Utility Functions - Life as a Programmer</title>
+        <title>Fisher–Yates Shuffle - Life as a Programmer</title>
 
 
         <!-- Custom HTML head -->
@@ -177,78 +177,34 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="utility-functions"><a class="header" href="#utility-functions">Utility Functions</a></h1>
-<h2 id="gcd-greatest-common-divisor-and-lcm-least-common-multiplier"><a class="header" href="#gcd-greatest-common-divisor-and-lcm-least-common-multiplier">GCD (Greatest Common Divisor) and LCM (Least Common Multiplier)</a></h2>
-<p>Both <code>std::gcd</code> and <code>std::lcm</code> were introduced in c++17, so most time, you do
-not need to implement them by themself. However, for reference, see below
-one-liner implementation for <code>gcd</code>.</p>
-<pre><code class="language-cpp">int gcd(int a, int b) { return a == 0 ? b : gcd(b%a, a); };
-</code></pre>
-<p>Also, in some case, we need overflow protection, we can have below <code>lcm</code>
-implementation.</p>
-<pre><code class="language-cpp">using ll = long long;
-ll lcm(ll a, ll b, ll limit) {
-    int gcd = std::gcd(a, b);
-    if (a / gcd &gt; limit / b) return limit + 1; // return a number larger than limit indicating overflow.
-    return a / gcd * b;
-}
-</code></pre>
-<h2 id="binomial-coefficients-without-overflow"><a class="header" href="#binomial-coefficients-without-overflow">Binomial Coefficients Without Overflow</a></h2>
-<p>I asked this question to claude.ai, and it gives me quite a few good
-approaches. Here, I just list the exact Multiplicative Formula approach.</p>
-<pre><code class="language-cpp">long long binomial(int n, int k) {
-    if (k &gt; n - k) k = n - k;  // Symmetry
-
-    long long result = 1;
-    for (int i = 0; i &lt; k; i++) {
-        result = result * (n - i) / (i + 1);
+                        <h1 id="fisheryates-shuffle-algorithm"><a class="header" href="#fisheryates-shuffle-algorithm">Fisher–Yates Shuffle Algorithm.</a></h1>
+<pre><code class="language-cpp">void shuffle(vector&lt;int&gt;&amp; vec) {
+    for (int i = vec.size() - 1; i &gt; 0; --i) {
+        int j = std::rand() % (i + 1); // pick a random index from 0 to i
+        std::swap(vec[i], vec[j]);
     }
-    return result;
 }
 </code></pre>
-<p>You may wonder why <code>result * (n-i)</code> is divisible by <code>i+1</code>. This is because
-<code>C(n, k+1) = C(n, k) * (n-k) / (k+1)</code> which is guaranteed to be divisible.</p>
-<h2 id="all-dividends"><a class="header" href="#all-dividends">All dividends</a></h2>
-<p>Not all problems require linear or <code>log(N)</code> complexity, some math problems can
-have a complexity factor of <code>sqrt(N)</code>. All dividends is one of them.</p>
-<pre><code class="language-cpp">unordred_set&lt;int&gt; dividents(int x) {
-  unordred_set&lt;int&gt; ans;
-  for (int i = 1; i * i &lt;= x; i++) {
-    if (x % i != 0) continue;
-    ans.insert(i);
-    ans.insert(x/i);
-  }
-  return ans;
-}
-</code></pre>
-<h2 id="prime-factorization"><a class="header" href="#prime-factorization">Prime Factorization</a></h2>
-<pre><code class="language-cpp">vector&lt;int&gt; primeFactorization(int n) {
-    vector&lt;int&gt; factors;
-
-    while (n % 2 == 0) { factors.push_back(2); n = n / 2; }
-    for (int i = 3; i * i &lt;= n; i += 2) {
-        while (n % i == 0) { factors.push_back(i); n = n / i; }
-    }
-
-    if (n &gt; 1) factors.push_back(n);
-    return factors;
-}
-</code></pre>
-<h2 id="harmonic-series"><a class="header" href="#harmonic-series">Harmonic Series</a></h2>
-<p>This is related to all dividends, some math problem may have complexity
-<code>N + N/2 + N/3 + .. + N/N</code>. This is called [Harmonic
-Series](https://en.wikipedia.org/wiki/Harmonic_series_(mathematics) which has
-complexity <code>log(N)</code>.</p>
+<p>Basically, it iterates from right to left and swap the current item with any
+one in front including itself.</p>
+<p>Why is this correct? Remember shuffle is the process that generates each
+possible permutation of <code>n</code> elements with exactly equal probability <code>1/n!</code>.
+Fisher-Yates’ algorithm can be proved using induction. It is obvious true for
+<code>n=1</code>. Suppose it is true for <code>n-1</code>. Then, for <code>n</code> for any permutation
+<code>a0,a1,...,a_{n-1}</code>. The probability of <code>a_{n-1}</code> being the last item is <code>1/n</code>
+because we use <code>rand() % n</code>. And the rest <code>a0</code> to <code>a_{n-2}</code> configuration has
+probability <code>1/(n-1)!</code>. Therefore the overall probability is
+<code>1/(n-1)! * 1/n = 1/n!</code>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../../cpp/algorithms/math/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../../../cpp/algorithms/math/boyer-moore.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                             </a>
 
-                            <a rel="next prefetch" href="../../../cpp/algorithms/math/little-theorem.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../../../codesource/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                             </a>
 
@@ -258,11 +214,11 @@ complexity <code>log(N)</code>.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../../cpp/algorithms/math/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../../../cpp/algorithms/math/boyer-moore.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
                     </a>
 
-                    <a rel="next prefetch" href="../../../cpp/algorithms/math/little-theorem.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../../../codesource/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
                     </a>
             </nav>

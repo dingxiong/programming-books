@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-aaa2a85a.js";
+            window.path_to_searchindex_js = "searchindex-fff9fbd3.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-ebbe86be.js"></script>
+        <script src="toc-d3592ff8.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -2918,6 +2918,25 @@ more favorable compared to case 1.</p>
 <code>2m</code> items, <code>m</code> items are the majority item, but the rest <code>m</code> items are not the
 “close-to-majority” items. Then after cancelling, shouldn’t the
 “close-to-majority” item become majority in the rest of the array?</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="fisheryates-shuffle-algorithm"><a class="header" href="#fisheryates-shuffle-algorithm">Fisher–Yates Shuffle Algorithm.</a></h1>
+<pre><code class="language-cpp">void shuffle(vector&lt;int&gt;&amp; vec) {
+    for (int i = vec.size() - 1; i &gt; 0; --i) {
+        int j = std::rand() % (i + 1); // pick a random index from 0 to i
+        std::swap(vec[i], vec[j]);
+    }
+}
+</code></pre>
+<p>Basically, it iterates from right to left and swap the current item with any
+one in front including itself.</p>
+<p>Why is this correct? Remember shuffle is the process that generates each
+possible permutation of <code>n</code> elements with exactly equal probability <code>1/n!</code>.
+Fisher-Yates’ algorithm can be proved using induction. It is obvious true for
+<code>n=1</code>. Suppose it is true for <code>n-1</code>. Then, for <code>n</code> for any permutation
+<code>a0,a1,...,a_{n-1}</code>. The probability of <code>a_{n-1}</code> being the last item is <code>1/n</code>
+because we use <code>rand() % n</code>. And the rest <code>a0</code> to <code>a_{n-2}</code> configuration has
+probability <code>1/(n-1)!</code>. Therefore the overall probability is
+<code>1/(n-1)! * 1/n = 1/n!</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="build-from-source"><a class="header" href="#build-from-source">Build from source</a></h1>
 <div style="break-before: page; page-break-before: always;"></div>
