@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-fff9fbd3.js";
+            window.path_to_searchindex_js = "searchindex-ed38e3b1.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-d3592ff8.js"></script>
+        <script src="toc-9fa0fbae.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -1056,6 +1056,76 @@ and it is especially true for virtual functions. For a derived virtual class,
 the first entry in the memory layout is a pointer to its vtable, then a pointer
 to its base’s vtable. If we do not explicitly declare these functions in the
 derived class, then it won’t show up in vtable!</p>
+<div style="break-before: page; page-break-before: always;"></div>
+<h1 id="pointer-to-member-operator"><a class="header" href="#pointer-to-member-operator">Pointer to Member Operator</a></h1>
+<p>Even I have being writing C++ for over 10 years, I still miss a lot of basic
+syntax of C++. Today, I am about to cover pointer-to-member operator. See the
+standard <a href="https://eel.is/c++draft/expr.mptr.oper">expr.mptr.oper</a>. It is hard
+to see what is going on with <code>.*</code> and <code>-&gt;*</code> without any examples. Fortunately,
+cppconference has quite a lot of
+<a href="https://en.cppreference.com/w/cpp/language/pointer.html">examples</a>.</p>
+<pre><code class="language-cpp">struct C { int m; };
+
+int main() {
+    int C::* p = &amp;C::m;          // pointer to data member m of class C
+    C c = {7};
+    std::cout &lt;&lt; c.*p &lt;&lt; '\n';   // prints 7
+    C* cp = &amp;c;
+    cp-&gt;m = 10;
+    std::cout &lt;&lt; cp-&gt;*p &lt;&lt; '\n'; // prints 10
+}
+</code></pre>
+<p>See the <code>c.*p</code> and <code>cp-&gt;*p</code> above. Tbh, this is my first time seeing a
+pointer-to-member type <code>int C::*</code>. If you take a few seconds to think about
+this syntax, then it makes total sense, right? A regular pointer is declared as
+<code>int *</code>, now with class members, we prefix <code>*</code> with <code>C::</code>.</p>
+<p>Similar syntax exists for member function as well. Check the examples in the
+link above.</p>
+<p>How could this be useful? Claude tells me it is useful for generic programming.</p>
+<pre><code class="language-cpp">struct Person {
+    std::string name;
+    int age;
+};
+
+void print(const Person&amp; p, std::string Person::* field) {
+    std::cout &lt;&lt; p.*field &lt;&lt; '\n';
+}
+
+Person person{"Alice", 30};
+print(person, &amp;Person::name);  // prints "Alice"
+</code></pre>
+<p>Tbh, I do not think it is too useful.</p>
+<h2 id="member-function-has-no-implicit-convention"><a class="header" href="#member-function-has-no-implicit-convention">Member function has no implicit convention</a></h2>
+<p>The most common implicit convention in cpp is array-to-pointer and
+function-to-pointer convention. LLVM semantic analysis has dedicated function
+for this step
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/clang/lib/Sema/SemaExpr.cpp#L517">DefaultFunctionArrayConversion</a>.</p>
+<p>But if you read the footnote of
+<a href="https://eel.is/c++draft/conv#footnote-41">standard</a>, it says</p>
+<blockquote>
+<p>This conversion never applies to non-static member functions because an
+lvalue that refers to a non-static member function cannot be obtained.</p>
+</blockquote>
+<p>That is why in the above example code, you need to write <code>&amp;C::m</code>, but not
+<code>C::m</code>. This rule sometimes creates unnecessary confusions. For example,</p>
+<pre><code class="language-cpp">void free_func(int x) { }
+
+auto f1 = std::bind(free_func, 1);     // OK - implicit conversion
+auto f2 = std::bind(&amp;free_func, 1);    // Also OK - explicit address
+
+
+struct Obj {
+    void member_func(int x) { }
+};
+
+Obj obj;
+auto mf1 = std::bind(&amp;Obj::member_func, &amp;obj, 1);  // Must use &amp;
+</code></pre>
+<p>What to blame? Not C++. It is C’s fault. C++ has no choice to make it
+compatible. This
+<a href="https://stackoverflow.com/questions/72166787/why-there-is-no-implicit-conversions-to-pointers-of-member-functions?utm_source=chatgpt.com">stackoverflow post</a>
+has a good point why this implicit convention is bad. Without decaying to a
+lvalue, code like <code>if (MyClass::MyFunc)</code> won’t compile.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="name-mangling"><a class="header" href="#name-mangling">Name Mangling</a></h1>
 <p>Today, I learnt something about C++ name mangling from book “Linkers and
