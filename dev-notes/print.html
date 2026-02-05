@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-ed38e3b1.js";
+            window.path_to_searchindex_js = "searchindex-49a6a27f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9fa0fbae.js"></script>
@@ -1094,7 +1094,7 @@ void print(const Person&amp; p, std::string Person::* field) {
 Person person{"Alice", 30};
 print(person, &amp;Person::name);  // prints "Alice"
 </code></pre>
-<p>Tbh, I do not think it is too useful.</p>
+<p>Tbh, I do not think anyone will write code this way.</p>
 <h2 id="member-function-has-no-implicit-convention"><a class="header" href="#member-function-has-no-implicit-convention">Member function has no implicit convention</a></h2>
 <p>The most common implicit convention in cpp is array-to-pointer and
 function-to-pointer convention. LLVM semantic analysis has dedicated function
@@ -1121,11 +1121,11 @@ struct Obj {
 Obj obj;
 auto mf1 = std::bind(&amp;Obj::member_func, &amp;obj, 1);  // Must use &amp;
 </code></pre>
-<p>What to blame? Not C++. It is C’s fault. C++ has no choice to make it
+<p>Who to blame? Not C++. It is C’s fault. C++ has no choice but to make it
 compatible. This
 <a href="https://stackoverflow.com/questions/72166787/why-there-is-no-implicit-conversions-to-pointers-of-member-functions?utm_source=chatgpt.com">stackoverflow post</a>
-has a good point why this implicit convention is bad. Without decaying to a
-lvalue, code like <code>if (MyClass::MyFunc)</code> won’t compile.</p>
+has a good point why this implicit convention is bad. Without decaying member
+function to a lvalue, code like <code>if (MyClass::MyFunc)</code> won’t compile.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="name-mangling"><a class="header" href="#name-mangling">Name Mangling</a></h1>
 <p>Today, I learnt something about C++ name mangling from book “Linkers and
