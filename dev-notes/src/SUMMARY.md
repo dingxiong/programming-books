@@ -41,6 +41,7 @@
       - [CTAD](cpp/standards/template/ctad.md)
     - [Class](cpp/standards/class/README.md)
       - [class.mfct](cpp/standards/class/mfct.md)
+      - [Pointer to Member Operator](cpp/standards/class/pointer-to-member-operator.md)
     - [Name Mangling](cpp/standards/name-mangling/README.md)
     - [Exception](cpp/standards/exception/README.md)
     - [unordered_map](cpp/standards/unordred-map.md)
