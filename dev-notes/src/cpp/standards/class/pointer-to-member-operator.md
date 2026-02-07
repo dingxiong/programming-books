@@ -82,3 +82,28 @@ compatible. This
 [stackoverflow post](https://stackoverflow.com/questions/72166787/why-there-is-no-implicit-conversions-to-pointers-of-member-functions?utm_source=chatgpt.com)
 has a good point why this implicit convention is bad. Without decaying member
 function to a lvalue, code like `if (MyClass::MyFunc)` won't compile.
+
+## std::invoke
+
+Pointer-to-member types are closely related to another ubiquitous utility
+function `std::invoke`. The LLVM implementation is
+[here](https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__type_traits/invoke.h#L124).
+You see the comment "bullets xxx", which corresponding to the 7 cases of
+`std::invoke` in the standard
+[func.require](https://eel.is/c++draft/func.require).
+
+- Case 1-3: this is about pointer to member function types.
+- Case 4-6: this is about pointer to member data types.
+- Case 7: the reset, i.e., regular function call.
+
+I can understand case 1-3 and 7 be useful, but 4-6 seems simple field
+extraction, not sure how useful it could be. I am interested in `std::invoke`
+because recently I am practicing multi-threading programming. `std::thread`'s
+constructor
+
+```
+template< class F, class... Args >
+explicit thread( F&& f, Args&&... args );
+```
+
+calls `std::invoke` underneath.
