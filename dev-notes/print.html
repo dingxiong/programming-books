@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-99f8ba15.js";
+            window.path_to_searchindex_js = "searchindex-289abbd7.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9fa0fbae.js"></script>
@@ -1126,6 +1126,26 @@ compatible. This
 <a href="https://stackoverflow.com/questions/72166787/why-there-is-no-implicit-conversions-to-pointers-of-member-functions?utm_source=chatgpt.com">stackoverflow post</a>
 has a good point why this implicit convention is bad. Without decaying member
 function to a lvalue, code like <code>if (MyClass::MyFunc)</code> won’t compile.</p>
+<h2 id="stdinvoke"><a class="header" href="#stdinvoke">std::invoke</a></h2>
+<p>Pointer-to-member types are closely related to another ubiquitous utility
+function <code>std::invoke</code>. The LLVM implementation is
+<a href="https://github.com/llvm/llvm-project/blob/f5f5286da3a64608b5874d70b32f955267039e1c/libcxx/include/__type_traits/invoke.h#L124">here</a>.
+You see the comment “bullets xxx”, which corresponding to the 7 cases of
+<code>std::invoke</code> in the standard
+<a href="https://eel.is/c++draft/func.require">func.require</a>.</p>
+<ul>
+<li>Case 1-3: this is about pointer to member function types.</li>
+<li>Case 4-6: this is about pointer to member data types.</li>
+<li>Case 7: the reset, i.e., regular function call.</li>
+</ul>
+<p>I can understand case 1-3 and 7 be useful, but 4-6 seems simple field
+extraction, not sure how useful it could be. I am interested in <code>std::invoke</code>
+because recently I am practicing multi-threading programming. <code>std::thread</code>’s
+constructor</p>
+<pre><code>template&lt; class F, class... Args &gt;
+explicit thread( F&amp;&amp; f, Args&amp;&amp;... args );
+</code></pre>
+<p>calls <code>std::invoke</code> underneath.</p>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="name-mangling"><a class="header" href="#name-mangling">Name Mangling</a></h1>
 <p>Today, I learnt something about C++ name mangling from book “Linkers and
