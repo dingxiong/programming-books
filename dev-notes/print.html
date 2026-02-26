@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-289abbd7.js";
+            window.path_to_searchindex_js = "searchindex-777be122.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-9fa0fbae.js"></script>
@@ -1187,7 +1187,7 @@ single-linked list of nodes and an array of bucket head.</p>
 </code></pre>
 <p>The
 <a href="https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__hash_table#L807">__bucket_list</a>
-is simply an raw array. Each array element points to a node in the listed list.
+is simply an raw array. Each array element points to a node in the linked list.
 So the nodes between <code>bucket_i</code> and <code>bucket_{i+1}</code> belong to <code>bucket_i</code>.</p>
 <p>Each node in the linked list contains a value. For <code>unordered_set</code>, its type is
 <code>class Key</code>. For <code>unordered_map</code>, it is <code>pair&lt;class Key, class Value&gt;</code>. It is
@@ -1227,7 +1227,6 @@ we can do <code>std::remove_if()</code>. In lower version, we can do</p>
         ++first;
 }
 </code></pre>
-<h2 id="stdunordered_map-1"><a class="header" href="#stdunordered_map-1"><code>std::unordered_map</code></a></h2>
 <h3 id="operator"><a class="header" href="#operator"><code>operator[]</code></a></h3>
 <p>The
 <a href="https://en.cppreference.com/w/cpp/container/unordered_map/operator_at">specification</a>
