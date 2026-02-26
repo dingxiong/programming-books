@@ -16,7 +16,7 @@ node1 --> node2 --> node3 --> ... --> node_n --> nullptr
 
 The
 [\_\_bucket_list](https://github.com/llvm/llvm-project/blob/ab6d5fa3d0643e68d6ec40d9190f20fb14190ed1/libcxx/include/__hash_table#L807)
-is simply an raw array. Each array element points to a node in the listed list.
+is simply an raw array. Each array element points to a node in the linked list.
 So the nodes between `bucket_i` and `bucket_{i+1}` belong to `bucket_i`.
 
 Each node in the linked list contains a value. For `unordered_set`, its type is
@@ -66,8 +66,6 @@ for (auto first = c.begin(), last = c.end(); first != last;) {
         ++first;
 }
 ```
-
-## `std::unordered_map`
 
 ### `operator[]`
 
