@@ -1511,7 +1511,7 @@ T6   |                      | tries lock() → SUCCESS immediately
 T7   |                      | processes data
 </code></pre>
 <h2 id="concurrent-cache"><a class="header" href="#concurrent-cache">Concurrent Cache</a></h2>
-<pre><code>class Cache {
+<pre><code class="language-cpp">class Cache {
 public:
     bool get(int key, int&amp; value) {
         std::shared_lock&lt;std::shared_mutex&gt; lock(mtx);
