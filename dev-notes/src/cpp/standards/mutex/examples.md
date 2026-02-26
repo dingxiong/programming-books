@@ -73,7 +73,7 @@ T7   |                      | processes data
 
 ## Concurrent Cache
 
-```
+```cpp
 class Cache {
 public:
     bool get(int key, int& value) {
