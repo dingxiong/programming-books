@@ -80,6 +80,7 @@
 - [Source code](codesource/README.md)
   - [curl](codesource/curl.md)
 
+<!--
 - [System Design](system-design/README.md)
   - [Real-time Marketplace](system-design/real-time-marketplace.md)
   - [File Blob Storage](system-design/file-blob-storage.md)
@@ -91,6 +92,7 @@
   - [Autocompletion](system-design/auto-completion.md)
   - [Search Engine](system-design/search-engine.md)
   - [Messaging & Chat](system-design/messaging.md)
+-->
 
 - [Machine Learning](ml/README.md)
   - [BPE](ml/bpe.md)
