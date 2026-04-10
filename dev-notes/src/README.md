@@ -13,7 +13,6 @@ software engineering.
 - Messaging queue: Kafka, RabbitMQ
 - scheduling framework: Airflow
 - Logging: Splunk, ELK
-- Metrics: datadog
 - web server: Nginx
 - load balancer: Nginx, HAproxy
 - reverse proxy: Nginx
