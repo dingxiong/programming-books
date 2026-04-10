@@ -39,10 +39,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-538dd976.js";
+            window.path_to_searchindex_js = "searchindex-ca7a9c0e.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-0a1e9d72.js"></script>
+        <script src="toc-b30c2575.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -3037,7 +3037,31 @@ accurate. To build <code>curl</code> locally, see below instructions.</p>
 bear -- make -j5
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
+<h1 id="jdk"><a class="header" href="#jdk">jdk</a></h1>
+<p>Build compilation database for hotspot. See instruction
+<a href="https://github.com/openjdk/jdk/blob/master/doc/building.md">here</a>.</p>
+<pre><code>bash configure METAL=/usr/bin/true METALLIB=/usr/bin/true
+make compile-commands-hotspot
+
+cd src/hotspot/
+ln -s ~/code/jdk/build/macosx-aarch64-server-release/compile_commands.json compile_commands.json
+</code></pre>
+<p>Todo:</p>
+<ol>
+<li>-Xbatch</li>
+<li>-Xint</li>
+<li>-XX:CompileCommand=</li>
+<li>-XX:-TieredCompilation</li>
+<li>-XX:TieredStopAtLevel=</li>
+</ol>
+<p>Finish reading
+<a href="https://eme64.github.io/blog/2024/12/24/Intro-to-C2-Part01.html">https://eme64.github.io/blog/2024/12/24/Intro-to-C2-Part01.html</a></p>
+<div style="break-before: page; page-break-before: always;"></div>
 <h1 id="machine-learning"><a class="header" href="#machine-learning">Machine Learning</a></h1>
+<p>Papers:</p>
+<ul>
+<li><a href="https://arxiv.org/pdf/2510.18212">A Definition of AGI</a></li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="bpe-byte-pair-encoding"><a class="header" href="#bpe-byte-pair-encoding">BPE (Byte Pair Encoding)</a></h1>
 <p>See <a href="https://guillaume-be.github.io/2021-09-16/byte_pair_encoding">https://guillaume-be.github.io/2021-09-16/byte_pair_encoding</a></p>
