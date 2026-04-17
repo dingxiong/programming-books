@@ -2,6 +2,7 @@
 
 [Introduction](README.md)
 
+- [Hardware](hardware/README.md)
 - [Security](security/README.md)
   - [TLS](security/tls/README.md)
     - [mTLS](security/tls/mtls.md)
