@@ -1,6 +1,6 @@
 {
   "name": "programming-books",
-  "packageManager": "yarn@4.10.3",
+  "packageManager": "yarn@4.18.1",
   "devDependencies": {
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
