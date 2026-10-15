@@ -53,6 +53,7 @@
     - [Sort](cpp/algorithms/sort/README.md)
       - [Quick Select](cpp/algorithms/sort/quick-select.md)
     - [Queue](cpp/algorithms/queue.md)
+    - [Array](cpp/algorithms/array.md)
     - [Tree, Graph](cpp/algorithms/graph/README.md)
       - [Dijkstra](cpp/algorithms/graph/dijkstra.md)
       - [Segment Tree](cpp/algorithms/graph/segment_tree.md)
@@ -82,7 +83,6 @@
   - [curl](codesource/curl.md)
   - [jdk](codesource/jdk.md)
 
-<!--
 - [System Design](system-design/README.md)
   - [Real-time Marketplace](system-design/real-time-marketplace.md)
   - [File Blob Storage](system-design/file-blob-storage.md)
@@ -94,7 +94,6 @@
   - [Autocompletion](system-design/auto-completion.md)
   - [Search Engine](system-design/search-engine.md)
   - [Messaging & Chat](system-design/messaging.md)
--->
 
 - [Machine Learning](ml/README.md)
   - [BPE](ml/bpe.md)
