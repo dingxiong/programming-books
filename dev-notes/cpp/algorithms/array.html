@@ -38,7 +38,7 @@
             const path_to_root = "../../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "../../searchindex-511172b5.js";
+            window.path_to_searchindex_js = "../../searchindex-cf8c006a.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="../../toc-3806873a.js"></script>
@@ -180,7 +180,9 @@
                         <h1 id="array"><a class="header" href="#array">Array</a></h1>
 <h2 id="difference-array"><a class="header" href="#difference-array">Difference Array</a></h2>
 <p>Codeforces has a good <a href="https://codeforces.com/blog/entry/78762">blog</a> about it.
-I think in most cases, we should use <code>+1</code> to the right endpoint to simplify code.</p>
+I think in most cases, we should use <code>+1</code> to the right endpoint to simplify code.
+The crucial idea is to explicitly create the diff array <code>vector&lt;int&gt; diff(n+1)</code>.
+Give up the idea of storing <code>{start/end, +/-1}</code> and then sort it. This is <code>O(NlogN)</code> not <code>O(N)</code>.</p>
 
                     </main>
 
