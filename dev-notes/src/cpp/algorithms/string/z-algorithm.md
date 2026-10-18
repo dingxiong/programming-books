@@ -9,7 +9,22 @@ length `n`, the Z-function of `s` is an array `Z` of length n where:
 Z[i] = max k such that s[0..k-1] == s[i..i+k-1]
 ```
 
-This reminds me about the longest proper prefix suffix array in KMP.
+This reminds me about the longest proper prefix suffix array in KMP. 
+But the critical difference is that `lps` in KMP means this length at the end of 
+of the substring, i.e., it is range `[i - lps[i] + 1, i]`. Certain problem 
+requires the start index. You can think we can easily convert the end index to 
+start index, something like 
+```
+vector<int> lps = ...;
+vector<int> start_ids(n);
+for (int i = 0; i < n; i++) {
+  int start = i - lps[i] + 1;
+  start_ids[start] = max(start_ids[start], lps[i]);
+}
+```
+But this is wrong. Not only `max` the start index, you need to max all range 
+`[start, i]`, which is an obvious `N^2` post-processing step.
+
 
 I send below prompt to claude.ai.
 
