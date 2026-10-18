@@ -39,7 +39,7 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex-cf8c006a.js";
+            window.path_to_searchindex_js = "searchindex-0ebd41c3.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-3806873a.js"></script>
@@ -2612,7 +2612,20 @@ that position which is also a prefix of the string. Given a string <code>s</code
 length <code>n</code>, the Z-function of <code>s</code> is an array <code>Z</code> of length n where:</p>
 <pre><code>Z[i] = max k such that s[0..k-1] == s[i..i+k-1]
 </code></pre>
-<p>This reminds me about the longest proper prefix suffix array in KMP.</p>
+<p>This reminds me about the longest proper prefix suffix array in KMP.
+But the critical difference is that <code>lps</code> in KMP means this length at the end of
+of the substring, i.e., it is range <code>[i - lps[i] + 1, i]</code>. Certain problem
+requires the start index. You can think we can easily convert the end index to
+start index, something like</p>
+<pre><code>vector&lt;int&gt; lps = ...;
+vector&lt;int&gt; start_ids(n);
+for (int i = 0; i &lt; n; i++) {
+  int start = i - lps[i] + 1;
+  start_ids[start] = max(start_ids[start], lps[i]);
+}
+</code></pre>
+<p>But this is wrong. Not only <code>max</code> the start index, you need to max all range
+<code>[start, i]</code>, which is an obvious <code>N^2</code> post-processing step.</p>
 <p>I send below prompt to claude.ai.</p>
 <blockquote>
 <p>could you do an animation of z-algorithm with details about the definitions
